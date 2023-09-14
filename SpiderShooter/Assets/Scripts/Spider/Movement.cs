@@ -1,9 +1,10 @@
+using Mirror;
 using UnityEngine;
 
 namespace Spider
 {
     [AddComponentMenu("Spider.Movement")]
-    public class Movement : MonoBehaviour
+    public class Movement : NetworkBehaviour
     {
         [SerializeField]
         private Transform mainBody;

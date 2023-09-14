@@ -6,6 +6,7 @@ TagManager:
   tags:
   - SpiderBody
   - Environment
+  - LobbyPlayer
   layers:
   - Default
   - TransparentFX

@@ -4,5 +4,14 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/Kiuh/Offline.unity
+    guid: ba3f9d7f0cd88b048b1d7401ece9d6fb
+  - enabled: 1
+    path: Assets/Scenes/Kiuh/Lobby.unity
+    guid: 557f7a205aaf001478c59b2cfad93500
+  - enabled: 1
+    path: Assets/Scenes/Kiuh/Game.unity
+    guid: 9fc0d4010bbf28b4594072e72b8655ab
   m_configObjects: {}

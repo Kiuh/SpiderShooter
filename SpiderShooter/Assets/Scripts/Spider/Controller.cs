@@ -1,10 +1,11 @@
 ﻿using Assets.Scripts.Spider;
+using Mirror;
 using UnityEngine;
 
 namespace Spider
 {
     [AddComponentMenu("Spider.Controller")]
-    public class Controller : MonoBehaviour
+    public class Controller : NetworkBehaviour
     {
         [SerializeField]
         private Movement movement;
@@ -17,29 +18,37 @@ namespace Spider
 
         private void Update()
         {
-            if (Input.GetKey(KeyCode.D))
+            if (!Application.isFocused)
             {
-                movement.RotateRight();
+                return;
             }
 
-            if (Input.GetKey(KeyCode.A))
+            if (isLocalPlayer)
             {
-                movement.RotateLeft();
-            }
+                if (Input.GetKey(KeyCode.D))
+                {
+                    movement.RotateRight();
+                }
 
-            if (Input.GetKey(KeyCode.W))
-            {
-                movement.MoveForward();
-            }
+                if (Input.GetKey(KeyCode.A))
+                {
+                    movement.RotateLeft();
+                }
 
-            if (Input.GetKey(KeyCode.S))
-            {
-                movement.MoveBackward();
-            }
+                if (Input.GetKey(KeyCode.W))
+                {
+                    movement.MoveForward();
+                }
 
-            if (Input.GetMouseButtonDown(0))
-            {
-                shooting.Shoot(spider);
+                if (Input.GetKey(KeyCode.S))
+                {
+                    movement.MoveBackward();
+                }
+
+                if (Input.GetMouseButtonDown(0))
+                {
+                    shooting.Shoot(spider);
+                }
             }
         }
     }

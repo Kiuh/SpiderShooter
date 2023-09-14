@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts.Spider;
 using Common;
+using Mirror;
 using UnityEngine;
 
 namespace Spider
@@ -7,7 +8,7 @@ namespace Spider
     [SelectionBase]
     [RequireComponent(typeof(Collider))]
     [AddComponentMenu("Spider.Bullet")]
-    public class Bullet : MonoBehaviour
+    public class Bullet : NetworkBehaviour
     {
         [SerializeField]
         [InspectorReadOnly]
@@ -41,17 +42,18 @@ namespace Spider
             transform.Translate(flyingSpeed * Time.deltaTime * flyingDirection);
         }
 
+        [ServerCallback]
         private void OnTriggerEnter(Collider other)
         {
             if (other.gameObject.tag is "Environment")
             {
-                Destroy(gameObject);
+                NetworkServer.Destroy(gameObject);
             }
             if (other.gameObject.tag is "SpiderBody")
             {
                 SpiderImpl spider = other.gameObject.GetComponentInParent<SpiderImpl>();
                 spider.TakeDamage(damage);
-                Destroy(gameObject);
+                NetworkServer.Destroy(gameObject);
             }
         }
     }
