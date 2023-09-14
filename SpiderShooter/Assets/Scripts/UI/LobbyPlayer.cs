@@ -40,7 +40,7 @@ namespace UI
             }
             else
             {
-                playerName.text = $"Player Name: {playerModel.index}";
+                playerName.text = $"P.N.: {playerModel.PlayerName}";
 
                 if (playerModel.isServer) // I am HOST
                 {
@@ -69,7 +69,7 @@ namespace UI
                         itsYou.gameObject.SetActive(true);
                         toggle.gameObject.SetActive(true);
                         toggle.onValueChanged.AddListener(
-                            playerModel.CmdChangeReadyStateAction.Invoke
+                            (x) => playerModel.CmdChangeReadyState(x)
                         );
 
                         subButton.gameObject.SetActive(true);

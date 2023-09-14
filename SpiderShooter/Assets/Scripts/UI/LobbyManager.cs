@@ -23,31 +23,48 @@ namespace UI
         [SerializeField]
         private TMP_Text whoIAM;
 
+        [SerializeField]
+        private TMP_Text lobbyTitle;
+
         public static LobbyManager Singleton { get; private set; }
 
         public void Awake()
         {
             Singleton = this;
+        }
+
+        private void Start()
+        {
             if (!NetworkServer.active)
             {
                 playButton.gameObject.SetActive(false);
                 quitButton.gameObject.SetActive(false);
             }
-        }
-
-        private void Start()
-        {
-            playButton.gameObject.SetActive(NetworkServer.active);
             if (NetworkServer.active)
             {
-                whoIAM.text = "You are client and server.";
+                whoIAM.text =
+                    $"You are client and server. Lobby code: {NetworkRoomManagerExt.Singleton.RoomCode}";
             }
         }
 
-        // Called By Button Quit
-        public void Quit()
+        private string lobbyName;
+        private string lobbyMode;
+
+        public void SetLobbyName(string oldValue, string newValue)
         {
-            NetworkRoomManagerExt.Singleton.StopHost();
+            lobbyName = newValue;
+            SetLobbyTitle(lobbyName, lobbyMode);
+        }
+
+        public void SetLobbyMode(LobbyMode oldValue, LobbyMode newValue)
+        {
+            lobbyMode = newValue == LobbyMode.Private ? "Private" : "Public";
+            SetLobbyTitle(lobbyName, lobbyMode);
+        }
+
+        public void SetLobbyTitle(string lobbyName, string lobbyMode)
+        {
+            lobbyTitle.text = "Lobby: " + lobbyName + " - mode: " + lobbyMode;
         }
 
         public void CreateLobbyPlayerView(NetworkRoomPlayerExt roomPlayerExt)
@@ -60,6 +77,12 @@ namespace UI
         public void Play()
         {
             NetworkRoomManagerExt.Singleton.PlayGameplayScene();
+        }
+
+        // Called By Button Quit
+        public void Quit()
+        {
+            NetworkRoomManagerExt.Singleton.StopHost();
         }
     }
 }
