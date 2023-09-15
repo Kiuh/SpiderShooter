@@ -1,8 +1,8 @@
 ﻿using Mirror;
 using Mirror.Discovery;
+using SpiderShooter.Common;
 using System;
 using System.Net;
-using UI;
 using UnityEngine;
 
 namespace Networking

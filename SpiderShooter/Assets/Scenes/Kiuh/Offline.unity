@@ -1092,7 +1092,7 @@ MonoBehaviour:
   OnServerFound:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1640507860}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: UI.OfflineManager, Assembly-CSharp
         m_MethodName: OnDiscoveredServer
         m_Mode: 0
@@ -1553,9 +1553,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1640507860}
-        m_TargetAssemblyTypeName: OfflineScene, Assembly-CSharp
-        m_MethodName: DirectPlay
+      - m_Target: {fileID: 1640507861}
+        m_TargetAssemblyTypeName: SpiderShooter.OpeningScene.TestView, Assembly-CSharp
+        m_MethodName: OnJoinLobbyButtonPress
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1954,9 +1954,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1640507860}
-        m_TargetAssemblyTypeName: UI.OfflineManager, Assembly-CSharp
-        m_MethodName: CreateOwnLobby
+      - m_Target: {fileID: 1640507861}
+        m_TargetAssemblyTypeName: SpiderShooter.OpeningScene.TestView, Assembly-CSharp
+        m_MethodName: OnCreateLobbyButtonPress
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3065,9 +3065,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1640507859}
+  - component: {fileID: 1640507861}
   - component: {fileID: 1640507860}
   m_Layer: 0
-  m_Name: OfflineManager
+  m_Name: Opening
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3082,7 +3083,7 @@ Transform:
   m_GameObject: {fileID: 1640507858}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 566.70026, y: 336.34653, z: -2.9012306}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3097,17 +3098,30 @@ MonoBehaviour:
   m_GameObject: {fileID: 1640507858}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ffae6103b3301b040adfc93df9bacd5b, type: 3}
+  m_Script: {fileID: 11500000, guid: a5e4efc34f4e6d84abf0479bb38b5528, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   networkDiscovery: {fileID: 501060288}
-  serversCount: {fileID: 2034621055}
-  serverCode: {fileID: 1119935046}
-  serverName: {fileID: 344583034}
-  playerName: {fileID: 382216993}
-  refreshTime: 2
   serverStoragePrefab: {fileID: 66330339046866102, guid: 09946b8d03abb3548bfc935402300056, type: 3}
+  view:
+    _underlyingValue: {fileID: 1640507861}
+  refreshTime: 2
   timer: 0
+--- !u!114 &1640507861
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1640507858}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6be93cc79176a174e8263b5eebe9b59a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  codeToJoinLobby: {fileID: 1119935046}
+  serverNameForCreating: {fileID: 344583034}
+  playerName: {fileID: 382216993}
 --- !u!1 &1689111455
 GameObject:
   m_ObjectHideFlags: 0
@@ -3325,9 +3339,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1640507860}
-        m_TargetAssemblyTypeName: OfflineScene, Assembly-CSharp
-        m_MethodName: PlayRandom
+      - m_Target: {fileID: 1640507861}
+        m_TargetAssemblyTypeName: SpiderShooter.OpeningScene.TestView, Assembly-CSharp
+        m_MethodName: OnPlayRandomLobbyButtonPress
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

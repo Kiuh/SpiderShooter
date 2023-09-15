@@ -1,6 +1,7 @@
 using Assets.Scripts.Spider;
 using InGameNetworking;
 using Mirror;
+using SpiderShooter.Common;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -46,8 +47,6 @@ namespace Networking
                 x => x.TeamColor.Value == TeamColor.Blue && x.TeamColor.IsNotNull
             );
 
-            Debug.Log($"reds {reds}, blues {blues}");
-
             return IsFullLobby
                 ? throw new System.InvalidOperationException()
                 : reds == maxRedTeamCount
@@ -62,7 +61,7 @@ namespace Networking
         public override void OnRoomServerPlayersReady()
         {
             if (
-                ServerStorage.Singleton.LobbyMode == UI.LobbyMode.Public
+                ServerStorage.Singleton.LobbyMode == LobbyMode.Public
                 && minimumPlayersToPlayInPublic <= roomSlots.Count
             )
             {
