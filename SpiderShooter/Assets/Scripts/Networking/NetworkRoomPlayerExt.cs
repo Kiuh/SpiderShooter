@@ -6,8 +6,21 @@ using UnityEngine;
 
 namespace Networking
 {
+    public enum TeamColor
+    {
+        Blue,
+        Red
+    }
+
+    public struct NullableTeamColor
+    {
+        public TeamColor Value;
+        public bool IsNotNull;
+    }
+
     public class NetworkRoomPlayerExt : NetworkRoomPlayer
     {
+        [Header("Custom Properties")]
         [SyncVar]
         [SerializeField]
         [InspectorReadOnly]
@@ -19,9 +32,33 @@ namespace Networking
         }
 
         [Command]
-        public void SetPlayerName(string newValue)
+        public void CmdSetPlayerName(string newValue)
         {
             playerName = newValue;
+        }
+
+        [SyncVar]
+        [SerializeField]
+        [InspectorReadOnly]
+        private NullableTeamColor teamColor;
+        public NullableTeamColor TeamColor
+        {
+            get => teamColor;
+            set => teamColor = value;
+        }
+
+        [Command]
+        public void CmdSetTeamColor(TeamColor newValue)
+        {
+            teamColor.Value = newValue;
+            teamColor.IsNotNull = true;
+        }
+
+        [Command]
+        public void CmdServerChooseTeamColor()
+        {
+            teamColor.Value = NetworkRoomManagerExt.Singleton.GetFreeTeamColor();
+            teamColor.IsNotNull = true;
         }
 
         [SyncVar(hook = nameof(SetLobbyMode))]
@@ -63,7 +100,8 @@ namespace Networking
             }
             if (isLocalPlayer)
             {
-                SetPlayerName(LocalGlobalData.Singleton.PlayerName);
+                CmdSetPlayerName(LocalGlobalData.Singleton.PlayerName);
+                CmdServerChooseTeamColor();
             }
             LobbyManager.Singleton.CreateLobbyPlayerView(this);
         }

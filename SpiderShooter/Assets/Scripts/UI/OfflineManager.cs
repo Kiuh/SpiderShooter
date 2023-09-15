@@ -58,32 +58,17 @@ namespace UI
             Connect(serverCode.text);
         }
 
+        // Called by button
         public void CreateOwnLobby()
         {
             HostOwnServer(LobbyMode.Private);
-        }
-
-        public void HostOwnServer(LobbyMode lobbyMode)
-        {
-            // LAN Host
-            NetworkRoomManagerExt.Singleton.networkAddress = GetLocalIPAddress();
-            NetworkRoomManagerExt.Singleton.StartHost();
-            networkDiscovery.AdvertiseServer();
-
-            ServerStorage storage = Instantiate(serverStoragePrefab);
-            storage.Initialize();
-
-            ServerStorage.Singleton.LobbyMode = lobbyMode;
-            ServerStorage.Singleton.LobbyName =
-                lobbyMode is LobbyMode.Private ? serverName.text : "Random name";
-            LocalGlobalData.Singleton.PlayerName = playerName.text;
         }
 
         // Called by button
         public void PlayRandom()
         {
             IEnumerable<ServerResponseExt> accessedServers = discoveredServers.Values.Where(
-                x => x.LobbyMode == LobbyMode.Public
+                x => x.LobbyMode == LobbyMode.Public && !x.IsFullLobby
             );
             if (accessedServers.Count() > 0)
             {
@@ -92,6 +77,29 @@ namespace UI
             else
             {
                 HostOwnServer(LobbyMode.Public);
+            }
+        }
+
+        public void HostOwnServer(LobbyMode lobbyMode)
+        {
+            try
+            {
+                // LAN Host
+                NetworkRoomManagerExt.Singleton.networkAddress = GetLocalIPAddress();
+                NetworkRoomManagerExt.Singleton.StartHost();
+                networkDiscovery.AdvertiseServer();
+
+                ServerStorage storage = Instantiate(serverStoragePrefab);
+                storage.Initialize();
+
+                ServerStorage.Singleton.LobbyMode = lobbyMode;
+                ServerStorage.Singleton.LobbyName =
+                    lobbyMode is LobbyMode.Private ? serverName.text : "Random name";
+                LocalGlobalData.Singleton.PlayerName = playerName.text;
+            }
+            catch
+            {
+                Debug.Log("One computer cannot have more than one server.");
             }
         }
 
@@ -104,10 +112,20 @@ namespace UI
 
         private void Connect(string code)
         {
-            networkDiscovery.StopDiscovery();
-            NetworkRoomManagerExt.Singleton.networkAddress = "192.168." + code.Replace("-", ".");
-            NetworkRoomManagerExt.Singleton.StartClient();
-            LocalGlobalData.Singleton.PlayerName = playerName.text;
+            string dnsSaveHost = "192.168." + code.Replace("-", ".");
+            ServerResponseExt? server = discoveredServers.Values.FirstOrDefault(
+                x => x.LobbyMode == LobbyMode.Private && x.Uri.DnsSafeHost == dnsSaveHost
+            );
+            if (server == null)
+            {
+                Debug.Log("No such server.");
+            }
+            else
+            {
+                networkDiscovery.StopDiscovery();
+                NetworkRoomManagerExt.Singleton.StartClient(server.Value.Uri);
+                LocalGlobalData.Singleton.PlayerName = playerName.text;
+            }
         }
 
         // Called by Discovered manager

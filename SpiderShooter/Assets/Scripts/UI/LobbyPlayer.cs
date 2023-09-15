@@ -24,6 +24,9 @@ namespace UI
         private TMP_Text subButtonText;
 
         [SerializeField]
+        private TMP_Dropdown dropdownTeamColor;
+
+        [SerializeField]
         [InspectorReadOnly]
         private NetworkRoomPlayerExt playerModel;
 
@@ -41,52 +44,81 @@ namespace UI
             else
             {
                 playerName.text = $"P.N.: {playerModel.PlayerName}";
+                itsYou.gameObject.SetActive(playerModel.isLocalPlayer);
+
+                if (playerModel.isLocalPlayer)
+                {
+                    // Can change ready state
+                    toggle.gameObject.SetActive(true);
+                    toggle.onValueChanged.AddListener((x) => playerModel.CmdChangeReadyState(x));
+
+                    // Can change team color
+                    if (LobbyManager.Singleton.LobbyMode == LobbyMode.Private)
+                    {
+                        dropdownTeamColor.onValueChanged.AddListener(
+                            (index) => playerModel.CmdSetTeamColor((TeamColor)index)
+                        );
+                        playerModel.CmdSetTeamColor((TeamColor)dropdownTeamColor.value);
+                    }
+                    else
+                    {
+                        // Readonly team color
+                        dropdownTeamColor.interactable = false;
+                        dropdownTeamColor.value = (int)playerModel.TeamColor.Value;
+                    }
+                }
+                else
+                {
+                    // Readonly ready state
+                    toggle.interactable = false;
+                    toggle.isOn = playerModel.readyToBegin;
+
+                    // Readonly team color
+                    dropdownTeamColor.interactable = false;
+                    dropdownTeamColor.value = (int)playerModel.TeamColor.Value;
+                }
 
                 if (playerModel.isServer) // I am HOST
                 {
                     if (playerModel.isLocalPlayer)
                     {
-                        itsYou.gameObject.SetActive(true);
-                        toggle.gameObject.SetActive(false);
-                        subButton.gameObject.SetActive(false);
+                        if (LobbyManager.Singleton.LobbyMode == LobbyMode.Public)
+                        {
+                            subButton.gameObject.SetActive(true);
+                            subButtonText.text = "Leave";
+                            subButton.onClick.AddListener(NetworkRoomManagerExt.Singleton.StopHost);
+                        }
+                        else
+                        {
+                            subButton.gameObject.SetActive(false);
+                        }
                     }
                     else
                     {
-                        itsYou.gameObject.SetActive(false);
-                        toggle.interactable = false;
-                        toggle.isOn = playerModel.readyToBegin;
-
-                        subButton.gameObject.SetActive(true);
-                        subButtonText.text = "Delete Player";
-
-                        subButton.onClick.AddListener(playerModel.connectionToClient.Disconnect);
+                        if (LobbyManager.Singleton.LobbyMode != LobbyMode.Public)
+                        {
+                            subButton.gameObject.SetActive(true);
+                            subButtonText.text = "Delete Player";
+                            subButton.onClick.AddListener(
+                                playerModel.connectionToClient.Disconnect
+                            );
+                        }
+                        else
+                        {
+                            subButton.gameObject.SetActive(false);
+                        }
                     }
                 }
                 else // I am CLIENT
                 {
                     if (playerModel.isLocalPlayer)
                     {
-                        itsYou.gameObject.SetActive(true);
-                        toggle.gameObject.SetActive(true);
-                        toggle.onValueChanged.AddListener(
-                            (x) => playerModel.CmdChangeReadyState(x)
-                        );
-
                         subButton.gameObject.SetActive(true);
                         subButtonText.text = "Leave";
-
                         subButton.onClick.AddListener(playerModel.connectionToServer.Disconnect);
                     }
                     else
                     {
-                        itsYou.gameObject.SetActive(false);
-                        if (playerModel.isServer)
-                        {
-                            toggle.isOn = true;
-                        }
-                        toggle.interactable = false;
-                        toggle.isOn = playerModel.readyToBegin;
-
                         subButton.gameObject.SetActive(false);
                     }
                 }

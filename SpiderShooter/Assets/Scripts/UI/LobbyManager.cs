@@ -1,3 +1,4 @@
+using Common;
 using Mirror;
 using Networking;
 using TMPro;
@@ -48,7 +49,11 @@ namespace UI
         }
 
         private string lobbyName;
+
         private string lobbyMode;
+
+        [InspectorReadOnly]
+        public LobbyMode LobbyMode;
 
         public void SetLobbyName(string oldValue, string newValue)
         {
@@ -58,6 +63,12 @@ namespace UI
 
         public void SetLobbyMode(LobbyMode oldValue, LobbyMode newValue)
         {
+            LobbyMode = newValue;
+            if (LobbyMode == LobbyMode.Public)
+            {
+                playButton.gameObject.SetActive(false);
+                quitButton.gameObject.SetActive(false);
+            }
             lobbyMode = newValue == LobbyMode.Private ? "Private" : "Public";
             SetLobbyTitle(lobbyName, lobbyMode);
         }

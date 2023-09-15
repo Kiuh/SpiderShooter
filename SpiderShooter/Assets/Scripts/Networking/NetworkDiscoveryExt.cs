@@ -11,7 +11,9 @@ namespace Networking
     {
         public IPEndPoint EndPoint { get; set; }
 
-        public LobbyMode LobbyMode { get; set; }
+        public bool IsFullLobby;
+
+        public LobbyMode LobbyMode;
 
         public Uri Uri;
 
@@ -38,7 +40,8 @@ namespace Networking
                 {
                     ServerId = ServerId,
                     Uri = transport.ServerUri(),
-                    LobbyMode = ServerStorage.Singleton.LobbyMode
+                    LobbyMode = ServerStorage.Singleton.LobbyMode,
+                    IsFullLobby = NetworkRoomManagerExt.Singleton.IsFullLobby,
                 };
             }
             catch (NotImplementedException)

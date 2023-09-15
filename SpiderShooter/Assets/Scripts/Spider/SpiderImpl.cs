@@ -1,5 +1,7 @@
 ﻿using Cinemachine;
+using Common;
 using Mirror;
+using Networking;
 using System.Linq;
 using UnityEngine;
 
@@ -9,6 +11,36 @@ namespace Assets.Scripts.Spider
     [AddComponentMenu("Spider.SpiderImpl")]
     public class SpiderImpl : NetworkBehaviour
     {
+        [SyncVar]
+        [SerializeField]
+        [InspectorReadOnly]
+        private string playerName;
+        public string PlayerName
+        {
+            get => playerName;
+            set => playerName = value;
+        }
+
+        [SyncVar]
+        [SerializeField]
+        [InspectorReadOnly]
+        private TeamColor teamColor;
+        public TeamColor TeamColor => teamColor;
+
+        [Command(requiresAuthority = false)]
+        public void CmdSetTeamColor(TeamColor teamColor)
+        {
+            this.teamColor = teamColor;
+            Color color = teamColor == TeamColor.Red ? Color.red : Color.blue;
+            foreach (Transform item in transform)
+            {
+                if (item.TryGetComponent(out MeshRenderer meshRenderer))
+                {
+                    meshRenderer.material.color = color;
+                }
+            }
+        }
+
         [SyncVar]
         [SerializeField]
         private float health;
