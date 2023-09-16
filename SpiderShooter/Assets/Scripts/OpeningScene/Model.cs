@@ -80,12 +80,12 @@ namespace SpiderShooter.OpeningScene
 
         private void PlayRandomLobby()
         {
-            ServerResponseExt? accessedServers = discoveredServers.Values.FirstOrDefault(
+            IEnumerable<ServerResponseExt> accessedServers = discoveredServers.Values.Where(
                 x => x.LobbyMode == LobbyMode.Public && !x.IsFullLobby
             );
-            if (accessedServers != null)
+            if (accessedServers.Count() > 0)
             {
-                ConnectToServer(accessedServers.Value.Uri);
+                ConnectToServer(accessedServers.First().Uri);
             }
             else
             {
@@ -117,7 +117,7 @@ namespace SpiderShooter.OpeningScene
         }
 
         // Called by Discovered manager
-        private void OnDiscoveredServer(ServerResponseExt info)
+        public void OnDiscoveredServer(ServerResponseExt info)
         {
             discoveredServers[info.ServerId] = info;
         }
