@@ -1,9 +1,8 @@
-﻿using Common;
-using Mirror;
+﻿using Mirror;
 using SpiderShooter.Common;
 using UnityEngine;
 
-namespace Networking
+namespace SpiderShooter.Networking
 {
     public class ServerStorage : NetworkBehaviour
     {

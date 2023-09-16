@@ -149,7 +149,7 @@ Transform:
   m_GameObject: {fileID: 260211827}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 572.8589, y: 344.97485, z: -3.990258}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -164,7 +164,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 260211827}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0d03c9ef2bf2df3489528ccfd9c5b6a1, type: 3}
+  m_Script: {fileID: 11500000, guid: 1ab93b4f3ada78c4e8d5a176c306fb30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   container: {fileID: 2115936415}
@@ -173,6 +173,7 @@ MonoBehaviour:
   quitButton: {fileID: 1605071270}
   whoIAM: {fileID: 579533522}
   lobbyTitle: {fileID: 689681489}
+  LobbyMode: 0
 --- !u!1 &274665145
 GameObject:
   m_ObjectHideFlags: 0

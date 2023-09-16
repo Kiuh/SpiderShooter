@@ -1,8 +1,7 @@
-﻿using Assets.Scripts;
-using AYellowpaper;
-using Common;
-using Networking;
+﻿using AYellowpaper;
 using SpiderShooter.Common;
+using SpiderShooter.General;
+using SpiderShooter.Networking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -70,7 +69,7 @@ namespace SpiderShooter.OpeningScene
                     lobbyMode == LobbyMode.Private
                         ? view.Value.ServerNameForCreating
                         : GenerateRandomLobbyName();
-                LocalGlobalData.Singleton.PlayerName = view.Value.PlayerName;
+                LocalClientData.Singleton.PlayerName = view.Value.PlayerName;
             }
             catch
             {
@@ -113,7 +112,7 @@ namespace SpiderShooter.OpeningScene
         {
             networkDiscovery.StopDiscovery();
             NetworkRoomManagerExt.Singleton.StartClient(uri);
-            LocalGlobalData.Singleton.PlayerName = view.Value.PlayerName;
+            LocalClientData.Singleton.PlayerName = view.Value.PlayerName;
         }
 
         // Called by Discovered manager

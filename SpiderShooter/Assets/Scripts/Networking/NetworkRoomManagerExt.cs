@@ -1,12 +1,12 @@
-using Assets.Scripts.Spider;
 using InGameNetworking;
 using Mirror;
 using SpiderShooter.Common;
+using SpiderShooter.Spider;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Networking
+namespace SpiderShooter.Networking
 {
     public class NetworkRoomManagerExt : NetworkRoomManager
     {

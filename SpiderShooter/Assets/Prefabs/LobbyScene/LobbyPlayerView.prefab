@@ -1059,7 +1059,7 @@ GameObject:
   - component: {fileID: 4075058833996829043}
   - component: {fileID: 2322653257711298476}
   m_Layer: 0
-  m_Name: PlayerRecord
+  m_Name: LobbyPlayerView
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1136,7 +1136,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3971523894695379103}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0a2502670f207164196acfbbf8c5760d, type: 3}
+  m_Script: {fileID: 11500000, guid: 1a7ce47d1ac0c9449b6d84f3f23cb6f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   toggle: {fileID: 9057113360641153738}

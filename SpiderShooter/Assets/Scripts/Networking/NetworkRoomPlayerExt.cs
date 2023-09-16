@@ -1,18 +1,11 @@
-using Assets.Scripts;
-using Common;
 using Mirror;
 using SpiderShooter.Common;
-using UI;
+using SpiderShooter.General;
+using SpiderShooter.LobbyScene;
 using UnityEngine;
 
-namespace Networking
+namespace SpiderShooter.Networking
 {
-    public enum TeamColor
-    {
-        Blue,
-        Red
-    }
-
     public struct NullableTeamColor
     {
         public TeamColor Value;
@@ -101,7 +94,7 @@ namespace Networking
             }
             if (isLocalPlayer)
             {
-                CmdSetPlayerName(LocalGlobalData.Singleton.PlayerName);
+                CmdSetPlayerName(LocalClientData.Singleton.PlayerName);
                 CmdServerChooseTeamColor();
             }
             LobbyManager.Singleton.CreateLobbyPlayerView(this);

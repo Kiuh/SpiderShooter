@@ -5,7 +5,7 @@ using System;
 using System.Net;
 using UnityEngine;
 
-namespace Networking
+namespace SpiderShooter.Networking
 {
     public struct ServerResponseExt : NetworkMessage
     {

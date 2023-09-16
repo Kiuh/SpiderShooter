@@ -223,7 +223,7 @@ GameObject:
   - component: {fileID: -6056222508009825067}
   - component: {fileID: -1224738104480303377}
   m_Layer: 0
-  m_Name: NETRoomPlayer
+  m_Name: NetworkRoomPlayer
   m_TagString: LobbyPlayer
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

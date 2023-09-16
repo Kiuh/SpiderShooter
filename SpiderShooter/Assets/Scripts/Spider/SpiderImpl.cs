@@ -1,11 +1,10 @@
 ﻿using Cinemachine;
-using Common;
 using Mirror;
-using Networking;
+using SpiderShooter.Common;
 using System.Linq;
 using UnityEngine;
 
-namespace Assets.Scripts.Spider
+namespace SpiderShooter.Spider
 {
     [SelectionBase]
     [AddComponentMenu("Spider.SpiderImpl")]

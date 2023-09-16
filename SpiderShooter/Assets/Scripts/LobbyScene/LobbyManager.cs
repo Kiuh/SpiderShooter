@@ -1,12 +1,11 @@
-using Common;
 using Mirror;
-using Networking;
 using SpiderShooter.Common;
+using SpiderShooter.Networking;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace UI
+namespace SpiderShooter.LobbyScene
 {
     public class LobbyManager : MonoBehaviour
     {

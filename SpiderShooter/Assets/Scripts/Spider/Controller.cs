@@ -1,8 +1,7 @@
-﻿using Assets.Scripts.Spider;
-using Mirror;
+﻿using Mirror;
 using UnityEngine;
 
-namespace Spider
+namespace SpiderShooter.Spider
 {
     [AddComponentMenu("Spider.Controller")]
     public class Controller : NetworkBehaviour

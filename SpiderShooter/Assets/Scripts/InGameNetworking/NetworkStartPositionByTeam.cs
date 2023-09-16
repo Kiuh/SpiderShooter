@@ -1,6 +1,5 @@
-﻿using Common;
-using Mirror;
-using Networking;
+﻿using Mirror;
+using SpiderShooter.Common;
 using UnityEngine;
 
 namespace InGameNetworking

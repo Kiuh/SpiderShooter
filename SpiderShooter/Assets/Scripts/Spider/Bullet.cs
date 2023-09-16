@@ -1,9 +1,8 @@
-﻿using Assets.Scripts.Spider;
-using Common;
-using Mirror;
+﻿using Mirror;
+using SpiderShooter.Common;
 using UnityEngine;
 
-namespace Spider
+namespace SpiderShooter.Spider
 {
     [SelectionBase]
     [RequireComponent(typeof(Collider))]

@@ -1,7 +1,7 @@
 using Mirror;
 using UnityEngine;
 
-namespace Spider
+namespace SpiderShooter.Spider
 {
     [AddComponentMenu("Spider.Movement")]
     public class Movement : NetworkBehaviour
