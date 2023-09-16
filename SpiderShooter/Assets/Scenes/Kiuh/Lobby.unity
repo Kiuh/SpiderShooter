@@ -123,6 +123,50 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &256859102
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 256859103}
+  - component: {fileID: 256859104}
+  m_Layer: 0
+  m_Name: LobbySceneView
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &256859103
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 256859102}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 959.9642, y: 543.765, z: -2.8064227}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &256859104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 256859102}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b4f2df68f42841459a9189e6fb26948, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &260211827
 GameObject:
   m_ObjectHideFlags: 0
@@ -134,7 +178,7 @@ GameObject:
   - component: {fileID: 260211828}
   - component: {fileID: 260211829}
   m_Layer: 0
-  m_Name: LobbyManager
+  m_Name: LobbySceneController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -167,13 +211,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ab93b4f3ada78c4e8d5a176c306fb30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  container: {fileID: 2115936415}
-  lobbyPlayerView: {fileID: 2322653257711298476, guid: c417735eaefd6d648827c4d57dc1c6d9, type: 3}
-  playButton: {fileID: 1915475494}
-  quitButton: {fileID: 1605071270}
-  whoIAM: {fileID: 579533522}
-  lobbyTitle: {fileID: 689681489}
-  LobbyMode: 0
+  view:
+    _underlyingValue: {fileID: 256859104}
+  lobbyPlayerPrefab: {fileID: 3971523894695379103, guid: c417735eaefd6d648827c4d57dc1c6d9, type: 3}
 --- !u!1 &274665145
 GameObject:
   m_ObjectHideFlags: 0
@@ -1164,9 +1204,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 260211829}
+      - m_Target: {fileID: 256859102}
         m_TargetAssemblyTypeName: UI.LobbyManager, Assembly-CSharp
-        m_MethodName: Quit
+        m_MethodName: 
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1600,7 +1640,8 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 2042814612}
+  - {fileID: 1978385700}
   - {fileID: 274665149}
   - {fileID: 593998968}
   - {fileID: 260211828}
-  - {fileID: 1978385700}
+  - {fileID: 256859103}

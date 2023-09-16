@@ -1,4 +1,3 @@
-using InGameNetworking;
 using Mirror;
 using SpiderShooter.Common;
 using SpiderShooter.Spider;
@@ -8,9 +7,10 @@ using UnityEngine;
 
 namespace SpiderShooter.Networking
 {
-    public class NetworkRoomManagerExt : NetworkRoomManager
+    [AddComponentMenu("Networking.RoomManager")]
+    public class RoomManager : NetworkRoomManager
     {
-        public static NetworkRoomManagerExt Singleton { get; private set; }
+        public static RoomManager Singleton { get; private set; }
 
         public string RoomCode =>
             networkAddress.Split('.').Skip(2).Aggregate((x, y) => x + "-" + y);
@@ -38,8 +38,7 @@ namespace SpiderShooter.Networking
 
         public TeamColor GetFreeTeamColor()
         {
-            IEnumerable<NetworkRoomPlayerExt> extRoomsSlots =
-                roomSlots.Cast<NetworkRoomPlayerExt>();
+            IEnumerable<RoomPlayer> extRoomsSlots = roomSlots.Cast<RoomPlayer>();
             int reds = extRoomsSlots.Count(
                 x => x.TeamColor.Value == TeamColor.Red && x.TeamColor.IsNotNull
             );
@@ -76,8 +75,7 @@ namespace SpiderShooter.Networking
                 Debug.Log("Not all players Ready.");
                 return;
             }
-            IEnumerable<NetworkRoomPlayerExt> extRoomsSlots =
-                roomSlots.Cast<NetworkRoomPlayerExt>();
+            IEnumerable<RoomPlayer> extRoomsSlots = roomSlots.Cast<RoomPlayer>();
             if (!extRoomsSlots.Any(x => x.TeamColor.Value == TeamColor.Blue))
             {
                 Debug.Log("At Lest 1 must be in blue team.");
@@ -106,13 +104,13 @@ namespace SpiderShooter.Networking
             GameObject roomPlayer
         )
         {
-            NetworkRoomPlayerExt roomPlayerExt = roomPlayer.GetComponent<NetworkRoomPlayerExt>();
+            RoomPlayer roomPlayerExt = roomPlayer.GetComponent<RoomPlayer>();
 
-            IEnumerable<NetworkStartPositionByTeam> netStartPositions = startPositions.Select(
-                x => x.GetComponent<NetworkStartPositionByTeam>()
+            IEnumerable<StartPosition> netStartPositions = startPositions.Select(
+                x => x.GetComponent<StartPosition>()
             );
 
-            NetworkStartPositionByTeam startPosition = netStartPositions
+            StartPosition startPosition = netStartPositions
                 .Where(x => x.TeamColor == roomPlayerExt.TeamColor.Value && !x.IsBusy)
                 .First();
 

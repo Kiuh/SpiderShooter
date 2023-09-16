@@ -2,9 +2,10 @@
 using SpiderShooter.Common;
 using UnityEngine;
 
-namespace InGameNetworking
+namespace SpiderShooter.Networking
 {
-    public class NetworkStartPositionByTeam : MonoBehaviour
+    [AddComponentMenu("Networking.StartPosition")]
+    public class StartPosition : MonoBehaviour
     {
         [SerializeField]
         private TeamColor teamColor;

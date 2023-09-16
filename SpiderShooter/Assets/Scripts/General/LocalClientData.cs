@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace SpiderShooter.General
 {
+    [AddComponentMenu("General.LocalClientData")]
     public class LocalClientData : MonoBehaviour
     {
         public static LocalClientData Singleton { get; private set; }

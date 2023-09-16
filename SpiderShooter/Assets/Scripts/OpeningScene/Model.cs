@@ -11,17 +11,18 @@ using UnityEngine;
 
 namespace SpiderShooter.OpeningScene
 {
-    [AddComponentMenu("SpiderShooter.OpeningScene.Model")]
+    [AddComponentMenu("OpeningScene.Model")]
     public class Model : MonoBehaviour
     {
         [SerializeField]
-        private NetworkDiscoveryExt networkDiscovery;
+        private ServerDiscovery networkDiscovery;
 
         [SerializeField]
         private ServerStorage serverStoragePrefab;
 
         [SerializeField]
         private InterfaceReference<IView> view;
+        private IView Visual => view.Value;
 
         [SerializeField]
         private float refreshTime = 2f;
@@ -34,9 +35,9 @@ namespace SpiderShooter.OpeningScene
 
         private void Awake()
         {
-            view.Value.OnJoinLobby += () => JoinLobby(view.Value.CodeToJoinLobby);
-            view.Value.OnCreateLobby += () => HostServer(LobbyMode.Private);
-            view.Value.OnPlayRandomLobby += PlayRandomLobby;
+            Visual.OnJoinLobby += () => JoinLobby(Visual.CodeToJoinLobby);
+            Visual.OnCreateLobby += () => HostServer(LobbyMode.Private);
+            Visual.OnPlayRandomLobby += PlayRandomLobby;
 
             networkDiscovery.StartDiscovery();
         }
@@ -57,8 +58,8 @@ namespace SpiderShooter.OpeningScene
             try
             {
                 // LAN Host
-                NetworkRoomManagerExt.Singleton.networkAddress = GetLocalIPAddress();
-                NetworkRoomManagerExt.Singleton.StartHost();
+                RoomManager.Singleton.networkAddress = GetLocalIPAddress();
+                RoomManager.Singleton.StartHost();
                 networkDiscovery.AdvertiseServer();
 
                 ServerStorage storage = Instantiate(serverStoragePrefab);
@@ -67,13 +68,13 @@ namespace SpiderShooter.OpeningScene
                 ServerStorage.Singleton.LobbyMode = lobbyMode;
                 ServerStorage.Singleton.LobbyName =
                     lobbyMode == LobbyMode.Private
-                        ? view.Value.ServerNameForCreating
+                        ? Visual.ServerNameForCreating
                         : GenerateRandomLobbyName();
-                LocalClientData.Singleton.PlayerName = view.Value.PlayerName;
+                LocalClientData.Singleton.PlayerName = Visual.PlayerName;
             }
             catch
             {
-                view.Value.ShowErrorDialog("One computer cannot have more than one server.");
+                Visual.ShowErrorDialog("One computer cannot have more than one server.");
             }
         }
 
@@ -100,7 +101,7 @@ namespace SpiderShooter.OpeningScene
             );
             if (server == null)
             {
-                view.Value.ShowErrorDialog("Cannot find server with this code");
+                Visual.ShowErrorDialog("Cannot find server with this code");
             }
             else
             {
@@ -111,8 +112,8 @@ namespace SpiderShooter.OpeningScene
         private void ConnectToServer(Uri uri)
         {
             networkDiscovery.StopDiscovery();
-            NetworkRoomManagerExt.Singleton.StartClient(uri);
-            LocalClientData.Singleton.PlayerName = view.Value.PlayerName;
+            RoomManager.Singleton.StartClient(uri);
+            LocalClientData.Singleton.PlayerName = Visual.PlayerName;
         }
 
         // Called by Discovered manager

@@ -1058,8 +1058,9 @@ GameObject:
   - component: {fileID: 2492654678843741004}
   - component: {fileID: 4075058833996829043}
   - component: {fileID: 2322653257711298476}
+  - component: {fileID: 9184278238281798888}
   m_Layer: 0
-  m_Name: LobbyPlayerView
+  m_Name: LobbyPlayerViewTest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1139,13 +1140,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a7ce47d1ac0c9449b6d84f3f23cb6f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  toggle: {fileID: 9057113360641153738}
-  playerName: {fileID: 8024665237627482197}
-  itsYou: {fileID: 2524065173649369961}
-  subButton: {fileID: 1386883593631917540}
-  subButtonText: {fileID: 6276531461538236324}
-  dropdownTeamColor: {fileID: 7745273490506846094}
   playerModel: {fileID: 0}
+  view:
+    _underlyingValue: {fileID: 9184278238281798888}
+--- !u!114 &9184278238281798888
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3971523894695379103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4102e920aac761438dec8999ae6f4e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4292594137926236160
 GameObject:
   m_ObjectHideFlags: 0

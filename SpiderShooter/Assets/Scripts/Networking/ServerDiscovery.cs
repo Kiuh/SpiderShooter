@@ -20,7 +20,8 @@ namespace SpiderShooter.Networking
         public long ServerId;
     }
 
-    public class NetworkDiscoveryExt : NetworkDiscoveryBase<ServerRequest, ServerResponseExt>
+    [AddComponentMenu("Networking.ServerDiscovery")]
+    public class ServerDiscovery : NetworkDiscoveryBase<ServerRequest, ServerResponseExt>
     {
         #region Server
 
@@ -41,7 +42,7 @@ namespace SpiderShooter.Networking
                     ServerId = ServerId,
                     Uri = transport.ServerUri(),
                     LobbyMode = ServerStorage.Singleton.LobbyMode,
-                    IsFullLobby = NetworkRoomManagerExt.Singleton.IsFullLobby,
+                    IsFullLobby = RoomManager.Singleton.IsFullLobby,
                 };
             }
             catch (NotImplementedException)

@@ -12,7 +12,8 @@ namespace SpiderShooter.Networking
         public bool IsNotNull;
     }
 
-    public class NetworkRoomPlayerExt : NetworkRoomPlayer
+    [AddComponentMenu("Networking.RoomPlayer")]
+    public class RoomPlayer : NetworkRoomPlayer
     {
         [Header("Custom Properties")]
         [SyncVar]
@@ -51,7 +52,7 @@ namespace SpiderShooter.Networking
         [Command]
         public void CmdServerChooseTeamColor()
         {
-            teamColor.Value = NetworkRoomManagerExt.Singleton.GetFreeTeamColor();
+            teamColor.Value = RoomManager.Singleton.GetFreeTeamColor();
             teamColor.IsNotNull = true;
         }
 
@@ -67,7 +68,7 @@ namespace SpiderShooter.Networking
 
         public void SetLobbyMode(LobbyMode oldValue, LobbyMode newValue)
         {
-            LobbyManager.Singleton.SetLobbyMode(oldValue, newValue);
+            Controller.Singleton.SetLobbyMode(oldValue, newValue);
         }
 
         [SyncVar(hook = nameof(SetLobbyName))]
@@ -82,7 +83,7 @@ namespace SpiderShooter.Networking
 
         public void SetLobbyName(string oldValue, string newValue)
         {
-            LobbyManager.Singleton.SetLobbyName(oldValue, newValue);
+            Controller.Singleton.SetLobbyName(oldValue, newValue);
         }
 
         public override void OnStartClient()
@@ -97,7 +98,7 @@ namespace SpiderShooter.Networking
                 CmdSetPlayerName(LocalClientData.Singleton.PlayerName);
                 CmdServerChooseTeamColor();
             }
-            LobbyManager.Singleton.CreateLobbyPlayerView(this);
+            Controller.Singleton.CreateLobbyPlayer(this);
         }
     }
 }
