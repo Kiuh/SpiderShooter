@@ -16,11 +16,12 @@ namespace Telepathy
         // queue entry message. only used in here.
         // -> byte arrays are always of 4 + MaxMessageSize
         // -> ArraySegment indicates the actual message content
-        struct Entry
+        private struct Entry
         {
             public int connectionId;
             public EventType eventType;
             public ArraySegment<byte> data;
+
             public Entry(int connectionId, EventType eventType, ArraySegment<byte> data)
             {
                 this.connectionId = connectionId;
@@ -33,7 +34,7 @@ namespace Telepathy
         // ConcurrentQueue allocates. lock{} instead.
         //
         // IMPORTANT: lock{} all usages!
-        readonly Queue<Entry> queue = new Queue<Entry>();
+        private readonly Queue<Entry> queue = new();
 
         // byte[] pool to avoid allocations
         // Take & Return is beautifully encapsulated in the pipe.
@@ -41,7 +42,7 @@ namespace Telepathy
         // and it can be tested easily.
         //
         // IMPORTANT: lock{} all usages!
-        Pool<byte[]> pool;
+        private Pool<byte[]> pool;
 
         // unfortunately having one receive pipe per connetionId is way slower
         // in CCU tests. right now we have one pipe for all connections.
@@ -49,7 +50,7 @@ namespace Telepathy
         //    spamming connection being able to slow down everyone else since
         //    the queue would be full of just this connection's messages forever
         // => let's use a simpler per-connectionId counter for now
-        Dictionary<int, int> queueCounter = new Dictionary<int, int>();
+        private Dictionary<int, int> queueCounter = new();
 
         // constructor
         public MagnificentReceivePipe(int MaxMessageSize)
@@ -65,22 +66,32 @@ namespace Telepathy
         {
             lock (this)
             {
-                return queueCounter.TryGetValue(connectionId, out int count)
-                       ? count
-                       : 0;
+                return queueCounter.TryGetValue(connectionId, out int count) ? count : 0;
             }
         }
 
         // total count
         public int TotalCount
         {
-            get { lock (this) { return queue.Count; } }
+            get
+            {
+                lock (this)
+                {
+                    return queue.Count;
+                }
+            }
         }
 
         // pool count for testing
         public int PoolCount
         {
-            get { lock (this) { return pool.Count(); } }
+            get
+            {
+                lock (this)
+                {
+                    return pool.Count();
+                }
+            }
         }
 
         // enqueue a message
@@ -115,7 +126,7 @@ namespace Telepathy
                 // enqueue it
                 // IMPORTANT: pass the segment around pool byte[],
                 //            NOT the 'message' that is only valid until returning!
-                Entry entry = new Entry(connectionId, eventType, segment);
+                Entry entry = new(connectionId, eventType, segment);
                 queue.Enqueue(entry);
 
                 // increase counter for this connectionId
@@ -132,7 +143,11 @@ namespace Telepathy
         // => see TryDequeue comments!
         //
         // IMPORTANT: TryPeek & Dequeue need to be called from the SAME THREAD!
-        public bool TryPeek(out int connectionId, out EventType eventType, out ArraySegment<byte> data)
+        public bool TryPeek(
+            out int connectionId,
+            out EventType eventType,
+            out ArraySegment<byte> data
+        )
         {
             connectionId = 0;
             eventType = EventType.Disconnected;
@@ -187,7 +202,9 @@ namespace Telepathy
                     // remove if zero. don't want to keep old connectionIds in
                     // there forever, it would cause slowly growing memory.
                     if (queueCounter[entry.connectionId] == 0)
-                        queueCounter.Remove(entry.connectionId);
+                    {
+                        _ = queueCounter.Remove(entry.connectionId);
+                    }
 
                     return true;
                 }

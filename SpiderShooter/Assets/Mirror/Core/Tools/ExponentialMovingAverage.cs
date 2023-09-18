@@ -7,8 +7,8 @@ namespace Mirror
 {
     public struct ExponentialMovingAverage
     {
-        readonly double alpha;
-        bool initialized;
+        private readonly double alpha;
+        private bool initialized;
 
         public double Value;
         public double Variance;
@@ -32,7 +32,7 @@ namespace Mirror
             {
                 double delta = newValue - Value;
                 Value += alpha * delta;
-                Variance = (1 - alpha) * (Variance + alpha * delta * delta);
+                Variance = (1 - alpha) * (Variance + (alpha * delta * delta));
                 StandardDeviation = Math.Sqrt(Variance);
             }
             else

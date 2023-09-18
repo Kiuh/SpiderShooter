@@ -1,32 +1,28 @@
 using UnityEngine;
-using System.Collections;
-
 
 namespace TMPro.Examples
 {
-
     public class Benchmark02 : MonoBehaviour
     {
-
         public int SpawnType = 0;
         public int NumberOfNPC = 12;
 
         public bool IsTextObjectScaleStatic;
         private TextMeshProFloatingText floatingText_Script;
 
-
-        void Start()
+        private void Start()
         {
-
             for (int i = 0; i < NumberOfNPC; i++)
             {
-
-
                 if (SpawnType == 0)
                 {
                     // TextMesh Pro Implementation
-                    GameObject go = new GameObject();
-                    go.transform.position = new Vector3(Random.Range(-95f, 95f), 0.25f, Random.Range(-95f, 95f));
+                    GameObject go = new();
+                    go.transform.position = new Vector3(
+                        Random.Range(-95f, 95f),
+                        0.25f,
+                        Random.Range(-95f, 95f)
+                    );
 
                     TextMeshPro textMeshPro = go.AddComponent<TextMeshPro>();
 
@@ -49,8 +45,12 @@ namespace TMPro.Examples
                 else if (SpawnType == 1)
                 {
                     // TextMesh Implementation
-                    GameObject go = new GameObject();
-                    go.transform.position = new Vector3(Random.Range(-95f, 95f), 0.25f, Random.Range(-95f, 95f));
+                    GameObject go = new();
+                    go.transform.position = new Vector3(
+                        Random.Range(-95f, 95f),
+                        0.25f,
+                        Random.Range(-95f, 95f)
+                    );
 
                     TextMesh textMesh = go.AddComponent<TextMesh>();
                     textMesh.font = Resources.Load<Font>("Fonts/ARIAL");
@@ -69,12 +69,16 @@ namespace TMPro.Examples
                 else if (SpawnType == 2)
                 {
                     // Canvas WorldSpace Camera
-                    GameObject go = new GameObject();
+                    GameObject go = new();
                     Canvas canvas = go.AddComponent<Canvas>();
                     canvas.worldCamera = Camera.main;
 
                     go.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-                    go.transform.position = new Vector3(Random.Range(-95f, 95f), 5f, Random.Range(-95f, 95f));
+                    go.transform.position = new Vector3(
+                        Random.Range(-95f, 95f),
+                        5f,
+                        Random.Range(-95f, 95f)
+                    );
 
                     TextMeshProUGUI textObject = new GameObject().AddComponent<TextMeshProUGUI>();
                     textObject.rectTransform.SetParent(go.transform, false);
@@ -88,9 +92,6 @@ namespace TMPro.Examples
                     floatingText_Script = go.AddComponent<TextMeshProFloatingText>();
                     floatingText_Script.SpawnType = 0;
                 }
-
-
-
             }
         }
     }

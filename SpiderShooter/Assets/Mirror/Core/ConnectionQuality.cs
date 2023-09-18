@@ -6,10 +6,10 @@ namespace Mirror
 {
     public enum ConnectionQuality : byte
     {
-        EXCELLENT,  // ideal experience for high level competitors
-        GOOD,       // very playable for everyone but high level competitors
-        FAIR,       // very noticeable latency, not very enjoyable anymore
-        POOR,       // unplayable
+        EXCELLENT, // ideal experience for high level competitors
+        GOOD, // very playable for everyone but high level competitors
+        FAIR, // very noticeable latency, not very enjoyable anymore
+        POOR, // unplayable
         ESTIMATING, // still estimating
     }
 
@@ -21,14 +21,14 @@ namespace Mirror
         // convenience extension to color code Connection Quality
         public static Color ColorCode(this ConnectionQuality quality)
         {
-            switch (quality)
+            return quality switch
             {
-                case ConnectionQuality.EXCELLENT:  return Color.green;
-                case ConnectionQuality.GOOD:       return Color.yellow;
-                case ConnectionQuality.FAIR:       return new Color(1.0f, 0.647f, 0.0f);
-                case ConnectionQuality.POOR:       return Color.red;
-                default:                           return Color.gray;
-            }
+                ConnectionQuality.EXCELLENT => Color.green,
+                ConnectionQuality.GOOD => Color.yellow,
+                ConnectionQuality.FAIR => new Color(1.0f, 0.647f, 0.0f),
+                ConnectionQuality.POOR => Color.red,
+                _ => Color.gray,
+            };
         }
 
         // straight forward estimation
@@ -36,10 +36,13 @@ namespace Mirror
         //   jitter: average latency variance.
         public static ConnectionQuality Simple(double rtt, double jitter)
         {
-            if (rtt <= 0.100 && jitter <= 0.10) return ConnectionQuality.EXCELLENT;
-            if (rtt <= 0.200 && jitter <= 0.20) return ConnectionQuality.GOOD;
-            if (rtt <= 0.400 && jitter <= 0.50) return ConnectionQuality.FAIR;
-            return ConnectionQuality.POOR;
+            return rtt <= 0.100 && jitter <= 0.10
+                ? ConnectionQuality.EXCELLENT
+                : rtt <= 0.200 && jitter <= 0.20
+                    ? ConnectionQuality.GOOD
+                    : rtt <= 0.400 && jitter <= 0.50
+                        ? ConnectionQuality.FAIR
+                        : ConnectionQuality.POOR;
         }
 
         // snapshot interpolation based estimation.
@@ -57,9 +60,20 @@ namespace Mirror
 
             // empirically measured with Tanks demo + LatencySimulation.
             // it's not obvious to estimate on paper.
-            if (multiplier <= 1.15) return ConnectionQuality.EXCELLENT;
-            if (multiplier <= 1.25) return ConnectionQuality.GOOD;
-            if (multiplier <= 1.50) return ConnectionQuality.FAIR;
+            if (multiplier <= 1.15)
+            {
+                return ConnectionQuality.EXCELLENT;
+            }
+
+            if (multiplier <= 1.25)
+            {
+                return ConnectionQuality.GOOD;
+            }
+
+            if (multiplier <= 1.50)
+            {
+                return ConnectionQuality.FAIR;
+            }
 
             // anything else is poor
             return ConnectionQuality.POOR;

@@ -20,25 +20,37 @@ namespace Mirror
             {
                 NetworkServer.aoi = this;
             }
-            else Debug.LogError($"Only one InterestManagement component allowed. {NetworkServer.aoi.GetType()} has been set up already.");
+            else
+            {
+                Debug.LogError(
+                    $"Only one InterestManagement component allowed. {NetworkServer.aoi.GetType()} has been set up already."
+                );
+            }
 
             if (NetworkClient.aoi == null)
             {
                 NetworkClient.aoi = this;
             }
-            else Debug.LogError($"Only one InterestManagement component allowed. {NetworkClient.aoi.GetType()} has been set up already.");
+            else
+            {
+                Debug.LogError(
+                    $"Only one InterestManagement component allowed. {NetworkClient.aoi.GetType()} has been set up already."
+                );
+            }
         }
 
         [ServerCallback]
-        public virtual void Reset() {}
+        public virtual void Reset() { }
 
         // Callback used by the visibility system to determine if an observer
         // (player) can see the NetworkIdentity. If this function returns true,
         // the network connection will be added as an observer.
         //   conn: Network connection of a player.
         //   returns True if the player can see this object.
-        public abstract bool OnCheckObserver(NetworkIdentity identity, NetworkConnectionToClient newObserver);
-
+        public abstract bool OnCheckObserver(
+            NetworkIdentity identity,
+            NetworkConnectionToClient newObserver
+        );
 
         // Callback used by the visibility system for objects on a host.
         // Objects on a host (with a local client) cannot be disabled or
@@ -52,18 +64,20 @@ namespace Mirror
         public virtual void SetHostVisibility(NetworkIdentity identity, bool visible)
         {
             foreach (Renderer rend in identity.GetComponentsInChildren<Renderer>())
+            {
                 rend.enabled = visible;
+            }
         }
 
         /// <summary>Called on the server when a new networked object is spawned.</summary>
         // (useful for 'only rebuild if changed' interest management algorithms)
         [ServerCallback]
-        public virtual void OnSpawned(NetworkIdentity identity) {}
+        public virtual void OnSpawned(NetworkIdentity identity) { }
 
         /// <summary>Called on the server when a networked object is destroyed.</summary>
         // (useful for 'only rebuild if changed' interest management algorithms)
         [ServerCallback]
-        public virtual void OnDestroyed(NetworkIdentity identity) {}
+        public virtual void OnDestroyed(NetworkIdentity identity) { }
 
         public abstract void Rebuild(NetworkIdentity identity, bool initialize);
 
@@ -75,10 +89,13 @@ namespace Mirror
         }
 
         /// <summary>Removes the specified connection from the observers of identity</summary>
-        protected void RemoveObserver(NetworkConnectionToClient connection, NetworkIdentity identity)
+        protected void RemoveObserver(
+            NetworkConnectionToClient connection,
+            NetworkIdentity identity
+        )
         {
             connection.RemoveFromObserving(identity, false);
-            identity.observers.Remove(connection.connectionId);
+            _ = identity.observers.Remove(connection.connectionId);
         }
     }
 }

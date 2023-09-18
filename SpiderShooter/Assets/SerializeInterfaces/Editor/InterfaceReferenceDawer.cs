@@ -15,33 +15,55 @@ namespace AYellowpaper.Editor
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            var prop = property.FindPropertyRelative(_fieldName);
+            SerializedProperty prop = property.FindPropertyRelative(_fieldName);
             InterfaceReferenceUtility.OnGUI(position, prop, label, GetArguments(fieldInfo));
         }
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            var prop = property.FindPropertyRelative(_fieldName);
-            return InterfaceReferenceUtility.GetPropertyHeight(prop, label, GetArguments(fieldInfo));
+            SerializedProperty prop = property.FindPropertyRelative(_fieldName);
+            return InterfaceReferenceUtility.GetPropertyHeight(
+                prop,
+                label,
+                GetArguments(fieldInfo)
+            );
         }
 
-        private static void GetObjectAndInterfaceType(Type fieldType, out Type objectType, out Type interfaceType)
+        private static void GetObjectAndInterfaceType(
+            Type fieldType,
+            out Type objectType,
+            out Type interfaceType
+        )
         {
             if (TryGetTypesFromInterfaceReference(fieldType, out objectType, out interfaceType))
+            {
                 return;
+            }
 
-            TryGetTypesFromList(fieldType, out objectType, out interfaceType);
+            _ = TryGetTypesFromList(fieldType, out objectType, out interfaceType);
         }
 
-        private static bool TryGetTypesFromInterfaceReference(Type fieldType, out Type objectType, out Type interfaceType)
+        private static bool TryGetTypesFromInterfaceReference(
+            Type fieldType,
+            out Type objectType,
+            out Type interfaceType
+        )
         {
-            var fieldBaseType = fieldType;
-            if (fieldType.IsGenericType && fieldType.GetGenericTypeDefinition() == typeof(InterfaceReference<>))
-                fieldBaseType = fieldType.BaseType;
-
-            if (fieldBaseType.IsGenericType && fieldBaseType.GetGenericTypeDefinition() == typeof(InterfaceReference<,>))
+            Type fieldBaseType = fieldType;
+            if (
+                fieldType.IsGenericType
+                && fieldType.GetGenericTypeDefinition() == typeof(InterfaceReference<>)
+            )
             {
-                var types = fieldBaseType.GetGenericArguments();
+                fieldBaseType = fieldType.BaseType;
+            }
+
+            if (
+                fieldBaseType.IsGenericType
+                && fieldBaseType.GetGenericTypeDefinition() == typeof(InterfaceReference<,>)
+            )
+            {
+                Type[] types = fieldBaseType.GetGenericArguments();
                 interfaceType = types[0];
                 objectType = types[1];
                 return true;
@@ -52,18 +74,32 @@ namespace AYellowpaper.Editor
             return false;
         }
 
-        private static bool TryGetTypesFromList(Type fieldType, out Type objectType, out Type interfaceType)
+        private static bool TryGetTypesFromList(
+            Type fieldType,
+            out Type objectType,
+            out Type interfaceType
+        )
         {
-            Type listType = fieldType.GetInterfaces().FirstOrDefault(x =>
-              x.IsGenericType &&
-              x.GetGenericTypeDefinition() == typeof(IList<>));
+            Type listType = fieldType
+                .GetInterfaces()
+                .FirstOrDefault(
+                    x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IList<>)
+                );
 
-            return TryGetTypesFromInterfaceReference(listType.GetGenericArguments()[0], out objectType, out interfaceType);
+            return TryGetTypesFromInterfaceReference(
+                listType.GetGenericArguments()[0],
+                out objectType,
+                out interfaceType
+            );
         }
 
         private static InterfaceObjectArguments GetArguments(FieldInfo fieldInfo)
         {
-            GetObjectAndInterfaceType(fieldInfo.FieldType, out var objectType, out var interfaceType);
+            GetObjectAndInterfaceType(
+                fieldInfo.FieldType,
+                out Type objectType,
+                out Type interfaceType
+            );
             return new InterfaceObjectArguments(objectType, interfaceType);
         }
     }

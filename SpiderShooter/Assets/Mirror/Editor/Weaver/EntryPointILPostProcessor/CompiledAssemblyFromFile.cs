@@ -12,7 +12,7 @@ namespace Mirror.Weaver
 {
     public class CompiledAssemblyFromFile : ICompiledAssembly
     {
-        readonly string assemblyPath;
+        private readonly string assemblyPath;
 
         public string Name => Path.GetFileNameWithoutExtension(assemblyPath);
         public string[] References { get; set; }
@@ -24,7 +24,9 @@ namespace Mirror.Weaver
             this.assemblyPath = assemblyPath;
             byte[] peData = File.ReadAllBytes(assemblyPath);
             string pdbFileName = Path.GetFileNameWithoutExtension(assemblyPath) + ".pdb";
-            byte[] pdbData = File.ReadAllBytes(Path.Combine(Path.GetDirectoryName(assemblyPath), pdbFileName));
+            byte[] pdbData = File.ReadAllBytes(
+                Path.Combine(Path.GetDirectoryName(assemblyPath), pdbFileName)
+            );
             InMemoryAssembly = new InMemoryAssembly(peData, pdbData);
         }
     }

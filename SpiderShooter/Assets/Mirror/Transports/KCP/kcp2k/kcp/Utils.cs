@@ -7,9 +7,11 @@ namespace kcp2k
         // Clamp so we don't have to depend on UnityEngine
         public static int Clamp(int value, int min, int max)
         {
-            if (value < min) return min;
-            if (value > max) return max;
-            return value;
+            return value < min
+                ? min
+                : value > max
+                    ? max
+                    : value;
         }
 
         // encode 8 bits unsigned int

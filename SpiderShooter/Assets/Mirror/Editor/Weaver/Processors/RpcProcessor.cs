@@ -6,24 +6,54 @@ namespace Mirror.Weaver
     // Processes [Rpc] methods in NetworkBehaviour
     public static class RpcProcessor
     {
-        public static MethodDefinition ProcessRpcInvoke(WeaverTypes weaverTypes, Writers writers, Readers readers, Logger Log, TypeDefinition td, MethodDefinition md, MethodDefinition rpcCallFunc, ref bool WeavingFailed)
+        public static MethodDefinition ProcessRpcInvoke(
+            WeaverTypes weaverTypes,
+            Writers writers,
+            Readers readers,
+            Logger Log,
+            TypeDefinition td,
+            MethodDefinition md,
+            MethodDefinition rpcCallFunc,
+            ref bool WeavingFailed
+        )
         {
             string rpcName = Weaver.GenerateMethodName(Weaver.InvokeRpcPrefix, md);
 
-            MethodDefinition rpc = new MethodDefinition(rpcName, MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
-                                                        weaverTypes.Import(typeof(void)));
+            MethodDefinition rpc =
+                new(
+                    rpcName,
+                    MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
+                    weaverTypes.Import(typeof(void))
+                );
 
             ILProcessor worker = rpc.Body.GetILProcessor();
             Instruction label = worker.Create(OpCodes.Nop);
 
-            NetworkBehaviourProcessor.WriteClientActiveCheck(worker, weaverTypes, md.Name, label, "RPC");
+            NetworkBehaviourProcessor.WriteClientActiveCheck(
+                worker,
+                weaverTypes,
+                md.Name,
+                label,
+                "RPC"
+            );
 
             // setup for reader
             worker.Emit(OpCodes.Ldarg_0);
             worker.Emit(OpCodes.Castclass, td);
 
-            if (!NetworkBehaviourProcessor.ReadArguments(md, readers, Log, worker, RemoteCallType.ClientRpc, ref WeavingFailed))
+            if (
+                !NetworkBehaviourProcessor.ReadArguments(
+                    md,
+                    readers,
+                    Log,
+                    worker,
+                    RemoteCallType.ClientRpc,
+                    ref WeavingFailed
+                )
+            )
+            {
                 return null;
+            }
 
             // invoke actual command function
             worker.Emit(OpCodes.Callvirt, rpcCallFunc);
@@ -56,7 +86,15 @@ namespace Mirror.Weaver
             This way we do not need to modify the code anywhere else,  and this works
             correctly in dependent assemblies
         */
-        public static MethodDefinition ProcessRpcCall(WeaverTypes weaverTypes, Writers writers, Logger Log, TypeDefinition td, MethodDefinition md, CustomAttribute clientRpcAttr, ref bool WeavingFailed)
+        public static MethodDefinition ProcessRpcCall(
+            WeaverTypes weaverTypes,
+            Writers writers,
+            Logger Log,
+            TypeDefinition td,
+            MethodDefinition md,
+            CustomAttribute clientRpcAttr,
+            ref bool WeavingFailed
+        )
         {
             MethodDefinition rpc = MethodProcessor.SubstituteMethod(Log, td, md, ref WeavingFailed);
 
@@ -71,8 +109,19 @@ namespace Mirror.Weaver
             NetworkBehaviourProcessor.WriteGetWriter(worker, weaverTypes);
 
             // write all the arguments that the user passed to the Rpc call
-            if (!NetworkBehaviourProcessor.WriteArguments(worker, writers, Log, md, RemoteCallType.ClientRpc, ref WeavingFailed))
+            if (
+                !NetworkBehaviourProcessor.WriteArguments(
+                    worker,
+                    writers,
+                    Log,
+                    md,
+                    RemoteCallType.ClientRpc,
+                    ref WeavingFailed
+                )
+            )
+            {
                 return null;
+            }
 
             int channel = clientRpcAttr.GetField("channel", 0);
             bool includeOwner = clientRpcAttr.GetField("includeOwner", true);
@@ -84,7 +133,7 @@ namespace Mirror.Weaver
             worker.Emit(OpCodes.Ldstr, md.FullName);
             // pass the function hash so we don't have to compute it at runtime
             // otherwise each GetStableHash call requires O(N) complexity.
-            // noticeable for long function names: 
+            // noticeable for long function names:
             // https://github.com/MirrorNetworking/Mirror/issues/3375
             worker.Emit(OpCodes.Ldc_I4, md.FullName.GetStableHashCode());
             // writer

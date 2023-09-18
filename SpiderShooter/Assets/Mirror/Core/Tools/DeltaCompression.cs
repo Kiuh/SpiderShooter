@@ -10,12 +10,16 @@ namespace Mirror
         // delta (usually small), then zigzag varint to support +- changes
         // parameter order: (last, current) makes most sense (Q3 does this too).
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Compress(NetworkWriter writer, long last, long current) =>
+        public static void Compress(NetworkWriter writer, long last, long current)
+        {
             Compression.CompressVarInt(writer, current - last);
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static long Decompress(NetworkReader reader, long last) =>
-            last + Compression.DecompressVarInt(reader);
+        public static long Decompress(NetworkReader reader, long last)
+        {
+            return last + Compression.DecompressVarInt(reader);
+        }
 
         // delta (usually small), then zigzag varint to support +- changes
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

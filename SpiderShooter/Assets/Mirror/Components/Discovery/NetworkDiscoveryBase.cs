@@ -21,7 +21,8 @@ namespace Mirror.Discovery
         where Request : NetworkMessage
         where Response : NetworkMessage
     {
-        public static bool SupportedOnThisPlatform { get { return Application.platform != RuntimePlatform.WebGLPlayer; } }
+        public static bool SupportedOnThisPlatform =>
+            Application.platform != RuntimePlatform.WebGLPlayer;
 
         [SerializeField]
         [Tooltip("If true, broadcasts a discovery request every ActiveDiscoveryInterval seconds")]
@@ -39,7 +40,7 @@ namespace Mirror.Discovery
         [SerializeField]
         [Tooltip("Time in seconds between multi-cast messages")]
         [Range(1, 60)]
-        float ActiveDiscoveryInterval = 3;
+        private float ActiveDiscoveryInterval = 3;
 
         [Tooltip("Transport to be advertised during discovery")]
         public Transport transport;
@@ -61,7 +62,9 @@ namespace Mirror.Discovery
         public virtual void OnValidate()
         {
             if (transport == null)
+            {
                 transport = GetComponent<Transport>();
+            }
 
             if (secretHandshake == 0)
             {
@@ -82,7 +85,9 @@ namespace Mirror.Discovery
             // so make sure we set it here in Start() after Awake
             // Or just let the user assign it in the inspector
             if (transport == null)
+            {
                 transport = Transport.active;
+            }
 
             // Server mode? then start advertising
 #if UNITY_SERVER
@@ -98,25 +103,25 @@ namespace Mirror.Discovery
         }
 
         // Ensure the ports are cleared no matter when Game/Unity UI exits
-        void OnApplicationQuit()
+        private void OnApplicationQuit()
         {
             //Debug.Log("NetworkDiscoveryBase OnApplicationQuit");
             Shutdown();
         }
 
-        void OnDisable()
+        private void OnDisable()
         {
             //Debug.Log("NetworkDiscoveryBase OnDisable");
             Shutdown();
         }
 
-        void OnDestroy()
+        private void OnDestroy()
         {
             //Debug.Log("NetworkDiscoveryBase OnDestroy");
             Shutdown();
         }
 
-        void Shutdown()
+        private void Shutdown()
         {
             EndpMulticastLock();
             if (serverUdpClient != null)
@@ -158,7 +163,11 @@ namespace Mirror.Discovery
         public void AdvertiseServer()
         {
             if (!SupportedOnThisPlatform)
-                throw new PlatformNotSupportedException("Network discovery not supported in this platform");
+            {
+                throw new PlatformNotSupportedException(
+                    "Network discovery not supported in this platform"
+                );
+            }
 
             StopDiscovery();
 
@@ -187,30 +196,30 @@ namespace Mirror.Discovery
                     // socket has been closed
                     break;
                 }
-                catch (Exception) {}
+                catch (Exception) { }
             }
         }
 
-        async Task ReceiveRequestAsync(UdpClient udpClient)
+        private async Task ReceiveRequestAsync(UdpClient udpClient)
         {
             // only proceed if there is available data in network buffer, or otherwise Receive() will block
             // average time for UdpClient.Available : 10 us
 
             UdpReceiveResult udpReceiveResult = await udpClient.ReceiveAsync();
 
-            using (NetworkReaderPooled networkReader = NetworkReaderPool.Get(udpReceiveResult.Buffer))
+            using NetworkReaderPooled networkReader = NetworkReaderPool.Get(
+                udpReceiveResult.Buffer
+            );
+            long handshake = networkReader.ReadLong();
+            if (handshake != secretHandshake)
             {
-                long handshake = networkReader.ReadLong();
-                if (handshake != secretHandshake)
-                {
-                    // message is not for us
-                    throw new ProtocolViolationException("Invalid handshake");
-                }
-
-                Request request = networkReader.Read<Request>();
-
-                ProcessClientRequest(request, udpReceiveResult.RemoteEndPoint);
+                // message is not for us
+                throw new ProtocolViolationException("Invalid handshake");
             }
+
+            Request request = networkReader.Read<Request>();
+
+            ProcessClientRequest(request, udpReceiveResult.RemoteEndPoint);
         }
 
         /// <summary>
@@ -227,25 +236,25 @@ namespace Mirror.Discovery
             Response info = ProcessRequest(request, endpoint);
 
             if (info == null)
-                return;
-
-            using (NetworkWriterPooled writer = NetworkWriterPool.Get())
             {
-                try
-                {
-                    writer.WriteLong(secretHandshake);
+                return;
+            }
 
-                    writer.Write(info);
+            using NetworkWriterPooled writer = NetworkWriterPool.Get();
+            try
+            {
+                writer.WriteLong(secretHandshake);
 
-                    ArraySegment<byte> data = writer.ToArraySegment();
-                    // signature matches
-                    // send response
-                    serverUdpClient.Send(data.Array, data.Count, endpoint);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogException(ex, this);
-                }
+                writer.Write(info);
+
+                ArraySegment<byte> data = writer.ToArraySegment();
+                // signature matches
+                // send response
+                _ = serverUdpClient.Send(data.Array, data.Count, endpoint);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex, this);
             }
         }
 
@@ -267,37 +276,51 @@ namespace Mirror.Discovery
         bool hasMulticastLock;
 #endif
 
-        void BeginMulticastLock()
-		{
+        private void BeginMulticastLock()
+        {
 #if UNITY_ANDROID
-            if (hasMulticastLock) return;
+            if (hasMulticastLock)
+                return;
 
             if (Application.platform == RuntimePlatform.Android)
             {
-                using (AndroidJavaObject activity = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity"))
+                using (
+                    AndroidJavaObject activity = new AndroidJavaClass(
+                        "com.unity3d.player.UnityPlayer"
+                    ).GetStatic<AndroidJavaObject>("currentActivity")
+                )
                 {
-                    using (var wifiManager = activity.Call<AndroidJavaObject>("getSystemService", "wifi"))
+                    using (
+                        var wifiManager = activity.Call<AndroidJavaObject>(
+                            "getSystemService",
+                            "wifi"
+                        )
+                    )
                     {
-                        multicastLock = wifiManager.Call<AndroidJavaObject>("createMulticastLock", "lock");
+                        multicastLock = wifiManager.Call<AndroidJavaObject>(
+                            "createMulticastLock",
+                            "lock"
+                        );
                         multicastLock.Call("acquire");
                         hasMulticastLock = true;
                     }
                 }
-			}
+            }
 #endif
         }
 
-        void EndpMulticastLock()
+        private void EndpMulticastLock()
         {
 #if UNITY_ANDROID
-            if (!hasMulticastLock) return;
+            if (!hasMulticastLock)
+                return;
 
             multicastLock?.Call("release");
             hasMulticastLock = false;
 #endif
         }
 
-#endregion
+        #endregion
 
         #region Client
 
@@ -307,7 +330,11 @@ namespace Mirror.Discovery
         public void StartDiscovery()
         {
             if (!SupportedOnThisPlatform)
-                throw new PlatformNotSupportedException("Network discovery not supported in this platform");
+            {
+                throw new PlatformNotSupportedException(
+                    "Network discovery not supported in this platform"
+                );
+            }
 
             StopDiscovery();
 
@@ -330,7 +357,10 @@ namespace Mirror.Discovery
 
             _ = ClientListenAsync();
 
-            if (enableActiveDiscovery) InvokeRepeating(nameof(BroadcastDiscoveryRequest), 0, ActiveDiscoveryInterval);
+            if (enableActiveDiscovery)
+            {
+                InvokeRepeating(nameof(BroadcastDiscoveryRequest), 0, ActiveDiscoveryInterval);
+            }
         }
 
         /// <summary>
@@ -383,7 +413,9 @@ namespace Mirror.Discovery
         public void BroadcastDiscoveryRequest()
         {
             if (clientUdpClient == null)
+            {
                 return;
+            }
 
             if (NetworkClient.isConnected)
             {
@@ -391,13 +423,16 @@ namespace Mirror.Discovery
                 return;
             }
 
-            IPEndPoint endPoint = new IPEndPoint(IPAddress.Broadcast, serverBroadcastListenPort);
+            IPEndPoint endPoint = new(IPAddress.Broadcast, serverBroadcastListenPort);
 
             if (!string.IsNullOrWhiteSpace(BroadcastAddress))
             {
                 try
                 {
-                    endPoint = new IPEndPoint(IPAddress.Parse(BroadcastAddress), serverBroadcastListenPort);
+                    endPoint = new IPEndPoint(
+                        IPAddress.Parse(BroadcastAddress),
+                        serverBroadcastListenPort
+                    );
                 }
                 catch (Exception ex)
                 {
@@ -405,24 +440,22 @@ namespace Mirror.Discovery
                 }
             }
 
-            using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+            using NetworkWriterPooled writer = NetworkWriterPool.Get();
+            writer.WriteLong(secretHandshake);
+
+            try
             {
-                writer.WriteLong(secretHandshake);
+                Request request = GetRequest();
 
-                try
-                {
-                    Request request = GetRequest();
+                writer.Write(request);
 
-                    writer.Write(request);
+                ArraySegment<byte> data = writer.ToArraySegment();
 
-                    ArraySegment<byte> data = writer.ToArraySegment();
-
-                    clientUdpClient.SendAsync(data.Array, data.Count, endPoint);
-                }
-                catch (Exception)
-                {
-                    // It is ok if we can't broadcast to one of the addresses
-                }
+                _ = clientUdpClient.SendAsync(data.Array, data.Count, endPoint);
+            }
+            catch (Exception)
+            {
+                // It is ok if we can't broadcast to one of the addresses
             }
         }
 
@@ -433,24 +466,29 @@ namespace Mirror.Discovery
         /// Override if you wish to include additional data in the discovery message
         /// such as desired game mode, language, difficulty, etc... </remarks>
         /// <returns>An instance of ServerRequest with data to be broadcasted</returns>
-        protected virtual Request GetRequest() => default;
+        protected virtual Request GetRequest()
+        {
+            return default;
+        }
 
-        async Task ReceiveGameBroadcastAsync(UdpClient udpClient)
+        private async Task ReceiveGameBroadcastAsync(UdpClient udpClient)
         {
             // only proceed if there is available data in network buffer, or otherwise Receive() will block
             // average time for UdpClient.Available : 10 us
 
             UdpReceiveResult udpReceiveResult = await udpClient.ReceiveAsync();
 
-            using (NetworkReaderPooled networkReader = NetworkReaderPool.Get(udpReceiveResult.Buffer))
+            using NetworkReaderPooled networkReader = NetworkReaderPool.Get(
+                udpReceiveResult.Buffer
+            );
+            if (networkReader.ReadLong() != secretHandshake)
             {
-                if (networkReader.ReadLong() != secretHandshake)
-                    return;
-
-                Response response = networkReader.Read<Response>();
-
-                ProcessResponse(response, udpReceiveResult.RemoteEndPoint);
+                return;
             }
+
+            Response response = networkReader.Read<Response>();
+
+            ProcessResponse(response, udpReceiveResult.RemoteEndPoint);
         }
 
         /// <summary>

@@ -36,7 +36,9 @@ namespace Mirror
         {
             // enough time elapsed?
             if (time < lastTime + interval)
+            {
                 return false;
+            }
 
             // naive implementation:
             //lastTime = time;

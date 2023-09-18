@@ -10,8 +10,7 @@ namespace Mirror
     public class MultiplexTransport : Transport
     {
         public Transport[] transports;
-
-        Transport available;
+        private Transport available;
 
         // underlying transport connectionId to multiplexed connectionId lookup.
         //
@@ -32,21 +31,19 @@ namespace Mirror
         // with initial capacity to avoid runtime allocations.
 
         // (original connectionId, transport#) to multiplexed connectionId
-        readonly Dictionary<KeyValuePair<int, int>, int> originalToMultiplexedId =
-            new Dictionary<KeyValuePair<int, int>, int>(100);
+        private readonly Dictionary<KeyValuePair<int, int>, int> originalToMultiplexedId = new(100);
 
         // multiplexed connectionId to (original connectionId, transport#)
-        readonly Dictionary<int, KeyValuePair<int, int>> multiplexedToOriginalId =
-            new Dictionary<int, KeyValuePair<int, int>>(100);
+        private readonly Dictionary<int, KeyValuePair<int, int>> multiplexedToOriginalId = new(100);
 
         // next multiplexed id counter. start at 1 because 0 is reserved for host.
-        int nextMultiplexedId = 1;
+        private int nextMultiplexedId = 1;
 
         // add to bidirection lookup. returns the multiplexed connectionId.
         public int AddToLookup(int originalConnectionId, int transportIndex)
         {
             // add to both
-            KeyValuePair<int, int> pair = new KeyValuePair<int, int>(originalConnectionId, transportIndex);
+            KeyValuePair<int, int> pair = new(originalConnectionId, transportIndex);
             int multiplexedId = nextMultiplexedId++;
 
             originalToMultiplexedId[pair] = multiplexedId;
@@ -58,23 +55,27 @@ namespace Mirror
         public void RemoveFromLookup(int originalConnectionId, int transportIndex)
         {
             // remove from both
-            KeyValuePair<int, int> pair = new KeyValuePair<int, int>(originalConnectionId, transportIndex);
+            KeyValuePair<int, int> pair = new(originalConnectionId, transportIndex);
             int multiplexedId = originalToMultiplexedId[pair];
 
-            originalToMultiplexedId.Remove(pair);
-            multiplexedToOriginalId.Remove(multiplexedId);
+            _ = originalToMultiplexedId.Remove(pair);
+            _ = multiplexedToOriginalId.Remove(multiplexedId);
         }
 
-        public void OriginalId(int multiplexId, out int originalConnectionId, out int transportIndex)
+        public void OriginalId(
+            int multiplexId,
+            out int originalConnectionId,
+            out int transportIndex
+        )
         {
             KeyValuePair<int, int> pair = multiplexedToOriginalId[multiplexId];
             originalConnectionId = pair.Key;
-            transportIndex       = pair.Value;
+            transportIndex = pair.Value;
         }
 
         public int MultiplexId(int originalConnectionId, int transportIndex)
         {
-            KeyValuePair<int, int> pair = new KeyValuePair<int, int>(originalConnectionId, transportIndex);
+            KeyValuePair<int, int> pair = new(originalConnectionId, transportIndex);
             return originalToMultiplexedId[pair];
         }
 
@@ -84,52 +85,70 @@ namespace Mirror
         {
             if (transports == null || transports.Length == 0)
             {
-                Debug.LogError("[Multiplexer] Multiplex transport requires at least 1 underlying transport");
+                Debug.LogError(
+                    "[Multiplexer] Multiplex transport requires at least 1 underlying transport"
+                );
             }
         }
 
         public override void ClientEarlyUpdate()
         {
             foreach (Transport transport in transports)
+            {
                 transport.ClientEarlyUpdate();
+            }
         }
 
         public override void ServerEarlyUpdate()
         {
             foreach (Transport transport in transports)
+            {
                 transport.ServerEarlyUpdate();
+            }
         }
 
         public override void ClientLateUpdate()
         {
             foreach (Transport transport in transports)
+            {
                 transport.ClientLateUpdate();
+            }
         }
 
         public override void ServerLateUpdate()
         {
             foreach (Transport transport in transports)
+            {
                 transport.ServerLateUpdate();
+            }
         }
 
-        void OnEnable()
+        private void OnEnable()
         {
             foreach (Transport transport in transports)
+            {
                 transport.enabled = true;
+            }
         }
 
-        void OnDisable()
+        private void OnDisable()
         {
             foreach (Transport transport in transports)
+            {
                 transport.enabled = false;
+            }
         }
 
         public override bool Available()
         {
             // available if any of the transports is available
             foreach (Transport transport in transports)
+            {
                 if (transport.Available())
+                {
                     return true;
+                }
+            }
 
             return false;
         }
@@ -186,8 +205,7 @@ namespace Mirror
 
         public override void ClientDisconnect()
         {
-            if ((object)available != null)
-                available.ClientDisconnect();
+            available?.ClientDisconnect();
         }
 
         public override void ClientSend(ArraySegment<byte> segment, int channelId)
@@ -198,7 +216,7 @@ namespace Mirror
         #endregion
 
         #region Server
-        void AddServerCallbacks()
+        private void AddServerCallbacks()
         {
             // all underlying transports should call the multiplex transport's events
             for (int i = 0; i < transports.Length; i++)
@@ -208,12 +226,12 @@ namespace Mirror
                 int transportIndex = i;
                 Transport transport = transports[i];
 
-                transport.OnServerConnected = (originalConnectionId =>
+                transport.OnServerConnected = originalConnectionId =>
                 {
                     // invoke Multiplex event with multiplexed connectionId
                     int multiplexedId = AddToLookup(originalConnectionId, transportIndex);
                     OnServerConnected.Invoke(multiplexedId);
-                });
+                };
 
                 transport.OnServerDataReceived = (originalConnectionId, data, channel) =>
                 {
@@ -241,15 +259,21 @@ namespace Mirror
 
         // for now returns the first uri,
         // should we return all available uris?
-        public override Uri ServerUri() =>
-            transports[0].ServerUri();
+        public override Uri ServerUri()
+        {
+            return transports[0].ServerUri();
+        }
 
         public override bool ServerActive()
         {
             // avoid Linq.All allocations
             foreach (Transport transport in transports)
+            {
                 if (!transport.ServerActive())
+                {
                     return false;
+                }
+            }
 
             return true;
         }
@@ -280,13 +304,17 @@ namespace Mirror
             AddServerCallbacks();
 
             foreach (Transport transport in transports)
+            {
                 transport.ServerStart();
+            }
         }
 
         public override void ServerStop()
         {
             foreach (Transport transport in transports)
+            {
                 transport.ServerStop();
+            }
         }
         #endregion
 
@@ -315,15 +343,19 @@ namespace Mirror
         public override void Shutdown()
         {
             foreach (Transport transport in transports)
+            {
                 transport.Shutdown();
+            }
         }
 
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new();
 
             foreach (Transport transport in transports)
-                builder.AppendLine(transport.ToString());
+            {
+                _ = builder.AppendLine(transport.ToString());
+            }
 
             return builder.ToString().Trim();
         }

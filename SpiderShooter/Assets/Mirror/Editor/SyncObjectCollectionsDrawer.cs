@@ -8,7 +8,7 @@ using UnityEditor;
 
 namespace Mirror
 {
-    class SyncObjectCollectionField
+    internal class SyncObjectCollectionField
     {
         public bool visible;
         public readonly FieldInfo field;
@@ -24,19 +24,26 @@ namespace Mirror
 
     public class SyncObjectCollectionsDrawer
     {
-        readonly UnityEngine.Object targetObject;
-        readonly List<SyncObjectCollectionField> syncObjectCollectionFields;
+        private readonly UnityEngine.Object targetObject;
+        private readonly List<SyncObjectCollectionField> syncObjectCollectionFields;
 
         public SyncObjectCollectionsDrawer(UnityEngine.Object targetObject)
         {
             this.targetObject = targetObject;
             syncObjectCollectionFields = new List<SyncObjectCollectionField>();
-            foreach (FieldInfo field in InspectorHelper.GetAllFields(targetObject.GetType(), typeof(NetworkBehaviour)))
+            foreach (
+                FieldInfo field in InspectorHelper.GetAllFields(
+                    targetObject.GetType(),
+                    typeof(NetworkBehaviour)
+                )
+            )
             {
                 // only draw SyncObjects that are IEnumerable (SyncList/Set/Dictionary)
-                if (field.IsVisibleSyncObject() &&
-                    field.ImplementsInterface<SyncObject>() &&
-                    field.ImplementsInterface<IEnumerable>())
+                if (
+                    field.IsVisibleSyncObject()
+                    && field.ImplementsInterface<SyncObject>()
+                    && field.ImplementsInterface<IEnumerable>()
+                )
                 {
                     syncObjectCollectionFields.Add(new SyncObjectCollectionField(field));
                 }
@@ -45,7 +52,10 @@ namespace Mirror
 
         public void Draw()
         {
-            if (syncObjectCollectionFields.Count == 0) { return; }
+            if (syncObjectCollectionFields.Count == 0)
+            {
+                return;
+            }
 
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Sync Collections", EditorStyles.boldLabel);
@@ -56,9 +66,12 @@ namespace Mirror
             }
         }
 
-        void DrawSyncObjectCollection(SyncObjectCollectionField syncObjectCollectionField)
+        private void DrawSyncObjectCollection(SyncObjectCollectionField syncObjectCollectionField)
         {
-            syncObjectCollectionField.visible = EditorGUILayout.Foldout(syncObjectCollectionField.visible, syncObjectCollectionField.label);
+            syncObjectCollectionField.visible = EditorGUILayout.Foldout(
+                syncObjectCollectionField.visible,
+                syncObjectCollectionField.label
+            );
             if (syncObjectCollectionField.visible)
             {
                 using (new EditorGUI.IndentLevelScope())

@@ -22,7 +22,7 @@ namespace Telepathy
         // -> call Set() if everything was sent
         // -> call Reset() if there is something to send again
         // -> call WaitOne() to block until Reset was called
-        public ManualResetEvent sendPending = new ManualResetEvent(false);
+        public ManualResetEvent sendPending = new(false);
 
         public ConnectionState(TcpClient client, int MaxMessageSize)
         {

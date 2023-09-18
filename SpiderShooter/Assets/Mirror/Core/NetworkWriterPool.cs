@@ -11,12 +11,13 @@ namespace Mirror
         // position before reusing.
         // this is also more consistent with NetworkReaderPool where we need to
         // assign the internal buffer before reusing.
-        static readonly Pool<NetworkWriterPooled> Pool = new Pool<NetworkWriterPooled>(
-            () => new NetworkWriterPooled(),
-            // initial capacity to avoid allocations in the first few frames
-            // 1000 * 1200 bytes = around 1 MB.
-            1000
-        );
+        private static readonly Pool<NetworkWriterPooled> Pool =
+            new(
+                () => new NetworkWriterPooled(),
+                // initial capacity to avoid allocations in the first few frames
+                // 1000 * 1200 bytes = around 1 MB.
+                1000
+            );
 
         /// <summary>Get a writer from the pool. Creates new one if pool is empty.</summary>
         public static NetworkWriterPooled Get()

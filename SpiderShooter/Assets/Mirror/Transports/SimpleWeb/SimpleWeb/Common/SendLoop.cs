@@ -12,9 +12,10 @@ namespace Mirror.SimpleWeb
         public static volatile bool batchSend = false;
         public static volatile bool sleepBeforeSend = false;
     }
+
     internal static class SendLoop
     {
-        public struct Config
+        public readonly struct Config
         {
             public readonly Connection conn;
             public readonly int bufferSize;
@@ -51,7 +52,9 @@ namespace Mirror.SimpleWeb
 
                 // null check in case disconnect while send thread is starting
                 if (client == null)
+                {
                     return;
+                }
 
                 while (client.Connected)
                 {
@@ -59,7 +62,9 @@ namespace Mirror.SimpleWeb
                     conn.sendPending.Wait();
                     // wait for 1ms for mirror to send other messages
                     if (SendLoopConfig.sleepBeforeSend)
+                    {
                         Thread.Sleep(1);
+                    }
 
                     conn.sendPending.Reset();
 
@@ -115,8 +120,14 @@ namespace Mirror.SimpleWeb
 
                 Log.Info($"[SimpleWebTransport] {conn} Not Connected");
             }
-            catch (ThreadInterruptedException e) { Log.InfoException(e); }
-            catch (ThreadAbortException e) { Log.InfoException(e); }
+            catch (ThreadInterruptedException e)
+            {
+                Log.InfoException(e);
+            }
+            catch (ThreadAbortException e)
+            {
+                Log.InfoException(e);
+            }
             catch (Exception e)
             {
                 Log.Exception(e);
@@ -130,7 +141,13 @@ namespace Mirror.SimpleWeb
         }
 
         /// <returns>new offset in buffer</returns>
-        static int SendMessage(byte[] buffer, int startOffset, ArrayBuffer msg, bool setMask, MaskHelper maskHelper)
+        private static int SendMessage(
+            byte[] buffer,
+            int startOffset,
+            ArrayBuffer msg,
+            bool setMask,
+            MaskHelper maskHelper
+        )
         {
             int msgLength = msg.count;
             int offset = WriteHeader(buffer, startOffset, msgLength, setMask);
@@ -149,7 +166,13 @@ namespace Mirror.SimpleWeb
             if (setMask)
             {
                 int messageOffset = offset - msgLength;
-                MessageProcessor.ToggleMask(buffer, messageOffset, msgLength, buffer, messageOffset - Constants.MaskSize);
+                MessageProcessor.ToggleMask(
+                    buffer,
+                    messageOffset,
+                    msgLength,
+                    buffer,
+                    messageOffset - Constants.MaskSize
+                );
             }
 
             return offset;
@@ -193,22 +216,25 @@ namespace Mirror.SimpleWeb
             }
 
             if (setMask)
+            {
                 buffer[startOffset + 1] |= 0b1000_0000;
+            }
 
             return sendLength + startOffset;
         }
-
     }
-    sealed class MaskHelper : IDisposable
+
+    internal sealed class MaskHelper : IDisposable
     {
-        readonly byte[] maskBuffer;
-        readonly RNGCryptoServiceProvider random;
+        private readonly byte[] maskBuffer;
+        private readonly RNGCryptoServiceProvider random;
 
         public MaskHelper()
         {
             maskBuffer = new byte[4];
             random = new RNGCryptoServiceProvider();
         }
+
         public void Dispose()
         {
             random.Dispose();

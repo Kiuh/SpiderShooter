@@ -10,7 +10,9 @@ namespace Mirror.Weaver
 {
     internal class ILPostProcessorReflectionImporterProvider : IReflectionImporterProvider
     {
-        public IReflectionImporter GetReflectionImporter(ModuleDefinition module) =>
-            new ILPostProcessorReflectionImporter(module);
+        public IReflectionImporter GetReflectionImporter(ModuleDefinition module)
+        {
+            return new ILPostProcessorReflectionImporter(module);
+        }
     }
 }

@@ -10,10 +10,13 @@ namespace Mirror
         {
             /// <summary>The message being sent</summary>
             public readonly NetworkMessage message;
+
             /// <summary>channel through which the message was sent</summary>
             public readonly int channel;
+
             /// <summary>how big was the message (does not include transport headers)</summary>
             public readonly int bytes;
+
             /// <summary>How many connections was the message sent to.</summary>
             public readonly int count;
 
@@ -34,7 +37,7 @@ namespace Mirror
 
         // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
         [UnityEngine.RuntimeInitializeOnLoadMethod]
-        static void ResetStatics()
+        private static void ResetStatics()
         {
             InMessageEvent = null;
             OutMessageEvent = null;
@@ -45,7 +48,7 @@ namespace Mirror
         {
             if (count > 0 && OutMessageEvent != null)
             {
-                MessageInfo outMessage = new MessageInfo(message, channel, bytes, count);
+                MessageInfo outMessage = new(message, channel, bytes, count);
                 OutMessageEvent?.Invoke(outMessage);
             }
         }
@@ -55,7 +58,7 @@ namespace Mirror
         {
             if (InMessageEvent != null)
             {
-                MessageInfo inMessage = new MessageInfo(message, channel, bytes, 1);
+                MessageInfo inMessage = new(message, channel, bytes, 1);
                 InMessageEvent?.Invoke(inMessage);
             }
         }

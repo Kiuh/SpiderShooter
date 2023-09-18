@@ -11,17 +11,25 @@ namespace Mirror
         internal LocalConnectionToClient connectionToClient;
 
         // packet queue
-        internal readonly Queue<NetworkWriterPooled> queue = new Queue<NetworkWriterPooled>();
+        internal readonly Queue<NetworkWriterPooled> queue = new();
 
         // Deprecated 2023-02-23
         [Obsolete("Use LocalConnectionToClient.address instead.")]
         public string address => "localhost";
 
         // see caller for comments on why we need this
-        bool connectedEventPending;
-        bool disconnectedEventPending;
-        internal void QueueConnectedEvent() => connectedEventPending = true;
-        internal void QueueDisconnectedEvent() => disconnectedEventPending = true;
+        private bool connectedEventPending;
+        private bool disconnectedEventPending;
+
+        internal void QueueConnectedEvent()
+        {
+            connectedEventPending = true;
+        }
+
+        internal void QueueDisconnectedEvent()
+        {
+            disconnectedEventPending = true;
+        }
 
         // Send stage two: serialized NetworkMessage as ArraySegment<byte>
         internal override void Send(ArraySegment<byte> segment, int channelId = Channels.Reliable)
@@ -39,14 +47,15 @@ namespace Mirror
 
             // flush it to the server's OnTransportData immediately.
             // local connection to server always invokes immediately.
-            using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+            using NetworkWriterPooled writer = NetworkWriterPool.Get();
+            // make a batch with our local time (double precision)
+            if (batcher.GetBatch(writer))
             {
-                // make a batch with our local time (double precision)
-                if (batcher.GetBatch(writer))
-                {
-                    NetworkServer.OnTransportData(connectionId, writer.ToArraySegment(), channelId);
-                }
-                else Debug.LogError("Local connection failed to make batch. This should never happen.");
+                NetworkServer.OnTransportData(connectionId, writer.ToArraySegment(), channelId);
+            }
+            else
+            {
+                Debug.LogError("Local connection failed to make batch. This should never happen.");
             }
         }
 
@@ -78,7 +87,10 @@ namespace Mirror
                     // make a batch with our local time (double precision)
                     if (batcher.GetBatch(batchWriter))
                     {
-                        NetworkClient.OnTransportData(batchWriter.ToArraySegment(), Channels.Reliable);
+                        NetworkClient.OnTransportData(
+                            batchWriter.ToArraySegment(),
+                            Channels.Reliable
+                        );
                     }
                 }
 
@@ -123,6 +135,9 @@ namespace Mirror
         }
 
         // true because local connections never timeout
-        internal override bool IsAlive(float timeout) => true;
+        internal override bool IsAlive(float timeout)
+        {
+            return true;
+        }
     }
 }

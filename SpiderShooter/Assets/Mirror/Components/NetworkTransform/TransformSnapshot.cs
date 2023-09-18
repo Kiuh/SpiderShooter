@@ -29,11 +29,17 @@ namespace Mirror
         // used to know if the first two snapshots are old enough to start.
         public double localTime { get; set; }
 
-        public Vector3    position;
+        public Vector3 position;
         public Quaternion rotation;
-        public Vector3    scale;
+        public Vector3 scale;
 
-        public TransformSnapshot(double remoteTime, double localTime, Vector3 position, Quaternion rotation, Vector3 scale)
+        public TransformSnapshot(
+            double remoteTime,
+            double localTime,
+            Vector3 position,
+            Quaternion rotation,
+            Vector3 scale
+        )
         {
             this.remoteTime = remoteTime;
             this.localTime = localTime;
@@ -42,14 +48,19 @@ namespace Mirror
             this.scale = scale;
         }
 
-        public static TransformSnapshot Interpolate(TransformSnapshot from, TransformSnapshot to, double t)
+        public static TransformSnapshot Interpolate(
+            TransformSnapshot from,
+            TransformSnapshot to,
+            double t
+        )
         {
             // NOTE:
             // Vector3 & Quaternion components are float anyway, so we can
             // keep using the functions with 't' as float instead of double.
             return new TransformSnapshot(
                 // interpolated snapshot is applied directly. don't need timestamps.
-                0, 0,
+                0,
+                0,
                 // lerp position/rotation/scale unclamped in case we ever need
                 // to extrapolate. atm SnapshotInterpolation never does.
                 Vector3.LerpUnclamped(from.position, to.position, (float)t),

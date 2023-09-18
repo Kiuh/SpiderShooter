@@ -43,7 +43,7 @@ namespace Mirror
         // with the valid ones, creating strings like "a�������".
         // instead, we want to catch it manually and return String.Empty.
         // this is safer. see test: ReadString_InvalidUTF8().
-        internal readonly UTF8Encoding encoding = new UTF8Encoding(false, true);
+        internal readonly UTF8Encoding encoding = new(false, true);
 
         // while allocation free ReadArraySegment is encouraged,
         // some functions can allocate a new byte[], List<T>, Texture, etc.
@@ -139,7 +139,9 @@ namespace Mirror
             // ensure remaining
             if (Remaining < size)
             {
-                throw new EndOfStreamException($"ReadBlittable<{typeof(T)}> not enough data in buffer to read {size} bytes: {ToString()}");
+                throw new EndOfStreamException(
+                    $"ReadBlittable<{typeof(T)}> not enough data in buffer to read {size} bytes: {ToString()}"
+                );
             }
 
             // read blittable
@@ -176,27 +178,39 @@ namespace Mirror
         // note: bool isn't blittable. need to read as byte.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal T? ReadBlittableNullable<T>()
-            where T : unmanaged =>
-            ReadByte() != 0 ? ReadBlittable<T>() : default(T?);
+            where T : unmanaged
+        {
+            return ReadByte() != 0 ? ReadBlittable<T>() : default(T?);
+        }
 
-        public byte ReadByte() => ReadBlittable<byte>();
+        public byte ReadByte()
+        {
+            return ReadBlittable<byte>();
+        }
 
         /// <summary>Read 'count' bytes into the bytes array</summary>
         // NOTE: returns byte[] because all reader functions return something.
         public byte[] ReadBytes(byte[] bytes, int count)
         {
             // user may call ReadBytes(ReadInt()). ensure positive count.
-            if (count < 0) throw new ArgumentOutOfRangeException("ReadBytes requires count >= 0");
+            if (count < 0)
+            {
+                throw new ArgumentOutOfRangeException("ReadBytes requires count >= 0");
+            }
 
             // check if passed byte array is big enough
             if (count > bytes.Length)
             {
-                throw new EndOfStreamException($"ReadBytes can't read {count} + bytes because the passed byte[] only has length {bytes.Length}");
+                throw new EndOfStreamException(
+                    $"ReadBytes can't read {count} + bytes because the passed byte[] only has length {bytes.Length}"
+                );
             }
             // ensure remaining
             if (Remaining < count)
             {
-                throw new EndOfStreamException($"ReadBytesSegment can't read {count} bytes because it would read past the end of the stream. {ToString()}");
+                throw new EndOfStreamException(
+                    $"ReadBytesSegment can't read {count} bytes because it would read past the end of the stream. {ToString()}"
+                );
             }
 
             Array.Copy(buffer.Array, buffer.Offset + Position, bytes, 0, count);
@@ -208,16 +222,21 @@ namespace Mirror
         public ArraySegment<byte> ReadBytesSegment(int count)
         {
             // user may call ReadBytes(ReadInt()). ensure positive count.
-            if (count < 0) throw new ArgumentOutOfRangeException("ReadBytesSegment requires count >= 0");
+            if (count < 0)
+            {
+                throw new ArgumentOutOfRangeException("ReadBytesSegment requires count >= 0");
+            }
 
             // ensure remaining
             if (Remaining < count)
             {
-                throw new EndOfStreamException($"ReadBytesSegment can't read {count} bytes because it would read past the end of the stream. {ToString()}");
+                throw new EndOfStreamException(
+                    $"ReadBytesSegment can't read {count} bytes because it would read past the end of the stream. {ToString()}"
+                );
             }
 
             // return the segment
-            ArraySegment<byte> result = new ArraySegment<byte>(buffer.Array, buffer.Offset + Position, count);
+            ArraySegment<byte> result = new(buffer.Array, buffer.Offset + Position, count);
             Position += count;
             return result;
         }
@@ -228,15 +247,19 @@ namespace Mirror
             Func<NetworkReader, T> readerDelegate = Reader<T>.read;
             if (readerDelegate == null)
             {
-                Debug.LogError($"No reader found for {typeof(T)}. Use a type supported by Mirror or define a custom reader extension for {typeof(T)}.");
+                Debug.LogError(
+                    $"No reader found for {typeof(T)}. Use a type supported by Mirror or define a custom reader extension for {typeof(T)}."
+                );
                 return default;
             }
             return readerDelegate(this);
         }
 
         // print the full buffer with position / capacity.
-        public override string ToString() =>
-            $"[{buffer.ToHexString()} @ {Position}/{Capacity}]";
+        public override string ToString()
+        {
+            return $"[{buffer.ToHexString()} @ {Position}/{Capacity}]";
+        }
     }
 
     /// <summary>Helper class that weaver populates with all reader types.</summary>

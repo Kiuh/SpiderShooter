@@ -5,30 +5,30 @@ using UnityEngine;
 namespace Mirror
 {
     [CustomPreview(typeof(GameObject))]
-    class NetworkInformationPreview : ObjectPreview
+    internal class NetworkInformationPreview : ObjectPreview
     {
-        struct NetworkIdentityInfo
+        private struct NetworkIdentityInfo
         {
             public GUIContent name;
             public GUIContent value;
         }
 
-        struct NetworkBehaviourInfo
+        private struct NetworkBehaviourInfo
         {
             // This is here just so we can check if it's enabled/disabled
             public NetworkBehaviour behaviour;
             public GUIContent name;
         }
 
-        class Styles
+        private class Styles
         {
-            public GUIStyle labelStyle = new GUIStyle(EditorStyles.label);
-            public GUIStyle componentName = new GUIStyle(EditorStyles.boldLabel);
-            public GUIStyle disabledName = new GUIStyle(EditorStyles.miniLabel);
+            public GUIStyle labelStyle = new(EditorStyles.label);
+            public GUIStyle componentName = new(EditorStyles.boldLabel);
+            public GUIStyle disabledName = new(EditorStyles.miniLabel);
 
             public Styles()
             {
-                Color fontColor = new Color(0.7f, 0.7f, 0.7f);
+                Color fontColor = new(0.7f, 0.7f, 0.7f);
                 labelStyle.padding.right += 20;
                 labelStyle.normal.textColor = fontColor;
                 labelStyle.active.textColor = fontColor;
@@ -59,48 +59,53 @@ namespace Mirror
             }
         }
 
-        GUIContent title;
-        Styles styles = new Styles();
+        private GUIContent title;
+        private Styles styles = new();
 
         public override GUIContent GetPreviewTitle()
         {
-            if (title == null)
-            {
-                title = new GUIContent("Network Information");
-            }
+            title ??= new GUIContent("Network Information");
             return title;
         }
 
         public override bool HasPreviewGUI()
         {
             // need to check if target is null to stop MissingReferenceException
-            return target != null && target is GameObject gameObject && gameObject.GetComponent<NetworkIdentity>() != null;
+            return target != null
+                && target is GameObject gameObject
+                && gameObject.GetComponent<NetworkIdentity>() != null;
         }
 
         public override void OnPreviewGUI(Rect r, GUIStyle background)
         {
             if (Event.current.type != EventType.Repaint)
+            {
                 return;
+            }
 
             if (target == null)
+            {
                 return;
+            }
 
             GameObject targetGameObject = target as GameObject;
 
             if (targetGameObject == null)
+            {
                 return;
+            }
 
             NetworkIdentity identity = targetGameObject.GetComponent<NetworkIdentity>();
 
             if (identity == null)
+            {
                 return;
+            }
 
-            if (styles == null)
-                styles = new Styles();
-
+            styles ??= new Styles();
 
             // padding
-            RectOffset previewPadding = new RectOffset(-5, -5, -5, -5);
+            RectOffset previewPadding = new(-5, -5, -5, -5);
             Rect paddedr = previewPadding.Add(r);
 
             //Centering
@@ -114,19 +119,18 @@ namespace Mirror
             Y = DrawObservers(identity, initialX, Y);
 
             _ = DrawOwner(identity, initialX, Y);
-
         }
 
-        float DrawNetworkIdentityInfo(NetworkIdentity identity, float initialX, float Y)
+        private float DrawNetworkIdentityInfo(NetworkIdentity identity, float initialX, float Y)
         {
             IEnumerable<NetworkIdentityInfo> infos = GetNetworkIdentityInfo(identity);
             // Get required label size for the names of the information values we're going to show
             // There are two columns, one with label for the name of the info and the next for the value
-            Vector2 maxNameLabelSize = new Vector2(140, 16);
+            Vector2 maxNameLabelSize = new(140, 16);
             Vector2 maxValueLabelSize = GetMaxNameLabelSize(infos);
 
-            Rect labelRect = new Rect(initialX, Y, maxNameLabelSize.x, maxNameLabelSize.y);
-            Rect idLabelRect = new Rect(maxNameLabelSize.x, Y, maxValueLabelSize.x, maxValueLabelSize.y);
+            Rect labelRect = new(initialX, Y, maxNameLabelSize.x, maxNameLabelSize.y);
+            Rect idLabelRect = new(maxNameLabelSize.x, Y, maxValueLabelSize.x, maxValueLabelSize.y);
 
             foreach (NetworkIdentityInfo info in infos)
             {
@@ -140,13 +144,14 @@ namespace Mirror
             return labelRect.y;
         }
 
-        float DrawNetworkBehaviors(NetworkIdentity identity, float initialX, float Y)
+        private float DrawNetworkBehaviors(NetworkIdentity identity, float initialX, float Y)
         {
             IEnumerable<NetworkBehaviourInfo> behavioursInfo = GetNetworkBehaviorInfo(identity);
 
             // Show behaviours list in a different way than the name/value pairs above
             Vector2 maxBehaviourLabelSize = GetMaxBehaviourLabelSize(behavioursInfo);
-            Rect behaviourRect = new Rect(initialX, Y + 10, maxBehaviourLabelSize.x, maxBehaviourLabelSize.y);
+            Rect behaviourRect =
+                new(initialX, Y + 10, maxBehaviourLabelSize.x, maxBehaviourLabelSize.y);
 
             GUI.Label(behaviourRect, new GUIContent("Network Behaviours"), styles.labelStyle);
             // indent names
@@ -161,7 +166,11 @@ namespace Mirror
                     continue;
                 }
 
-                GUI.Label(behaviourRect, info.name, info.behaviour.enabled ? styles.componentName : styles.disabledName);
+                GUI.Label(
+                    behaviourRect,
+                    info.name,
+                    info.behaviour.enabled ? styles.componentName : styles.disabledName
+                );
                 behaviourRect.y += behaviourRect.height;
                 Y = behaviourRect.y;
             }
@@ -169,11 +178,11 @@ namespace Mirror
             return Y;
         }
 
-        float DrawObservers(NetworkIdentity identity, float initialX, float Y)
+        private float DrawObservers(NetworkIdentity identity, float initialX, float Y)
         {
             if (identity.observers.Count > 0)
             {
-                Rect observerRect = new Rect(initialX, Y + 10, 200, 20);
+                Rect observerRect = new(initialX, Y + 10, 200, 20);
 
                 GUI.Label(observerRect, new GUIContent("Network observers"), styles.labelStyle);
                 // indent names
@@ -182,7 +191,11 @@ namespace Mirror
 
                 foreach (KeyValuePair<int, NetworkConnectionToClient> kvp in identity.observers)
                 {
-                    GUI.Label(observerRect, $"{kvp.Value.address}:{kvp.Value}", styles.componentName);
+                    GUI.Label(
+                        observerRect,
+                        $"{kvp.Value.address}:{kvp.Value}",
+                        styles.componentName
+                    );
                     observerRect.y += observerRect.height;
                     Y = observerRect.y;
                 }
@@ -191,19 +204,23 @@ namespace Mirror
             return Y;
         }
 
-        float DrawOwner(NetworkIdentity identity, float initialX, float Y)
+        private float DrawOwner(NetworkIdentity identity, float initialX, float Y)
         {
             if (identity.connectionToClient != null)
             {
-                Rect ownerRect = new Rect(initialX, Y + 10, 400, 20);
-                GUI.Label(ownerRect, new GUIContent($"Client Authority: {identity.connectionToClient}"), styles.labelStyle);
+                Rect ownerRect = new(initialX, Y + 10, 400, 20);
+                GUI.Label(
+                    ownerRect,
+                    new GUIContent($"Client Authority: {identity.connectionToClient}"),
+                    styles.labelStyle
+                );
                 Y += ownerRect.height;
             }
             return Y;
         }
 
         // Get the maximum size used by the value of information items
-        Vector2 GetMaxNameLabelSize(IEnumerable<NetworkIdentityInfo> infos)
+        private Vector2 GetMaxNameLabelSize(IEnumerable<NetworkIdentityInfo> infos)
         {
             Vector2 maxLabelSize = Vector2.zero;
             foreach (NetworkIdentityInfo info in infos)
@@ -221,7 +238,7 @@ namespace Mirror
             return maxLabelSize;
         }
 
-        Vector2 GetMaxBehaviourLabelSize(IEnumerable<NetworkBehaviourInfo> behavioursInfo)
+        private Vector2 GetMaxBehaviourLabelSize(IEnumerable<NetworkBehaviourInfo> behavioursInfo)
         {
             Vector2 maxLabelSize = Vector2.zero;
             foreach (NetworkBehaviourInfo behaviour in behavioursInfo)
@@ -239,13 +256,14 @@ namespace Mirror
             return maxLabelSize;
         }
 
-        IEnumerable<NetworkIdentityInfo> GetNetworkIdentityInfo(NetworkIdentity identity)
+        private IEnumerable<NetworkIdentityInfo> GetNetworkIdentityInfo(NetworkIdentity identity)
         {
-            List<NetworkIdentityInfo> infos = new List<NetworkIdentityInfo>
-            {
-                GetAssetId(identity),
-                GetString("Scene ID", identity.sceneId.ToString("X"))
-            };
+            List<NetworkIdentityInfo> infos =
+                new()
+                {
+                    GetAssetId(identity),
+                    GetString("Scene ID", identity.sceneId.ToString("X"))
+                };
 
             if (Application.isPlaying)
             {
@@ -258,23 +276,25 @@ namespace Mirror
             return infos;
         }
 
-        IEnumerable<NetworkBehaviourInfo> GetNetworkBehaviorInfo(NetworkIdentity identity)
+        private IEnumerable<NetworkBehaviourInfo> GetNetworkBehaviorInfo(NetworkIdentity identity)
         {
-            List<NetworkBehaviourInfo> behaviourInfos = new List<NetworkBehaviourInfo>();
+            List<NetworkBehaviourInfo> behaviourInfos = new();
 
             NetworkBehaviour[] behaviours = identity.GetComponents<NetworkBehaviour>();
             foreach (NetworkBehaviour behaviour in behaviours)
             {
-                behaviourInfos.Add(new NetworkBehaviourInfo
-                {
-                    name = new GUIContent(behaviour.GetType().FullName),
-                    behaviour = behaviour
-                });
+                behaviourInfos.Add(
+                    new NetworkBehaviourInfo
+                    {
+                        name = new GUIContent(behaviour.GetType().FullName),
+                        behaviour = behaviour
+                    }
+                );
             }
             return behaviourInfos;
         }
 
-        NetworkIdentityInfo GetAssetId(NetworkIdentity identity)
+        private NetworkIdentityInfo GetAssetId(NetworkIdentity identity)
         {
             string assetId = identity.assetId.ToString();
             if (string.IsNullOrWhiteSpace(assetId))
@@ -284,7 +304,7 @@ namespace Mirror
             return GetString("Asset ID", assetId);
         }
 
-        static NetworkIdentityInfo GetString(string name, string value)
+        private static NetworkIdentityInfo GetString(string name, string value)
         {
             return new NetworkIdentityInfo
             {
@@ -293,12 +313,12 @@ namespace Mirror
             };
         }
 
-        static NetworkIdentityInfo GetBoolean(string name, bool value)
+        private static NetworkIdentityInfo GetBoolean(string name, bool value)
         {
             return new NetworkIdentityInfo
             {
                 name = new GUIContent(name),
-                value = new GUIContent((value ? "Yes" : "No"))
+                value = new GUIContent(value ? "Yes" : "No")
             };
         }
     }

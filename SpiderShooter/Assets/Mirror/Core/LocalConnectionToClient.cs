@@ -8,7 +8,8 @@ namespace Mirror
     {
         internal LocalConnectionToServer connectionToServer;
 
-        public LocalConnectionToClient() : base(LocalConnectionId) {}
+        public LocalConnectionToClient()
+            : base(LocalConnectionId) { }
 
         public override string address => "localhost";
 
@@ -27,10 +28,13 @@ namespace Mirror
         }
 
         // true because local connections never timeout
-        internal override bool IsAlive(float timeout) => true;
+        internal override bool IsAlive(float timeout)
+        {
+            return true;
+        }
 
         // don't ping host client in host mode
-        protected override void UpdatePing() {}
+        protected override void UpdatePing() { }
 
         internal void DisconnectInternal()
         {

@@ -1,11 +1,11 @@
+using Mono.CecilX;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Mono.CecilX;
 
 namespace Mirror.Weaver
 {
-    static class Helpers
+    internal static class Helpers
     {
         // This code is taken from SerializationWeaver
         public static string UnityEngineDllDirectoryName()
@@ -18,8 +18,8 @@ namespace Mirror.Weaver
         {
             // we want to add the [InitializeOnLoad] attribute if it's available
             // -> usually either 'UnityEditor' or 'UnityEditor.CoreModule'
-            return currentAssembly.MainModule.AssemblyReferences.Any(assemblyReference =>
-                assemblyReference.Name.StartsWith(nameof(UnityEditor))
+            return currentAssembly.MainModule.AssemblyReferences.Any(
+                assemblyReference => assemblyReference.Name.StartsWith(nameof(UnityEditor))
             );
         }
     }

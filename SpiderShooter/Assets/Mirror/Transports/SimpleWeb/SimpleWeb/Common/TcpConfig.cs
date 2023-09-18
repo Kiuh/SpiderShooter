@@ -3,7 +3,7 @@ using System.Net.Sockets;
 namespace Mirror.SimpleWeb
 {
     [System.Serializable]
-    public struct TcpConfig
+    public readonly struct TcpConfig
     {
         public readonly bool noDelay;
         public readonly int sendTimeout;
