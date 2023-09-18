@@ -26,8 +26,7 @@ namespace SpiderShooter.Spider
         private TeamColor teamColor;
         public TeamColor TeamColor => teamColor;
 
-        [Command(requiresAuthority = false)]
-        public void CmdSetTeamColor(TeamColor teamColor)
+        public void SetTeamColor(TeamColor teamColor)
         {
             this.teamColor = teamColor;
             Color color = teamColor == TeamColor.Red ? Color.red : Color.blue;

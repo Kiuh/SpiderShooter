@@ -1,48 +1,109 @@
 ﻿using SpiderShooter.Common;
 using System;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace SpiderShooter.LobbyScene
 {
     [AddComponentMenu("LobbyScene.TestView")]
     internal class TestView : MonoBehaviour, IView
     {
-        public event Action OnHostPlay;
-        public event Action OnHostQuit;
+        [SerializeField]
+        private TMP_Text lobbyCode;
+
+        [SerializeField]
+        private TMP_Text lobbyName;
+
+        [SerializeField]
+        private TMP_Text lobbyMode;
+
+        [SerializeField]
+        private TMP_Text playerMode;
+
+        [SerializeField]
+        private Button hostPlayButton;
+
+        [SerializeField]
+        private Button hostQuitButton;
+
+        public event Action OnHostPlayTrigger;
+        public event Action OnHostQuitTrigger;
+
+        // Called by button
+        public void HostPlayButtonClick()
+        {
+            OnHostPlayTrigger?.Invoke();
+        }
+
+        // Called by button
+        public void HostQuitButtonClick()
+        {
+            OnHostQuitTrigger?.Invoke();
+        }
 
         public void SetClientMode()
         {
-            throw new NotImplementedException();
+            playerMode.text = "Client Mode";
         }
 
         public void SetHostMode()
         {
-            throw new NotImplementedException();
+            playerMode.text = "Host Mode";
         }
 
         public void SetLobbyCode(string code)
         {
-            throw new NotImplementedException();
+            lobbyCode.text = $"Lobby code: {code}";
         }
 
         public void SetLobbyMode(LobbyMode lobbyMode)
         {
-            throw new NotImplementedException();
+            this.lobbyMode.text =
+                $"Lobby mode: {(lobbyMode == LobbyMode.Public ? "Public" : "Private")}";
         }
 
         public void SetLobbyName(string name)
         {
-            throw new NotImplementedException();
+            lobbyName.text = $"Lobby name: {name}";
         }
 
         public void SetPlayTriggerMode(VisualElementMode visualElementMode)
         {
-            throw new NotImplementedException();
+            switch (visualElementMode)
+            {
+                case VisualElementMode.Interactable:
+                    hostPlayButton.gameObject.SetActive(true);
+                    hostPlayButton.interactable = true;
+                    break;
+                case VisualElementMode.ReadOnly:
+                    hostPlayButton.gameObject.SetActive(true);
+                    hostPlayButton.interactable = false;
+                    break;
+                case VisualElementMode.Hidden:
+                    hostPlayButton.gameObject.SetActive(false);
+                    hostPlayButton.interactable = true;
+                    break;
+            }
         }
 
         public void SetQuitTriggerMode(VisualElementMode visualElementMode)
         {
-            throw new NotImplementedException();
+            switch (visualElementMode)
+            {
+                case VisualElementMode.Interactable:
+                    hostQuitButton.gameObject.SetActive(true);
+                    hostQuitButton.interactable = true;
+                    break;
+                case VisualElementMode.ReadOnly:
+                    hostQuitButton.gameObject.SetActive(true);
+                    hostQuitButton.interactable = false;
+                    break;
+                case VisualElementMode.Hidden:
+                    hostQuitButton.gameObject.SetActive(false);
+                    hostQuitButton.interactable = true;
+                    break;
+            }
         }
     }
 }

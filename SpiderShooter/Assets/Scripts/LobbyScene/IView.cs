@@ -5,8 +5,8 @@ namespace SpiderShooter.LobbyScene
 {
     public interface IView
     {
-        public event Action OnHostPlay;
-        public event Action OnHostQuit;
+        public event Action OnHostPlayTrigger;
+        public event Action OnHostQuitTrigger;
 
         public void SetPlayTriggerMode(VisualElementMode visualElementMode);
         public void SetQuitTriggerMode(VisualElementMode visualElementMode);

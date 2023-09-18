@@ -99,28 +99,51 @@ namespace SpiderShooter.Networking
             ServerChangeScene(GameplayScene);
         }
 
+        public override GameObject OnRoomServerCreateRoomPlayer(NetworkConnectionToClient conn)
+        {
+            GameObject newRoomPlayer = Instantiate(
+                roomPlayerPrefab.gameObject,
+                Vector3.zero,
+                Quaternion.identity
+            );
+            return newRoomPlayer;
+        }
+
         public override GameObject OnRoomServerCreateGamePlayer(
             NetworkConnectionToClient conn,
             GameObject roomPlayer
         )
         {
-            RoomPlayer roomPlayerExt = roomPlayer.GetComponent<RoomPlayer>();
-
             IEnumerable<StartPosition> netStartPositions = startPositions.Select(
                 x => x.GetComponent<StartPosition>()
             );
+
+            RoomPlayer roomPlayerExt = roomPlayer.GetComponent<RoomPlayer>();
 
             StartPosition startPosition = netStartPositions
                 .Where(x => x.TeamColor == roomPlayerExt.TeamColor.Value && !x.IsBusy)
                 .First();
 
             GameObject spiderGameObject = Instantiate(playerPrefab, startPosition.transform);
-            SpiderImpl spider = spiderGameObject.GetComponent<SpiderImpl>();
 
-            spider.PlayerName = roomPlayerExt.PlayerName;
-            spider.CmdSetTeamColor(roomPlayerExt.TeamColor.Value);
+            startPosition.IsBusy = true;
 
             return spiderGameObject;
+        }
+
+        public override bool OnRoomServerSceneLoadedForPlayer(
+            NetworkConnectionToClient conn,
+            GameObject roomPlayer,
+            GameObject gamePlayer
+        )
+        {
+            RoomPlayer roomPlayerExt = roomPlayer.GetComponent<RoomPlayer>();
+            SpiderImpl spider = gamePlayer.GetComponent<SpiderImpl>();
+
+            spider.SetTeamColor(roomPlayerExt.TeamColor.Value);
+            spider.PlayerName = roomPlayerExt.PlayerName;
+
+            return true;
         }
     }
 }

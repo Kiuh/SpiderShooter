@@ -14,7 +14,11 @@ namespace SpiderShooter.Networking
         [SerializeField]
         [InspectorReadOnly]
         private bool isBusy;
-        public bool IsBusy => isBusy;
+        public bool IsBusy
+        {
+            get => isBusy;
+            set => isBusy = value;
+        }
 
         public void Awake()
         {

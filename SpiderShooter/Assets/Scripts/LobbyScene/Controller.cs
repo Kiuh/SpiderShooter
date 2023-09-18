@@ -14,6 +14,9 @@ namespace SpiderShooter.LobbyScene
         private IView Visual => view.Value;
 
         [SerializeField]
+        private RectTransform initContainer;
+
+        [SerializeField]
         private GameObject lobbyPlayerPrefab;
 
         public LobbyMode LobbyMode { get; private set; }
@@ -27,8 +30,8 @@ namespace SpiderShooter.LobbyScene
 
         private void Start()
         {
-            Visual.OnHostPlay += RoomManager.Singleton.PlayGameplayScene;
-            Visual.OnHostQuit += RoomManager.Singleton.StopHost;
+            Visual.OnHostPlayTrigger += RoomManager.Singleton.PlayGameplayScene;
+            Visual.OnHostQuitTrigger += RoomManager.Singleton.StopHost;
             if (NetworkServer.active)
             {
                 Visual.SetPlayTriggerMode(VisualElementMode.Interactable);
@@ -52,14 +55,22 @@ namespace SpiderShooter.LobbyScene
         public void SetLobbyMode(LobbyMode oldValue, LobbyMode newValue)
         {
             LobbyMode = newValue;
-            Visual.SetPlayTriggerMode(VisualElementMode.Hidden);
-            Visual.SetQuitTriggerMode(VisualElementMode.Hidden);
+            Visual.SetPlayTriggerMode(
+                NetworkServer.active && newValue == LobbyMode.Private
+                    ? VisualElementMode.Interactable
+                    : VisualElementMode.Hidden
+            );
+            Visual.SetQuitTriggerMode(
+                NetworkServer.active && newValue == LobbyMode.Private
+                    ? VisualElementMode.Interactable
+                    : VisualElementMode.Hidden
+            );
             Visual.SetLobbyMode(newValue);
         }
 
         public void CreateLobbyPlayer(RoomPlayer roomPlayer)
         {
-            GameObject lobbyPlayer = Instantiate(lobbyPlayerPrefab);
+            GameObject lobbyPlayer = Instantiate(lobbyPlayerPrefab, initContainer);
             lobbyPlayer.GetComponent<Player.Controller>().SetNetworkRoomPlayer(roomPlayer);
         }
     }

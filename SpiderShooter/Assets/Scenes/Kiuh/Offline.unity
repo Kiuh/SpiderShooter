@@ -1955,7 +1955,7 @@ MonoBehaviour:
   m_CaretColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   m_CustomCaretColor: 0
   m_SelectionColor: {r: 0.65882355, g: 0.80784315, b: 1, a: 0.7529412}
-  m_Text: 1-7
+  m_Text: 31-131
   m_CaretBlinkRate: 0.85
   m_CaretWidth: 1
   m_ReadOnly: 0
@@ -2537,7 +2537,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "1-7\u200B"
+  m_text: "31-131\u200B"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -3642,6 +3642,10 @@ PrefabInstance:
       value: Assets/Scenes/Kiuh/Lobby.unity
       objectReference: {fileID: 0}
     - target: {fileID: 7423013415010659139, guid: 5ed636cd109f558459f36a8973e8f9f4, type: 3}
+      propertyPath: showRoomGUI
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7423013415010659139, guid: 5ed636cd109f558459f36a8973e8f9f4, type: 3}
       propertyPath: offlineScene
       value: Assets/Scenes/Kiuh/Offline.unity
       objectReference: {fileID: 0}
@@ -3658,6 +3662,10 @@ PrefabInstance:
       value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 7423013415010659139, guid: 5ed636cd109f558459f36a8973e8f9f4, type: 3}
+      propertyPath: autoCreatePlayer
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7423013415010659139, guid: 5ed636cd109f558459f36a8973e8f9f4, type: 3}
       propertyPath: maxBlueTeamCount
       value: 4
       objectReference: {fileID: 0}
@@ -3665,6 +3673,10 @@ PrefabInstance:
       propertyPath: roomPlayerPrefab
       value: 
       objectReference: {fileID: -1224738104480303377, guid: 494fb5dc856eca848a78944c9f065756, type: 3}
+    - target: {fileID: 7423013415010659139, guid: 5ed636cd109f558459f36a8973e8f9f4, type: 3}
+      propertyPath: playerSpawnMethod
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7423013415010659139, guid: 5ed636cd109f558459f36a8973e8f9f4, type: 3}
       propertyPath: spawnPrefabs.Array.size
       value: 1

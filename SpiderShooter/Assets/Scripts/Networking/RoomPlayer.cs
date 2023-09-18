@@ -12,6 +12,12 @@ namespace SpiderShooter.Networking
         public bool IsNotNull;
     }
 
+    public struct NullableLobbyMode
+    {
+        public LobbyMode Value;
+        public bool IsNotNull;
+    }
+
     [AddComponentMenu("Networking.RoomPlayer")]
     public class RoomPlayer : NetworkRoomPlayer
     {
@@ -59,16 +65,16 @@ namespace SpiderShooter.Networking
         [SyncVar(hook = nameof(SetLobbyMode))]
         [SerializeField]
         [InspectorReadOnly]
-        private LobbyMode lobbyMode;
-        public LobbyMode LobbyMode
+        private NullableLobbyMode lobbyMode;
+        public NullableLobbyMode LobbyMode
         {
             get => lobbyMode;
             set => lobbyMode = value;
         }
 
-        public void SetLobbyMode(LobbyMode oldValue, LobbyMode newValue)
+        public void SetLobbyMode(NullableLobbyMode oldValue, NullableLobbyMode newValue)
         {
-            Controller.Singleton.SetLobbyMode(oldValue, newValue);
+            Controller.Singleton.SetLobbyMode(oldValue.Value, newValue.Value);
         }
 
         [SyncVar(hook = nameof(SetLobbyName))]
@@ -88,17 +94,17 @@ namespace SpiderShooter.Networking
 
         public override void OnStartClient()
         {
+            Controller.Singleton.CreateLobbyPlayer(this);
             if (NetworkServer.active)
             {
                 LobbyName = ServerStorage.Singleton.LobbyName;
-                LobbyMode = ServerStorage.Singleton.LobbyMode;
+                LobbyMode = new() { Value = ServerStorage.Singleton.LobbyMode, IsNotNull = true };
             }
             if (isLocalPlayer)
             {
                 CmdSetPlayerName(LocalClientData.Singleton.PlayerName);
                 CmdServerChooseTeamColor();
             }
-            Controller.Singleton.CreateLobbyPlayer(this);
         }
     }
 }
