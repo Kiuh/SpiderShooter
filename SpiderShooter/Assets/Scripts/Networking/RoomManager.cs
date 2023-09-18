@@ -124,7 +124,11 @@ namespace SpiderShooter.Networking
                 .Where(x => x.TeamColor == roomPlayerExt.TeamColor.Value && !x.IsBusy)
                 .First();
 
-            GameObject spiderGameObject = Instantiate(playerPrefab, startPosition.transform);
+            GameObject spiderGameObject = Instantiate(
+                playerPrefab,
+                startPosition.transform.position,
+                startPosition.transform.rotation
+            );
 
             startPosition.IsBusy = true;
 
@@ -140,7 +144,7 @@ namespace SpiderShooter.Networking
             RoomPlayer roomPlayerExt = roomPlayer.GetComponent<RoomPlayer>();
             SpiderImpl spider = gamePlayer.GetComponent<SpiderImpl>();
 
-            spider.SetTeamColor(roomPlayerExt.TeamColor.Value);
+            spider.TeamColor = roomPlayerExt.TeamColor.Value;
             spider.PlayerName = roomPlayerExt.PlayerName;
 
             return true;

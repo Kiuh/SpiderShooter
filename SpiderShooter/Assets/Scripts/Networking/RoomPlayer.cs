@@ -32,7 +32,7 @@ namespace SpiderShooter.Networking
             set => playerName = value;
         }
 
-        [Command]
+        [Command(requiresAuthority = false)]
         public void CmdSetPlayerName(string newValue)
         {
             playerName = newValue;
@@ -48,14 +48,14 @@ namespace SpiderShooter.Networking
             set => teamColor = value;
         }
 
-        [Command]
+        [Command(requiresAuthority = false)]
         public void CmdSetTeamColor(TeamColor newValue)
         {
             teamColor.Value = newValue;
             teamColor.IsNotNull = true;
         }
 
-        [Command]
+        [Command(requiresAuthority = false)]
         public void CmdServerChooseTeamColor()
         {
             teamColor.Value = RoomManager.Singleton.GetFreeTeamColor();

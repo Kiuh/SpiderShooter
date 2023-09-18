@@ -24,11 +24,14 @@ namespace SpiderShooter.Spider
         [SerializeField]
         [InspectorReadOnly]
         private TeamColor teamColor;
-        public TeamColor TeamColor => teamColor;
-
-        public void SetTeamColor(TeamColor teamColor)
+        public TeamColor TeamColor
         {
-            this.teamColor = teamColor;
+            get => teamColor;
+            set => teamColor = value;
+        }
+
+        public void ChangeTeamColor()
+        {
             Color color = teamColor == TeamColor.Red ? Color.red : Color.blue;
             foreach (Transform item in transform)
             {
@@ -61,6 +64,7 @@ namespace SpiderShooter.Spider
                 virtualCamera.LookAt = transform;
                 virtualCamera.Follow = transform;
             }
+            ChangeTeamColor();
         }
 
         public void TakeDamage(float damage)
