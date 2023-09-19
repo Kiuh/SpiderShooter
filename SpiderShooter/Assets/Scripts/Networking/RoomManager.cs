@@ -57,6 +57,14 @@ namespace SpiderShooter.Networking
                             : TeamColor.Red;
         }
 
+        public StartPosition GetRandomStartPosition(TeamColor teamColor)
+        {
+            IEnumerable<StartPosition> list = startPositions
+                .Select(x => x.GetComponent<StartPosition>())
+                .Where(x => x.TeamColor == teamColor);
+            return list.Skip(Random.Range(0, list.Count())).First();
+        }
+
         public override void OnRoomServerPlayersReady()
         {
             if (

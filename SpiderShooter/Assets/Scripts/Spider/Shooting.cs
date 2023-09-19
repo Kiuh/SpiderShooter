@@ -10,7 +10,7 @@ namespace SpiderShooter.Spider
         private Transform shootPoint;
 
         [SerializeField]
-        private Bullet bulletPrefab;
+        private GameObject bulletPrefab;
 
         [SerializeField]
         private Movement movement;
@@ -18,11 +18,16 @@ namespace SpiderShooter.Spider
         [Command]
         public void Shoot(SpiderImpl spider)
         {
-            Bullet bullet = Instantiate(bulletPrefab, shootPoint.position, new Quaternion());
-            bullet.SetFlyingDirection(movement.MovingDirection);
-            bullet.SetFlyingSpeed(spider.BulletSpeed);
-            bullet.SetDamage(spider.BulletDamage);
-            NetworkServer.Spawn(bullet.gameObject);
+            GameObject bullet = Instantiate(bulletPrefab, shootPoint.position, shootPoint.rotation);
+            bullet.GetComponent<Bullet>().SetDamage(spider.BulletDamage);
+            NetworkServer.Spawn(bullet);
+            RpcOnFire();
+        }
+
+        [ClientRpc]
+        private void RpcOnFire()
+        {
+            //animator.SetTrigger("Shoot");
         }
     }
 }

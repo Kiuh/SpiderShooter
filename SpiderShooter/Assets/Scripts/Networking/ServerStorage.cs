@@ -36,5 +36,23 @@ namespace SpiderShooter.Networking
             get => lobbyName;
             set => lobbyName = value;
         }
+
+        [SerializeField]
+        [InspectorReadOnly]
+        private int redTeamKillCount = 0;
+        public int RedTeamKillCount
+        {
+            get => redTeamKillCount;
+            set => redTeamKillCount = value;
+        }
+
+        [SerializeField]
+        [InspectorReadOnly]
+        private int blueTeamKillCount = 0;
+        public int BlueTeamKillCount
+        {
+            get => blueTeamKillCount;
+            set => blueTeamKillCount = value;
+        }
     }
 }

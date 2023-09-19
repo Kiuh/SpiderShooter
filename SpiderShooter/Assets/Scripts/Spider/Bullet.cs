@@ -11,24 +11,34 @@ namespace SpiderShooter.Spider
     {
         [SerializeField]
         [InspectorReadOnly]
-        private Vector3 flyingDirection;
-
-        [SerializeField]
-        [InspectorReadOnly]
-        private float flyingSpeed;
-
-        [SerializeField]
-        [InspectorReadOnly]
         private float damage;
+        public float Damage => damage;
 
-        public void SetFlyingDirection(Vector3 direction)
+        [SerializeField]
+        [InspectorReadOnly]
+        private float destroyAfter = 4;
+
+        [SerializeField]
+        private Rigidbody rigidBody;
+
+        [SerializeField]
+        [InspectorReadOnly]
+        private float force = 1000;
+
+        public override void OnStartServer()
         {
-            flyingDirection = direction;
+            Invoke(nameof(DestroySelf), destroyAfter);
         }
 
-        public void SetFlyingSpeed(float speed)
+        private void Start()
         {
-            flyingSpeed = speed;
+            rigidBody.AddForce(transform.forward * force);
+        }
+
+        [Server]
+        private void DestroySelf()
+        {
+            NetworkServer.Destroy(gameObject);
         }
 
         public void SetDamage(float damage)
@@ -36,24 +46,10 @@ namespace SpiderShooter.Spider
             this.damage = damage;
         }
 
-        private void Update()
-        {
-            transform.Translate(flyingSpeed * Time.deltaTime * flyingDirection);
-        }
-
         [ServerCallback]
         private void OnTriggerEnter(Collider other)
         {
-            if (other.gameObject.tag is "Environment")
-            {
-                NetworkServer.Destroy(gameObject);
-            }
-            if (other.gameObject.tag is "SpiderBody")
-            {
-                SpiderImpl spider = other.gameObject.GetComponentInParent<SpiderImpl>();
-                spider.TakeDamage(damage);
-                NetworkServer.Destroy(gameObject);
-            }
+            DestroySelf();
         }
     }
 }

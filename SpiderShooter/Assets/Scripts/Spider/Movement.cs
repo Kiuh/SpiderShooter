@@ -17,8 +17,6 @@ namespace SpiderShooter.Spider
         [SerializeField]
         private float angularSpeed;
 
-        public Vector3 MovingDirection => mainBody.forward;
-
         public void MoveForward()
         {
             mainBody.Translate(linearSpeed * Time.deltaTime * mainBody.forward, Space.World);
