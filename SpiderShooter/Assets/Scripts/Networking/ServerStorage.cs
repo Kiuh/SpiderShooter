@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace SpiderShooter.Networking
 {
-    [AddComponentMenu("Networking.ServerStorage")]
+    [AddComponentMenu("SpiderShooter/Networking.ServerStorage")]
     public class ServerStorage : NetworkBehaviour
     {
         public static ServerStorage Singleton { get; private set; }

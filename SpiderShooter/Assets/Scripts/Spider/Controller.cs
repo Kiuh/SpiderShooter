@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace SpiderShooter.Spider
 {
-    [AddComponentMenu("Spider.Controller")]
+    [AddComponentMenu("SpiderShooter/Spider.Controller")]
     public class Controller : NetworkBehaviour
     {
         [SerializeField]
@@ -15,7 +15,7 @@ namespace SpiderShooter.Spider
         [SerializeField]
         private SpiderImpl spider;
 
-        private void Update()
+        private void FixedUpdate()
         {
             if (!Application.isFocused)
             {
@@ -47,6 +47,16 @@ namespace SpiderShooter.Spider
                 if (Input.GetMouseButtonDown(0))
                 {
                     shooting.Shoot(spider);
+                }
+
+                if (Input.GetKeyDown(KeyCode.Space))
+                {
+                    movement.Jump();
+                }
+
+                if (Input.GetKeyDown(KeyCode.Delete))
+                {
+                    spider.CmdKilled();
                 }
             }
         }

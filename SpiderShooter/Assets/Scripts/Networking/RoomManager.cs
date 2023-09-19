@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace SpiderShooter.Networking
 {
-    [AddComponentMenu("Networking.RoomManager")]
+    [AddComponentMenu("SpiderShooter/Networking.RoomManager")]
     public class RoomManager : NetworkRoomManager
     {
         public static RoomManager Singleton { get; private set; }
@@ -78,32 +78,32 @@ namespace SpiderShooter.Networking
 
         public void PlayGameplayScene()
         {
-            if (!roomSlots.All(x => x.readyToBegin))
-            {
-                Debug.Log("Not all players Ready.");
-                return;
-            }
-            IEnumerable<RoomPlayer> extRoomsSlots = roomSlots.Cast<RoomPlayer>();
-            if (!extRoomsSlots.Any(x => x.TeamColor.Value == TeamColor.Blue))
-            {
-                Debug.Log("At Lest 1 must be in blue team.");
-                return;
-            }
-            if (!extRoomsSlots.Any(x => x.TeamColor.Value == TeamColor.Red))
-            {
-                Debug.Log("At Lest 1 must be in red team.");
-                return;
-            }
-            if (extRoomsSlots.Count(x => x.TeamColor.Value == TeamColor.Red) > maxRedTeamCount)
-            {
-                Debug.Log($"Max players in red team - {maxRedTeamCount}.");
-                return;
-            }
-            if (extRoomsSlots.Count(x => x.TeamColor.Value == TeamColor.Blue) > maxBlueTeamCount)
-            {
-                Debug.Log($"Max players in blue team - {maxBlueTeamCount}.");
-                return;
-            }
+            //if (!roomSlots.All(x => x.readyToBegin))
+            //{
+            //    Debug.Log("Not all players Ready.");
+            //    return;
+            //}
+            //IEnumerable<RoomPlayer> extRoomsSlots = roomSlots.Cast<RoomPlayer>();
+            //if (!extRoomsSlots.Any(x => x.TeamColor.Value == TeamColor.Blue))
+            //{
+            //    Debug.Log("At Lest 1 must be in blue team.");
+            //    return;
+            //}
+            //if (!extRoomsSlots.Any(x => x.TeamColor.Value == TeamColor.Red))
+            //{
+            //    Debug.Log("At Lest 1 must be in red team.");
+            //    return;
+            //}
+            //if (extRoomsSlots.Count(x => x.TeamColor.Value == TeamColor.Red) > maxRedTeamCount)
+            //{
+            //    Debug.Log($"Max players in red team - {maxRedTeamCount}.");
+            //    return;
+            //}
+            //if (extRoomsSlots.Count(x => x.TeamColor.Value == TeamColor.Blue) > maxBlueTeamCount)
+            //{
+            //    Debug.Log($"Max players in blue team - {maxBlueTeamCount}.");
+            //    return;
+            //}
             ServerChangeScene(GameplayScene);
         }
 

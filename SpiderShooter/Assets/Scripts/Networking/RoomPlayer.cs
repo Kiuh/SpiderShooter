@@ -18,7 +18,7 @@ namespace SpiderShooter.Networking
         public bool IsNotNull;
     }
 
-    [AddComponentMenu("Networking.RoomPlayer")]
+    [AddComponentMenu("SpiderShooter/Networking.RoomPlayer")]
     public class RoomPlayer : NetworkRoomPlayer
     {
         [Header("Custom Properties")]

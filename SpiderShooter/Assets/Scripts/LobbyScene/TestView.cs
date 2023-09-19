@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace SpiderShooter.LobbyScene
 {
-    [AddComponentMenu("LobbyScene.TestView")]
+    [AddComponentMenu("SpiderShooter/LobbyScene.TestView")]
     internal class TestView : MonoBehaviour, IView
     {
         [SerializeField]

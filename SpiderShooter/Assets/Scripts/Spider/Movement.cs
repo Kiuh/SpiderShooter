@@ -1,40 +1,66 @@
-using Mirror;
 using UnityEngine;
 
 namespace SpiderShooter.Spider
 {
-    [AddComponentMenu("Spider.Movement")]
-    public class Movement : NetworkBehaviour
+    [AddComponentMenu("SpiderShooter/Spider.Movement")]
+    public class Movement : MonoBehaviour
     {
         [SerializeField]
-        private Transform mainBody;
+        private Rigidbody rigidBody;
 
         [Header("Linear Movement")]
         [SerializeField]
         private float linearSpeed;
 
+        [SerializeField]
+        private float maxLinearSpeed;
+
         [Header("Rotation Movement")]
         [SerializeField]
         private float angularSpeed;
 
+        [SerializeField]
+        private float maxAngularSpeed;
+
+        [Header("Jump Movement")]
+        [SerializeField]
+        private float jumpForce;
+
+        private void Awake()
+        {
+            rigidBody.maxLinearVelocity = maxLinearSpeed;
+            rigidBody.maxAngularVelocity = maxAngularSpeed;
+        }
+
+        private void OnValidate()
+        {
+            rigidBody.maxLinearVelocity = maxLinearSpeed;
+            rigidBody.maxAngularVelocity = maxAngularSpeed;
+        }
+
         public void MoveForward()
         {
-            mainBody.Translate(linearSpeed * Time.deltaTime * mainBody.forward, Space.World);
+            rigidBody.AddForce(transform.forward * linearSpeed);
         }
 
         public void MoveBackward()
         {
-            mainBody.Translate(linearSpeed * Time.deltaTime * -mainBody.forward, Space.World);
+            rigidBody.AddForce(-transform.forward * linearSpeed);
         }
 
         public void RotateRight()
         {
-            mainBody.Rotate(0, angularSpeed * Time.deltaTime, 0);
+            rigidBody.angularVelocity += transform.up * angularSpeed * Time.fixedDeltaTime;
         }
 
         public void RotateLeft()
         {
-            mainBody.Rotate(0, -angularSpeed * Time.deltaTime, 0);
+            rigidBody.angularVelocity += -transform.up * angularSpeed * Time.fixedDeltaTime;
+        }
+
+        public void Jump()
+        {
+            rigidBody.AddForce(transform.up * jumpForce);
         }
     }
 }

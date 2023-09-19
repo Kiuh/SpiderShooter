@@ -6,7 +6,7 @@ namespace SpiderShooter.Spider
 {
     [SelectionBase]
     [RequireComponent(typeof(Collider))]
-    [AddComponentMenu("Spider.Bullet")]
+    [AddComponentMenu("SpiderShooter/Spider.Bullet")]
     public class Bullet : NetworkBehaviour
     {
         [SerializeField]

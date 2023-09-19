@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace SpiderShooter.Spider
 {
-    [AddComponentMenu("Spider.Shooting")]
+    [AddComponentMenu("SpiderShooter/Spider.Shooting")]
     public class Shooting : NetworkBehaviour
     {
         [SerializeField]

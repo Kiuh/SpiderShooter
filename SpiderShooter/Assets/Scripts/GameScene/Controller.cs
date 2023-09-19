@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace SpiderShooter.GameScene
 {
-    [AddComponentMenu("GameScene.Controller")]
+    [AddComponentMenu("SpiderShooter/GameScene.Controller")]
     public class Controller : MonoBehaviour
     {
         public static Controller Singleton { get; private set; }

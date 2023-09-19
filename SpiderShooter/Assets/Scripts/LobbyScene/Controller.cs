@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace SpiderShooter.LobbyScene
 {
-    [AddComponentMenu("LobbyScene.Controller")]
+    [AddComponentMenu("SpiderShooter/LobbyScene.Controller")]
     public class Controller : MonoBehaviour
     {
         [SerializeField]

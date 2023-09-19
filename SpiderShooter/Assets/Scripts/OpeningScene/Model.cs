@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace SpiderShooter.OpeningScene
 {
-    [AddComponentMenu("OpeningScene.Model")]
+    [AddComponentMenu("SpiderShooter/OpeningScene.Model")]
     public class Model : MonoBehaviour
     {
         [SerializeField]

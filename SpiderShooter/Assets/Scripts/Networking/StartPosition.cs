@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace SpiderShooter.Networking
 {
-    [AddComponentMenu("Networking.StartPosition")]
+    [AddComponentMenu("SpiderShooter/Networking.StartPosition")]
     public class StartPosition : MonoBehaviour
     {
         [SerializeField]

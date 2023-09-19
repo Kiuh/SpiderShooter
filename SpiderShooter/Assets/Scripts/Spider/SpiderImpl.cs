@@ -8,7 +8,7 @@ using UnityEngine;
 namespace SpiderShooter.Spider
 {
     [SelectionBase]
-    [AddComponentMenu("Spider.SpiderImpl")]
+    [AddComponentMenu("SpiderShooter/Spider.SpiderImpl")]
     public class SpiderImpl : NetworkBehaviour
     {
         [SyncVar]
@@ -112,6 +112,23 @@ namespace SpiderShooter.Spider
                     RpcAddTeamKill(TeamColor);
                 }
             }
+        }
+
+        [Command(requiresAuthority = false)]
+        public void CmdKilled()
+        {
+            if (TeamColor == TeamColor.Red)
+            {
+                ServerStorage.Singleton.BlueTeamKillCount++;
+            }
+            else
+            {
+                ServerStorage.Singleton.RedTeamKillCount++;
+            }
+            health = 100;
+            Transform transform = RoomManager.Singleton.GetRandomStartPosition(TeamColor).transform;
+            TeleportToPosition(transform.position, transform.rotation);
+            RpcAddTeamKill(TeamColor);
         }
     }
 }

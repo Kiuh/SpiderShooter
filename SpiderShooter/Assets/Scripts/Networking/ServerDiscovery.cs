@@ -20,7 +20,7 @@ namespace SpiderShooter.Networking
         public long ServerId;
     }
 
-    [AddComponentMenu("Networking.ServerDiscovery")]
+    [AddComponentMenu("SpiderShooter/Networking.ServerDiscovery")]
     public class ServerDiscovery : NetworkDiscoveryBase<ServerRequest, ServerResponseExt>
     {
         #region Server

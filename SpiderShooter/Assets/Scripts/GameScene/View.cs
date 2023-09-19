@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace SpiderShooter.GameScene
 {
-    [AddComponentMenu("GameScene.View")]
+    [AddComponentMenu("SpiderShooter/GameScene.View")]
     public class View : MonoBehaviour
     {
         [SerializeField]
