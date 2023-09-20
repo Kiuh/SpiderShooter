@@ -34,7 +34,11 @@ namespace Mirror
     public static class NetworkLoop
     {
         // helper enum to add loop to begin/end of subSystemList
-        internal enum AddMode { Beginning, End }
+        internal enum AddMode
+        {
+            Beginning,
+            End
+        }
 
         // callbacks for others to hook into if they need Early/LateUpdate.
         public static Action OnEarlyUpdate;
@@ -42,7 +46,7 @@ namespace Mirror
 
         // RuntimeInitializeOnLoadMethod -> fast playmode without domain reload
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        static void ResetStatics()
+        private static void ResetStatics()
         {
             OnEarlyUpdate = null;
             OnLateUpdate = null;
@@ -51,19 +55,35 @@ namespace Mirror
         // helper function to find an update function's index in a player loop
         // type. this is used for testing to guarantee our functions are added
         // at the beginning/end properly.
-        internal static int FindPlayerLoopEntryIndex(PlayerLoopSystem.UpdateFunction function, PlayerLoopSystem playerLoop, Type playerLoopSystemType)
+        internal static int FindPlayerLoopEntryIndex(
+            PlayerLoopSystem.UpdateFunction function,
+            PlayerLoopSystem playerLoop,
+            Type playerLoopSystemType
+        )
         {
             // did we find the type? e.g. EarlyUpdate/PreLateUpdate/etc.
             if (playerLoop.type == playerLoopSystemType)
-                return Array.FindIndex(playerLoop.subSystemList, (elem => elem.updateDelegate == function));
+            {
+                return Array.FindIndex(
+                    playerLoop.subSystemList,
+                    elem => elem.updateDelegate == function
+                );
+            }
 
             // recursively keep looking
             if (playerLoop.subSystemList != null)
             {
                 for (int i = 0; i < playerLoop.subSystemList.Length; ++i)
                 {
-                    int index = FindPlayerLoopEntryIndex(function, playerLoop.subSystemList[i], playerLoopSystemType);
-                    if (index != -1) return index;
+                    int index = FindPlayerLoopEntryIndex(
+                        function,
+                        playerLoop.subSystemList[i],
+                        playerLoopSystemType
+                    );
+                    if (index != -1)
+                    {
+                        return index;
+                    }
                 }
             }
             return -1;
@@ -89,7 +109,13 @@ namespace Mirror
         // ownerType: the .type to fill in so it's obvious who the new function
         //            belongs to. seems to be mostly for debugging. pass any.
         // addMode: prepend or append to update list
-        internal static bool AddToPlayerLoop(PlayerLoopSystem.UpdateFunction function, Type ownerType, ref PlayerLoopSystem playerLoop, Type playerLoopSystemType, AddMode addMode)
+        internal static bool AddToPlayerLoop(
+            PlayerLoopSystem.UpdateFunction function,
+            Type ownerType,
+            ref PlayerLoopSystem playerLoop,
+            Type playerLoopSystemType,
+            AddMode addMode
+        )
         {
             // did we find the type? e.g. EarlyUpdate/PreLateUpdate/etc.
             if (playerLoop.type == playerLoopSystemType)
@@ -102,14 +128,18 @@ namespace Mirror
                 // make sure the function wasn't added yet.
                 // with domain reload disabled, it would otherwise be added twice:
                 // fixes: https://github.com/MirrorNetworking/Mirror/issues/3392
-                if (Array.FindIndex(playerLoop.subSystemList, (s => s.updateDelegate == function)) != -1)
+                if (
+                    Array.FindIndex(playerLoop.subSystemList, s => s.updateDelegate == function)
+                    != -1
+                )
                 {
                     // loop contains the function, so return true.
                     return true;
                 }
 
                 // resize & expand subSystemList to fit one more entry
-                int oldListLength = (playerLoop.subSystemList != null) ? playerLoop.subSystemList.Length : 0;
+                int oldListLength =
+                    (playerLoop.subSystemList != null) ? playerLoop.subSystemList.Length : 0;
                 Array.Resize(ref playerLoop.subSystemList, oldListLength + 1);
 
                 // IMPORTANT: always insert a FRESH PlayerLoopSystem!
@@ -117,16 +147,19 @@ namespace Mirror
                 // => PlayerLoopSystem has native IntPtr loop members
                 // => forgetting to clear those would cause undefined behaviour!
                 // see also: https://github.com/vis2k/Mirror/pull/2652
-                PlayerLoopSystem system = new PlayerLoopSystem {
-                    type = ownerType,
-                    updateDelegate = function
-                };
+                PlayerLoopSystem system = new() { type = ownerType, updateDelegate = function };
 
                 // prepend our custom loop to the beginning
                 if (addMode == AddMode.Beginning)
                 {
                     // shift to the right, write into first array element
-                    Array.Copy(playerLoop.subSystemList, 0, playerLoop.subSystemList, 1, playerLoop.subSystemList.Length - 1);
+                    Array.Copy(
+                        playerLoop.subSystemList,
+                        0,
+                        playerLoop.subSystemList,
+                        1,
+                        playerLoop.subSystemList.Length - 1
+                    );
                     playerLoop.subSystemList[0] = system;
                 }
                 // append our custom loop to the end
@@ -149,8 +182,18 @@ namespace Mirror
             {
                 for (int i = 0; i < playerLoop.subSystemList.Length; ++i)
                 {
-                    if (AddToPlayerLoop(function, ownerType, ref playerLoop.subSystemList[i], playerLoopSystemType, addMode))
+                    if (
+                        AddToPlayerLoop(
+                            function,
+                            ownerType,
+                            ref playerLoop.subSystemList[i],
+                            playerLoopSystemType,
+                            addMode
+                        )
+                    )
+                    {
                         return true;
+                    }
                 }
             }
             return false;
@@ -158,7 +201,7 @@ namespace Mirror
 
         // hook into Unity runtime to actually add our custom functions
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        static void RuntimeInitializeOnLoad()
+        private static void RuntimeInitializeOnLoad()
         {
             //Debug.Log("Mirror: adding Network[Early/Late]Update to Unity...");
 
@@ -170,22 +213,37 @@ namespace Mirror
 
             // add NetworkEarlyUpdate to the end of EarlyUpdate so it runs after
             // any Unity initializations but before the first Update/FixedUpdate
-            AddToPlayerLoop(NetworkEarlyUpdate, typeof(NetworkLoop), ref playerLoop, typeof(EarlyUpdate), AddMode.End);
+            _ = AddToPlayerLoop(
+                NetworkEarlyUpdate,
+                typeof(NetworkLoop),
+                ref playerLoop,
+                typeof(EarlyUpdate),
+                AddMode.End
+            );
 
             // add NetworkLateUpdate to the end of PreLateUpdate so it runs after
             // LateUpdate(). adding to the beginning of PostLateUpdate doesn't
             // actually work.
-            AddToPlayerLoop(NetworkLateUpdate, typeof(NetworkLoop), ref playerLoop, typeof(PreLateUpdate), AddMode.End);
+            _ = AddToPlayerLoop(
+                NetworkLateUpdate,
+                typeof(NetworkLoop),
+                ref playerLoop,
+                typeof(PreLateUpdate),
+                AddMode.End
+            );
 
             // set the new loop
             PlayerLoop.SetPlayerLoop(playerLoop);
         }
 
-        static void NetworkEarlyUpdate()
+        private static void NetworkEarlyUpdate()
         {
             // loop functions run in edit mode and in play mode.
             // however, we only want to call NetworkServer/Client in play mode.
-            if (!Application.isPlaying) return;
+            if (!Application.isPlaying)
+            {
+                return;
+            }
 
             //Debug.Log($"NetworkEarlyUpdate {Time.time}");
             NetworkServer.NetworkEarlyUpdate();
@@ -194,11 +252,14 @@ namespace Mirror
             OnEarlyUpdate?.Invoke();
         }
 
-        static void NetworkLateUpdate()
+        private static void NetworkLateUpdate()
         {
             // loop functions run in edit mode and in play mode.
             // however, we only want to call NetworkServer/Client in play mode.
-            if (!Application.isPlaying) return;
+            if (!Application.isPlaying)
+            {
+                return;
+            }
 
             //Debug.Log($"NetworkLateUpdate {Time.time}");
             // invoke event before mirror does its final late updating.

@@ -6,12 +6,17 @@ namespace Mirror.SimpleWeb
 {
     public class WebSocketClientStandAlone : SimpleWebClient
     {
-        readonly ClientSslHelper sslHelper;
-        readonly ClientHandshake handshake;
-        readonly TcpConfig tcpConfig;
-        Connection conn;
+        private readonly ClientSslHelper sslHelper;
+        private readonly ClientHandshake handshake;
+        private readonly TcpConfig tcpConfig;
+        private Connection conn;
 
-        internal WebSocketClientStandAlone(int maxMessageSize, int maxMessagesPerTick, TcpConfig tcpConfig) : base(maxMessageSize, maxMessagesPerTick)
+        internal WebSocketClientStandAlone(
+            int maxMessageSize,
+            int maxMessagesPerTick,
+            TcpConfig tcpConfig
+        )
+            : base(maxMessageSize, maxMessagesPerTick)
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
             throw new NotSupportedException();
@@ -27,18 +32,18 @@ namespace Mirror.SimpleWeb
             state = ClientState.Connecting;
 
             // create connection here before thread so that send queue exist before connected
-            TcpClient client = new TcpClient();
+            TcpClient client = new();
             tcpConfig.ApplyTo(client);
 
             // create connection object here so dispose correctly disconnects on failed connect
             conn = new Connection(client, AfterConnectionDisposed);
 
-            Thread receiveThread = new Thread(() => ConnectAndReceiveLoop(serverAddress));
-            receiveThread.IsBackground = true;
+            Thread receiveThread =
+                new(() => ConnectAndReceiveLoop(serverAddress)) { IsBackground = true };
             receiveThread.Start();
         }
 
-        void ConnectAndReceiveLoop(Uri serverAddress)
+        private void ConnectAndReceiveLoop(Uri serverAddress)
         {
             try
             {
@@ -55,7 +60,6 @@ namespace Mirror.SimpleWeb
                     client.Dispose();
                     throw;
                 }
-
 
                 bool success = sslHelper.TryCreateStream(conn, serverAddress);
                 if (!success)
@@ -79,30 +83,41 @@ namespace Mirror.SimpleWeb
 
                 receiveQueue.Enqueue(new Message(EventType.Connected));
 
-                Thread sendThread = new Thread(() =>
-                {
-                    SendLoop.Config sendConfig = new SendLoop.Config(
-                        conn,
-                        bufferSize: Constants.HeaderSize + Constants.MaskSize + maxMessageSize,
-                        setMask: true);
+                Thread sendThread =
+                    new(() =>
+                    {
+                        SendLoop.Config sendConfig =
+                            new(
+                                conn,
+                                bufferSize: Constants.HeaderSize
+                                    + Constants.MaskSize
+                                    + maxMessageSize,
+                                setMask: true
+                            );
 
-                    SendLoop.Loop(sendConfig);
-                });
+                        SendLoop.Loop(sendConfig);
+                    });
 
                 conn.sendThread = sendThread;
                 sendThread.IsBackground = true;
                 sendThread.Start();
 
-                ReceiveLoop.Config config = new ReceiveLoop.Config(conn,
-                    maxMessageSize,
-                    false,
-                    receiveQueue,
-                    bufferPool);
+                ReceiveLoop.Config config =
+                    new(conn, maxMessageSize, false, receiveQueue, bufferPool);
                 ReceiveLoop.Loop(config);
             }
-            catch (ThreadInterruptedException e) { Log.InfoException(e); }
-            catch (ThreadAbortException e) { Log.InfoException(e); }
-            catch (Exception e) { Log.Exception(e); }
+            catch (ThreadInterruptedException e)
+            {
+                Log.InfoException(e);
+            }
+            catch (ThreadAbortException e)
+            {
+                Log.InfoException(e);
+            }
+            catch (Exception e)
+            {
+                Log.Exception(e);
+            }
             finally
             {
                 // close here in case connect fails
@@ -110,7 +125,7 @@ namespace Mirror.SimpleWeb
             }
         }
 
-        void AfterConnectionDisposed(Connection conn)
+        private void AfterConnectionDisposed(Connection conn)
         {
             state = ClientState.NotConnected;
             // make sure Disconnected event is only called once
@@ -123,9 +138,13 @@ namespace Mirror.SimpleWeb
             Log.Info("[SimpleWebTransport] Disconnect Called");
 
             if (conn == null)
+            {
                 state = ClientState.NotConnected;
+            }
             else
+            {
                 conn?.Dispose();
+            }
         }
 
         public override void Send(ArraySegment<byte> segment)

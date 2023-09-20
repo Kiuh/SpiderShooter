@@ -11,21 +11,21 @@ namespace Mirror
         // this way we don't need one NetworkMessage per rpc.
         // => prepares for LocalWorldState as well.
         // ensure max size when adding!
-        readonly NetworkWriter reliableRpcs = new NetworkWriter();
-        readonly NetworkWriter unreliableRpcs = new NetworkWriter();
+        private readonly NetworkWriter reliableRpcs = new();
+        private readonly NetworkWriter unreliableRpcs = new();
 
         public virtual string address => Transport.active.ServerGetClientAddress(connectionId);
 
         /// <summary>NetworkIdentities that this connection can see</summary>
         // TODO move to server's NetworkConnectionToClient?
-        public readonly HashSet<NetworkIdentity> observing = new HashSet<NetworkIdentity>();
+        public readonly HashSet<NetworkIdentity> observing = new();
 
         // Deprecated 2022-10-13
         [Obsolete(".clientOwnedObjects was renamed to .owned :)")]
         public HashSet<NetworkIdentity> clientOwnedObjects => owned;
 
         // unbatcher
-        public Unbatcher unbatcher = new Unbatcher();
+        public Unbatcher unbatcher = new();
 
         // server runs a time snapshot interpolation for each client's local time.
         // this is necessary for client auth movement to still be smooth on the
@@ -33,23 +33,24 @@ namespace Mirror
         // TODO move them along server's timeline in the future.
         //      perhaps with an offset.
         //      for now, keep compatibility by manually constructing a timeline.
-        ExponentialMovingAverage driftEma;
-        ExponentialMovingAverage deliveryTimeEma; // average delivery time (standard deviation gives average jitter)
+        private ExponentialMovingAverage driftEma;
+        private ExponentialMovingAverage deliveryTimeEma; // average delivery time (standard deviation gives average jitter)
         public double remoteTimeline;
         public double remoteTimescale;
-        double bufferTimeMultiplier = 2;
-        double bufferTime => NetworkServer.sendInterval * bufferTimeMultiplier;
+        private double bufferTimeMultiplier = 2;
+
+        private double bufferTime => NetworkServer.sendInterval * bufferTimeMultiplier;
 
         // <clienttime, snaps>
-        readonly SortedList<double, TimeSnapshot> snapshots = new SortedList<double, TimeSnapshot>();
+        private readonly SortedList<double, TimeSnapshot> snapshots = new();
 
         // Snapshot Buffer size limit to avoid ever growing list memory consumption attacks from clients.
         public int snapshotBufferSizeLimit = 64;
 
         // ping for rtt (round trip time)
         // useful for statistics, lag compensation, etc.
-        double lastPingTime = 0;
-        internal ExponentialMovingAverage _rtt = new ExponentialMovingAverage(NetworkTime.PingWindowSize);
+        private double lastPingTime = 0;
+        internal ExponentialMovingAverage _rtt = new(NetworkTime.PingWindowSize);
 
         /// <summary>Round trip time (in seconds) that it takes a message to go server->client->server.</summary>
         public double rtt => _rtt.Value;
@@ -60,17 +61,27 @@ namespace Mirror
             // initialize EMA with 'emaDuration' seconds worth of history.
             // 1 second holds 'sendRate' worth of values.
             // multiplied by emaDuration gives n-seconds.
-            driftEma = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.snapshotSettings.driftEmaDuration);
-            deliveryTimeEma = new ExponentialMovingAverage(NetworkServer.sendRate * NetworkClient.snapshotSettings.deliveryTimeEmaDuration);
+            driftEma = new ExponentialMovingAverage(
+                NetworkServer.sendRate * NetworkClient.snapshotSettings.driftEmaDuration
+            );
+            deliveryTimeEma = new ExponentialMovingAverage(
+                NetworkServer.sendRate * NetworkClient.snapshotSettings.deliveryTimeEmaDuration
+            );
 
             // buffer limit should be at least multiplier to have enough in there
-            snapshotBufferSizeLimit = Mathf.Max((int)NetworkClient.snapshotSettings.bufferTimeMultiplier, snapshotBufferSizeLimit);
+            snapshotBufferSizeLimit = Mathf.Max(
+                (int)NetworkClient.snapshotSettings.bufferTimeMultiplier,
+                snapshotBufferSizeLimit
+            );
         }
 
         public void OnTimeSnapshot(TimeSnapshot snapshot)
         {
             // protect against ever growing buffer size attacks
-            if (snapshots.Count >= snapshotBufferSizeLimit) return;
+            if (snapshots.Count >= snapshotBufferSizeLimit)
+            {
+                return;
+            }
 
             // (optional) dynamic adjustment
             if (NetworkClient.snapshotSettings.dynamicAdjustment)
@@ -109,20 +120,35 @@ namespace Mirror
             if (snapshots.Count > 0)
             {
                 // progress local timeline.
-                SnapshotInterpolation.StepTime(Time.unscaledDeltaTime, ref remoteTimeline, remoteTimescale);
+                SnapshotInterpolation.StepTime(
+                    Time.unscaledDeltaTime,
+                    ref remoteTimeline,
+                    remoteTimescale
+                );
 
                 // progress local interpolation.
                 // TimeSnapshot doesn't interpolate anything.
                 // this is merely to keep removing older snapshots.
-                SnapshotInterpolation.StepInterpolation(snapshots, remoteTimeline, out _, out _, out _);
+                SnapshotInterpolation.StepInterpolation(
+                    snapshots,
+                    remoteTimeline,
+                    out _,
+                    out _,
+                    out _
+                );
                 // Debug.Log($"NetworkClient SnapshotInterpolation @ {localTimeline:F2} t={t:F2}");
             }
         }
 
         // Send stage three: hand off to transport
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected override void SendToTransport(ArraySegment<byte> segment, int channelId = Channels.Reliable) =>
+        protected override void SendToTransport(
+            ArraySegment<byte> segment,
+            int channelId = Channels.Reliable
+        )
+        {
             Transport.active.ServerSend(connectionId, segment, channelId);
+        }
 
         protected virtual void UpdatePing()
         {
@@ -132,7 +158,7 @@ namespace Mirror
                 // TODO it would be safer for the server to store the last N
                 // messages' timestamp and only send a message number.
                 // This way client's can't just modify the timestamp.
-                NetworkPingMessage pingMessage = new NetworkPingMessage(NetworkTime.localTime);
+                NetworkPingMessage pingMessage = new(NetworkTime.localTime);
                 Send(pingMessage, Channels.Unreliable);
                 lastPingTime = NetworkTime.localTime;
             }
@@ -163,7 +189,7 @@ namespace Mirror
 
         internal void AddToObserving(NetworkIdentity netIdentity)
         {
-            observing.Add(netIdentity);
+            _ = observing.Add(netIdentity);
 
             // spawn identity for this conn
             NetworkServer.ShowForConnection(netIdentity, this);
@@ -171,7 +197,7 @@ namespace Mirror
 
         internal void RemoveFromObserving(NetworkIdentity netIdentity, bool isDestroyed)
         {
-            observing.Remove(netIdentity);
+            _ = observing.Remove(netIdentity);
 
             if (!isDestroyed)
             {
@@ -191,18 +217,18 @@ namespace Mirror
 
         internal void AddOwnedObject(NetworkIdentity obj)
         {
-            owned.Add(obj);
+            _ = owned.Add(obj);
         }
 
         internal void RemoveOwnedObject(NetworkIdentity obj)
         {
-            owned.Remove(obj);
+            _ = owned.Remove(obj);
         }
 
         internal void DestroyOwnedObjects()
         {
             // create a copy because the list might be modified when destroying
-            HashSet<NetworkIdentity> tmp = new HashSet<NetworkIdentity>(owned);
+            HashSet<NetworkIdentity> tmp = new(owned);
             foreach (NetworkIdentity netIdentity in tmp)
             {
                 if (netIdentity != null)
@@ -210,9 +236,13 @@ namespace Mirror
                     // unspawn scene objects, destroy instantiated objects.
                     // fixes: https://github.com/MirrorNetworking/Mirror/issues/3538
                     if (netIdentity.sceneId != 0)
+                    {
                         NetworkServer.UnSpawn(netIdentity.gameObject);
+                    }
                     else
+                    {
                         NetworkServer.Destroy(netIdentity.gameObject);
+                    }
                 }
             }
 

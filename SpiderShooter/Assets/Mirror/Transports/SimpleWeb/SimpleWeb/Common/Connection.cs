@@ -11,7 +11,7 @@ namespace Mirror.SimpleWeb
     internal sealed class Connection : IDisposable
     {
         public const int IdNotSet = -1;
-        private readonly object disposedLock = new object();
+        private readonly object disposedLock = new();
 
         public TcpClient client;
 
@@ -22,19 +22,19 @@ namespace Mirror.SimpleWeb
         /// <para>Only valid on server</para>
         /// </summary>
         public Request request;
+
         /// <summary>
         /// RemoteEndpoint address or address from request header
         /// <para>Only valid on server</para>
         /// </summary>
         public string remoteAddress;
 
-
         public Stream stream;
         public Thread receiveThread;
         public Thread sendThread;
 
-        public ManualResetEventSlim sendPending = new ManualResetEventSlim(false);
-        public ConcurrentQueue<ArrayBuffer> sendQueue = new ConcurrentQueue<ArrayBuffer>();
+        public ManualResetEventSlim sendPending = new(false);
+        public ConcurrentQueue<ArrayBuffer> sendQueue = new();
 
         public Action<Connection> onDispose;
         private volatile bool hasDisposed;
@@ -53,14 +53,20 @@ namespace Mirror.SimpleWeb
             Log.Verbose($"[SimpleWebTransport] Dispose {ToString()}");
 
             // check hasDisposed first to stop ThreadInterruptedException on lock
-            if (hasDisposed) return;
+            if (hasDisposed)
+            {
+                return;
+            }
 
             Log.Info($"[SimpleWebTransport] Connection Close: {ToString()}");
 
             lock (disposedLock)
             {
                 // check hasDisposed again inside lock to make sure no other object has called this
-                if (hasDisposed) return;
+                if (hasDisposed)
+                {
+                    return;
+                }
 
                 hasDisposed = true;
 
@@ -70,7 +76,7 @@ namespace Mirror.SimpleWeb
 
                 try
                 {
-                    // stream 
+                    // stream
                     stream?.Dispose();
                     stream = null;
                     client.Dispose();
@@ -85,7 +91,9 @@ namespace Mirror.SimpleWeb
 
                 // release all buffers in send queue
                 while (sendQueue.TryDequeue(out ArrayBuffer buffer))
+                {
                     buffer.Release();
+                }
 
                 onDispose.Invoke(this);
             }
@@ -94,8 +102,11 @@ namespace Mirror.SimpleWeb
         public override string ToString()
         {
             if (hasDisposed)
+            {
                 return $"[Conn:{connId}, Disposed]";
+            }
             else
+            {
                 try
                 {
                     System.Net.EndPoint endpoint = client?.Client?.RemoteEndPoint;
@@ -105,6 +116,7 @@ namespace Mirror.SimpleWeb
                 {
                     return $"[Conn:{connId}, endPoint:n/a]";
                 }
+            }
         }
 
         /// <summary>
@@ -124,7 +136,9 @@ namespace Mirror.SimpleWeb
                 IPEndPoint ipEndPoint = (IPEndPoint)client.Client.RemoteEndPoint;
                 IPAddress ipAddress = ipEndPoint.Address;
                 if (ipAddress.IsIPv4MappedToIPv6)
+                {
                     ipAddress = ipAddress.MapToIPv4();
+                }
 
                 return ipAddress.ToString();
             }

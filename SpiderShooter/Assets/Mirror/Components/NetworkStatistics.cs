@@ -15,44 +15,72 @@ namespace Mirror
     public class NetworkStatistics : MonoBehaviour
     {
         // update interval
-        double intervalStartTime;
+        private double intervalStartTime;
 
         // ---------------------------------------------------------------------
 
         // CLIENT (public fields for other components to grab statistics)
         // long bytes to support >2GB
-        [HideInInspector] public int  clientIntervalReceivedPackets;
-        [HideInInspector] public long clientIntervalReceivedBytes;
-        [HideInInspector] public int  clientIntervalSentPackets;
-        [HideInInspector] public long clientIntervalSentBytes;
+        [HideInInspector]
+        public int clientIntervalReceivedPackets;
+
+        [HideInInspector]
+        public long clientIntervalReceivedBytes;
+
+        [HideInInspector]
+        public int clientIntervalSentPackets;
+
+        [HideInInspector]
+        public long clientIntervalSentBytes;
 
         // results from last interval
         // long bytes to support >2GB
-        [HideInInspector] public int  clientReceivedPacketsPerSecond;
-        [HideInInspector] public long clientReceivedBytesPerSecond;
-        [HideInInspector] public int  clientSentPacketsPerSecond;
-        [HideInInspector] public long clientSentBytesPerSecond;
+        [HideInInspector]
+        public int clientReceivedPacketsPerSecond;
+
+        [HideInInspector]
+        public long clientReceivedBytesPerSecond;
+
+        [HideInInspector]
+        public int clientSentPacketsPerSecond;
+
+        [HideInInspector]
+        public long clientSentBytesPerSecond;
 
         // ---------------------------------------------------------------------
 
         // SERVER (public fields for other components to grab statistics)
         // capture interval
         // long bytes to support >2GB
-        [HideInInspector] public int  serverIntervalReceivedPackets;
-        [HideInInspector] public long serverIntervalReceivedBytes;
-        [HideInInspector] public int  serverIntervalSentPackets;
-        [HideInInspector] public long serverIntervalSentBytes;
+        [HideInInspector]
+        public int serverIntervalReceivedPackets;
+
+        [HideInInspector]
+        public long serverIntervalReceivedBytes;
+
+        [HideInInspector]
+        public int serverIntervalSentPackets;
+
+        [HideInInspector]
+        public long serverIntervalSentBytes;
 
         // results from last interval
         // long bytes to support >2GB
-        [HideInInspector] public int  serverReceivedPacketsPerSecond;
-        [HideInInspector] public long serverReceivedBytesPerSecond;
-        [HideInInspector] public int  serverSentPacketsPerSecond;
-        [HideInInspector] public long serverSentBytesPerSecond;
+        [HideInInspector]
+        public int serverReceivedPacketsPerSecond;
+
+        [HideInInspector]
+        public long serverReceivedBytesPerSecond;
+
+        [HideInInspector]
+        public int serverSentPacketsPerSecond;
+
+        [HideInInspector]
+        public long serverSentBytesPerSecond;
 
         // NetworkManager sets Transport.active in Awake().
         // so let's hook into it in Start().
-        void Start()
+        private void Start()
         {
             // find available transport
             Transport transport = Transport.active;
@@ -63,10 +91,15 @@ namespace Mirror
                 transport.OnServerDataReceived += OnServerReceive;
                 transport.OnServerDataSent += OnServerSend;
             }
-            else Debug.LogError($"NetworkStatistics: no available or active Transport found on this platform: {Application.platform}");
+            else
+            {
+                Debug.LogError(
+                    $"NetworkStatistics: no available or active Transport found on this platform: {Application.platform}"
+                );
+            }
         }
 
-        void OnDestroy()
+        private void OnDestroy()
         {
             // remove transport hooks
             Transport transport = Transport.active;
@@ -79,43 +112,50 @@ namespace Mirror
             }
         }
 
-        void OnClientReceive(ArraySegment<byte> data, int channelId)
+        private void OnClientReceive(ArraySegment<byte> data, int channelId)
         {
             ++clientIntervalReceivedPackets;
             clientIntervalReceivedBytes += data.Count;
         }
 
-        void OnClientSend(ArraySegment<byte> data, int channelId)
+        private void OnClientSend(ArraySegment<byte> data, int channelId)
         {
             ++clientIntervalSentPackets;
             clientIntervalSentBytes += data.Count;
         }
 
-        void OnServerReceive(int connectionId, ArraySegment<byte> data, int channelId)
+        private void OnServerReceive(int connectionId, ArraySegment<byte> data, int channelId)
         {
             ++serverIntervalReceivedPackets;
             serverIntervalReceivedBytes += data.Count;
         }
 
-        void OnServerSend(int connectionId, ArraySegment<byte> data, int channelId)
+        private void OnServerSend(int connectionId, ArraySegment<byte> data, int channelId)
         {
             ++serverIntervalSentPackets;
             serverIntervalSentBytes += data.Count;
         }
 
-        void Update()
+        private void Update()
         {
             // calculate results every second
             if (NetworkTime.localTime >= intervalStartTime + 1)
             {
-                if (NetworkClient.active) UpdateClient();
-                if (NetworkServer.active) UpdateServer();
+                if (NetworkClient.active)
+                {
+                    UpdateClient();
+                }
+
+                if (NetworkServer.active)
+                {
+                    UpdateServer();
+                }
 
                 intervalStartTime = NetworkTime.localTime;
             }
         }
 
-        void UpdateClient()
+        private void UpdateClient()
         {
             clientReceivedPacketsPerSecond = clientIntervalReceivedPackets;
             clientReceivedBytesPerSecond = clientIntervalReceivedBytes;
@@ -128,7 +168,7 @@ namespace Mirror
             clientIntervalSentBytes = 0;
         }
 
-        void UpdateServer()
+        private void UpdateServer()
         {
             serverReceivedPacketsPerSecond = serverIntervalReceivedPackets;
             serverReceivedBytesPerSecond = serverIntervalReceivedBytes;
@@ -141,7 +181,7 @@ namespace Mirror
             serverIntervalSentBytes = 0;
         }
 
-        void OnGUI()
+        private void OnGUI()
         {
             // only show if either server or client active
             if (NetworkClient.active || NetworkServer.active)
@@ -151,41 +191,56 @@ namespace Mirror
                 GUILayout.BeginArea(new Rect(10, 120, 215, 300));
 
                 // show client / server stats if active
-                if (NetworkClient.active) OnClientGUI();
-                if (NetworkServer.active) OnServerGUI();
+                if (NetworkClient.active)
+                {
+                    OnClientGUI();
+                }
+
+                if (NetworkServer.active)
+                {
+                    OnServerGUI();
+                }
 
                 // end of GUI area
                 GUILayout.EndArea();
             }
         }
 
-        void OnClientGUI()
+        private void OnClientGUI()
         {
             // background
             GUILayout.BeginVertical("Box");
             GUILayout.Label("<b>Client Statistics</b>");
 
             // sending ("msgs" instead of "packets" to fit larger numbers)
-            GUILayout.Label($"Send: {clientSentPacketsPerSecond} msgs @ {Utils.PrettyBytes(clientSentBytesPerSecond)}/s");
+            GUILayout.Label(
+                $"Send: {clientSentPacketsPerSecond} msgs @ {Utils.PrettyBytes(clientSentBytesPerSecond)}/s"
+            );
 
             // receiving ("msgs" instead of "packets" to fit larger numbers)
-            GUILayout.Label($"Recv: {clientReceivedPacketsPerSecond} msgs @ {Utils.PrettyBytes(clientReceivedBytesPerSecond)}/s");
+            GUILayout.Label(
+                $"Recv: {clientReceivedPacketsPerSecond} msgs @ {Utils.PrettyBytes(clientReceivedBytesPerSecond)}/s"
+            );
 
             // end background
             GUILayout.EndVertical();
         }
 
-        void OnServerGUI()
+        private void OnServerGUI()
         {
             // background
             GUILayout.BeginVertical("Box");
             GUILayout.Label("<b>Server Statistics</b>");
 
             // sending ("msgs" instead of "packets" to fit larger numbers)
-            GUILayout.Label($"Send: {serverSentPacketsPerSecond} msgs @ {Utils.PrettyBytes(serverSentBytesPerSecond)}/s");
+            GUILayout.Label(
+                $"Send: {serverSentPacketsPerSecond} msgs @ {Utils.PrettyBytes(serverSentBytesPerSecond)}/s"
+            );
 
             // receiving ("msgs" instead of "packets" to fit larger numbers)
-            GUILayout.Label($"Recv: {serverReceivedPacketsPerSecond} msgs @ {Utils.PrettyBytes(serverReceivedBytesPerSecond)}/s");
+            GUILayout.Label(
+                $"Recv: {serverReceivedPacketsPerSecond} msgs @ {Utils.PrettyBytes(serverReceivedBytesPerSecond)}/s"
+            );
 
             // end background
             GUILayout.EndVertical();

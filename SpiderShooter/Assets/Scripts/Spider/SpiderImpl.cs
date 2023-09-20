@@ -1,14 +1,14 @@
 ﻿using Cinemachine;
-using Common;
 using Mirror;
-using Networking;
+using SpiderShooter.Common;
+using SpiderShooter.Networking;
 using System.Linq;
 using UnityEngine;
 
-namespace Assets.Scripts.Spider
+namespace SpiderShooter.Spider
 {
     [SelectionBase]
-    [AddComponentMenu("Spider.SpiderImpl")]
+    [AddComponentMenu("SpiderShooter/Spider.SpiderImpl")]
     public class SpiderImpl : NetworkBehaviour
     {
         [SyncVar]
@@ -25,12 +25,14 @@ namespace Assets.Scripts.Spider
         [SerializeField]
         [InspectorReadOnly]
         private TeamColor teamColor;
-        public TeamColor TeamColor => teamColor;
-
-        [Command(requiresAuthority = false)]
-        public void CmdSetTeamColor(TeamColor teamColor)
+        public TeamColor TeamColor
         {
-            this.teamColor = teamColor;
+            get => teamColor;
+            set => teamColor = value;
+        }
+
+        public void ApplyTeamColor()
+        {
             Color color = teamColor == TeamColor.Red ? Color.red : Color.blue;
             foreach (Transform item in transform)
             {
@@ -44,6 +46,7 @@ namespace Assets.Scripts.Spider
         [SyncVar]
         [SerializeField]
         private float health;
+        public float Health => health;
 
         [SerializeField]
         private float bulletSpeed;
@@ -63,15 +66,69 @@ namespace Assets.Scripts.Spider
                 virtualCamera.LookAt = transform;
                 virtualCamera.Follow = transform;
             }
+            ApplyTeamColor();
         }
 
-        public void TakeDamage(float damage)
+        [ClientRpc]
+        private void TeleportToPosition(Vector3 position, Quaternion rotation)
         {
-            health -= damage;
-            if (health <= 0)
+            transform.SetPositionAndRotation(position, rotation);
+        }
+
+        [ClientRpc]
+        private void RpcAddTeamKill(TeamColor team)
+        {
+            if (team == TeamColor.Blue)
             {
-                NetworkServer.Destroy(gameObject);
+                GameScene.Controller.Singleton.RedTeamKillCount++;
             }
+            else
+            {
+                GameScene.Controller.Singleton.BlueTeamKillCount++;
+            }
+        }
+
+        [ServerCallback]
+        private void OnTriggerEnter(Collider other)
+        {
+            if (other.TryGetComponent(out Bullet bullet))
+            {
+                health -= bullet.Damage;
+                if (health == 0)
+                {
+                    if (TeamColor == TeamColor.Red)
+                    {
+                        ServerStorage.Singleton.BlueTeamKillCount++;
+                    }
+                    else
+                    {
+                        ServerStorage.Singleton.RedTeamKillCount++;
+                    }
+                    health = 100;
+                    Transform transform = RoomManager.Singleton
+                        .GetRandomStartPosition(TeamColor)
+                        .transform;
+                    TeleportToPosition(transform.position, transform.rotation);
+                    RpcAddTeamKill(TeamColor);
+                }
+            }
+        }
+
+        [Command(requiresAuthority = false)]
+        public void CmdKilled()
+        {
+            if (TeamColor == TeamColor.Red)
+            {
+                ServerStorage.Singleton.BlueTeamKillCount++;
+            }
+            else
+            {
+                ServerStorage.Singleton.RedTeamKillCount++;
+            }
+            health = 100;
+            Transform transform = RoomManager.Singleton.GetRandomStartPosition(TeamColor).transform;
+            TeleportToPosition(transform.position, transform.rotation);
+            RpcAddTeamKill(TeamColor);
         }
     }
 }

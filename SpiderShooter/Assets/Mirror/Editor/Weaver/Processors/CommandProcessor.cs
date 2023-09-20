@@ -30,7 +30,15 @@ namespace Mirror.Weaver
             This way we do not need to modify the code anywhere else,  and this works
             correctly in dependent assemblies
         */
-        public static MethodDefinition ProcessCommandCall(WeaverTypes weaverTypes, Writers writers, Logger Log, TypeDefinition td, MethodDefinition md, CustomAttribute commandAttr, ref bool WeavingFailed)
+        public static MethodDefinition ProcessCommandCall(
+            WeaverTypes weaverTypes,
+            Writers writers,
+            Logger Log,
+            TypeDefinition td,
+            MethodDefinition md,
+            CustomAttribute commandAttr,
+            ref bool WeavingFailed
+        )
         {
             MethodDefinition cmd = MethodProcessor.SubstituteMethod(Log, td, md, ref WeavingFailed);
 
@@ -42,8 +50,19 @@ namespace Mirror.Weaver
             NetworkBehaviourProcessor.WriteGetWriter(worker, weaverTypes);
 
             // write all the arguments that the user passed to the Cmd call
-            if (!NetworkBehaviourProcessor.WriteArguments(worker, writers, Log, md, RemoteCallType.Command, ref WeavingFailed))
+            if (
+                !NetworkBehaviourProcessor.WriteArguments(
+                    worker,
+                    writers,
+                    Log,
+                    md,
+                    RemoteCallType.Command,
+                    ref WeavingFailed
+                )
+            )
+            {
                 return null;
+            }
 
             int channel = commandAttr.GetField("channel", 0);
             bool requiresAuthority = commandAttr.GetField("requiresAuthority", true);
@@ -82,25 +101,53 @@ namespace Mirror.Weaver
                 ((ShipControl)obj).CmdThrust(reader.ReadSingle(), (int)reader.ReadPackedUInt32());
             }
         */
-        public static MethodDefinition ProcessCommandInvoke(WeaverTypes weaverTypes, Readers readers, Logger Log, TypeDefinition td, MethodDefinition method, MethodDefinition cmdCallFunc, ref bool WeavingFailed)
+        public static MethodDefinition ProcessCommandInvoke(
+            WeaverTypes weaverTypes,
+            Readers readers,
+            Logger Log,
+            TypeDefinition td,
+            MethodDefinition method,
+            MethodDefinition cmdCallFunc,
+            ref bool WeavingFailed
+        )
         {
             string cmdName = Weaver.GenerateMethodName(Weaver.InvokeRpcPrefix, method);
 
-            MethodDefinition cmd = new MethodDefinition(cmdName,
-                MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
-                weaverTypes.Import(typeof(void)));
+            MethodDefinition cmd =
+                new(
+                    cmdName,
+                    MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
+                    weaverTypes.Import(typeof(void))
+                );
 
             ILProcessor worker = cmd.Body.GetILProcessor();
             Instruction label = worker.Create(OpCodes.Nop);
 
-            NetworkBehaviourProcessor.WriteServerActiveCheck(worker, weaverTypes, method.Name, label, "Command");
+            NetworkBehaviourProcessor.WriteServerActiveCheck(
+                worker,
+                weaverTypes,
+                method.Name,
+                label,
+                "Command"
+            );
 
             // setup for reader
             worker.Emit(OpCodes.Ldarg_0);
             worker.Emit(OpCodes.Castclass, td);
 
-            if (!NetworkBehaviourProcessor.ReadArguments(method, readers, Log, worker, RemoteCallType.Command, ref WeavingFailed))
+            if (
+                !NetworkBehaviourProcessor.ReadArguments(
+                    method,
+                    readers,
+                    Log,
+                    worker,
+                    RemoteCallType.Command,
+                    ref WeavingFailed
+                )
+            )
+            {
                 return null;
+            }
 
             AddSenderConnection(method, worker);
 
@@ -114,7 +161,7 @@ namespace Mirror.Weaver
             return cmd;
         }
 
-        static void AddSenderConnection(MethodDefinition method, ILProcessor worker)
+        private static void AddSenderConnection(MethodDefinition method, ILProcessor worker)
         {
             foreach (ParameterDefinition param in method.Parameters)
             {

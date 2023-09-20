@@ -5,7 +5,9 @@ using UnityEngine;
 namespace Mirror.Authenticators
 {
     [AddComponentMenu("Network/ Authenticators/Basic Authenticator")]
-    [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-authenticators/basic-authenticator")]
+    [HelpURL(
+        "https://mirror-networking.gitbook.io/docs/components/network-authenticators/basic-authenticator"
+    )]
     public class BasicAuthenticator : NetworkAuthenticator
     {
         [Header("Server Credentials")]
@@ -15,8 +17,7 @@ namespace Mirror.Authenticators
         [Header("Client Credentials")]
         public string username;
         public string password;
-
-        readonly HashSet<NetworkConnection> connectionsPendingDisconnect = new HashSet<NetworkConnection>();
+        private readonly HashSet<NetworkConnection> connectionsPendingDisconnect = new();
 
         #region Messages
 
@@ -76,17 +77,16 @@ namespace Mirror.Authenticators
         {
             //Debug.Log($"Authentication Request: {msg.authUsername} {msg.authPassword}");
 
-            if (connectionsPendingDisconnect.Contains(conn)) return;
+            if (connectionsPendingDisconnect.Contains(conn))
+            {
+                return;
+            }
 
             // check the credentials by calling your web server, database table, playfab api, or any method appropriate.
             if (msg.authUsername == serverUsername && msg.authPassword == serverPassword)
             {
                 // create and send msg to client so it knows to proceed
-                AuthResponseMessage authResponseMessage = new AuthResponseMessage
-                {
-                    code = 100,
-                    message = "Success"
-                };
+                AuthResponseMessage authResponseMessage = new() { code = 100, message = "Success" };
 
                 conn.Send(authResponseMessage);
 
@@ -95,14 +95,11 @@ namespace Mirror.Authenticators
             }
             else
             {
-                connectionsPendingDisconnect.Add(conn);
+                _ = connectionsPendingDisconnect.Add(conn);
 
                 // create and send msg to client so it knows to disconnect
-                AuthResponseMessage authResponseMessage = new AuthResponseMessage
-                {
-                    code = 200,
-                    message = "Invalid Credentials"
-                };
+                AuthResponseMessage authResponseMessage =
+                    new() { code = 200, message = "Invalid Credentials" };
 
                 conn.Send(authResponseMessage);
 
@@ -110,11 +107,11 @@ namespace Mirror.Authenticators
                 conn.isAuthenticated = false;
 
                 // disconnect the client after 1 second so that response message gets delivered
-                StartCoroutine(DelayedDisconnect(conn, 1f));
+                _ = StartCoroutine(DelayedDisconnect(conn, 1f));
             }
         }
 
-        IEnumerator DelayedDisconnect(NetworkConnectionToClient conn, float waitTime)
+        private IEnumerator DelayedDisconnect(NetworkConnectionToClient conn, float waitTime)
         {
             yield return new WaitForSeconds(waitTime);
 
@@ -124,7 +121,7 @@ namespace Mirror.Authenticators
             yield return null;
 
             // remove conn from pending connections
-            connectionsPendingDisconnect.Remove(conn);
+            _ = connectionsPendingDisconnect.Remove(conn);
         }
 
         #endregion
@@ -148,7 +145,7 @@ namespace Mirror.Authenticators
         public override void OnStopClient()
         {
             // unregister the handler for the authentication response
-            NetworkClient.UnregisterHandler<AuthResponseMessage>();
+            _ = NetworkClient.UnregisterHandler<AuthResponseMessage>();
         }
 
         /// <summary>
@@ -156,11 +153,8 @@ namespace Mirror.Authenticators
         /// </summary>
         public override void OnClientAuthenticate()
         {
-            AuthRequestMessage authRequestMessage = new AuthRequestMessage
-            {
-                authUsername = username,
-                authPassword = password
-            };
+            AuthRequestMessage authRequestMessage =
+                new() { authUsername = username, authPassword = password };
 
             NetworkClient.Send(authRequestMessage);
         }

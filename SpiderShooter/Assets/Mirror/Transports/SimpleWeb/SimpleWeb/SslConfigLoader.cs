@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace Mirror.SimpleWeb
 {
-
     public class SslConfigLoader
     {
         internal struct Cert
@@ -12,11 +11,14 @@ namespace Mirror.SimpleWeb
             public string path;
             public string password;
         }
+
         public static SslConfig Load(bool sslEnabled, string sslCertJson, SslProtocols sslProtocols)
         {
             // don't need to load anything if ssl is not enabled
             if (!sslEnabled)
+            {
                 return default;
+            }
 
             string certJsonPath = sslCertJson;
 
@@ -36,12 +38,16 @@ namespace Mirror.SimpleWeb
             Cert cert = JsonUtility.FromJson<Cert>(json);
 
             if (string.IsNullOrWhiteSpace(cert.path))
+            {
                 throw new InvalidDataException("Cert Json didn't not contain \"path\"");
+            }
 
             // don't use IsNullOrWhiteSpace here because whitespace could be a valid password for a cert
             // password can also be empty
             if (string.IsNullOrEmpty(cert.password))
+            {
                 cert.password = string.Empty;
+            }
 
             return cert;
         }

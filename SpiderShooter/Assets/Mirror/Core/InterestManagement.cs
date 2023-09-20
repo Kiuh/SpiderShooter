@@ -11,8 +11,7 @@ namespace Mirror
     public abstract class InterestManagement : InterestManagementBase
     {
         // allocate newObservers helper HashSet
-        readonly HashSet<NetworkConnectionToClient> newObservers =
-            new HashSet<NetworkConnectionToClient>();
+        private readonly HashSet<NetworkConnectionToClient> newObservers = new();
 
         // rebuild observers for the given NetworkIdentity.
         // Server will automatically spawn/despawn added/removed ones.
@@ -31,7 +30,10 @@ namespace Mirror
         //
         // Mirror maintains .observing automatically in the background. best of
         // both worlds without any worrying now!
-        public abstract void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnectionToClient> newObservers);
+        public abstract void OnRebuildObservers(
+            NetworkIdentity identity,
+            HashSet<NetworkConnectionToClient> newObservers
+        );
 
         // helper function to trigger a full rebuild.
         // most implementations should call this in a certain interval.
@@ -68,7 +70,7 @@ namespace Mirror
             //    losing the own connection as observer.
             if (identity.connectionToClient != null)
             {
-                newObservers.Add(identity.connectionToClient);
+                _ = newObservers.Add(identity.connectionToClient);
             }
 
             bool changed = false;
@@ -109,7 +111,9 @@ namespace Mirror
                 foreach (NetworkConnectionToClient conn in newObservers)
                 {
                     if (conn != null && conn.isReady)
+                    {
                         identity.observers.Add(conn.connectionId, conn);
+                    }
                 }
             }
 

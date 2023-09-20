@@ -6,7 +6,9 @@ using UnityEngine;
 
 namespace Mirror
 {
-    [AddComponentMenu("Network/ Interest Management/ Spatial Hash/Spatial Hashing Interest Management")]
+    [AddComponentMenu(
+        "Network/ Interest Management/ Spatial Hash/Spatial Hashing Interest Management"
+    )]
     public class SpatialHashingInterestManagement : InterestManagement
     {
         [Tooltip("The maximum range that objects will be visible at.")]
@@ -26,13 +28,14 @@ namespace Mirror
 
         [Tooltip("Rebuild all every 'rebuildInterval' seconds.")]
         public float rebuildInterval = 1;
-        double lastRebuildTime;
+        private double lastRebuildTime;
 
         public enum CheckMethod
         {
             XZ_FOR_3D,
             XY_FOR_2D
         }
+
         [Tooltip("Spatial Hashing supports 3D (XZ) and 2D (XY) games.")]
         public CheckMethod checkMethod = CheckMethod.XZ_FOR_3D;
 
@@ -41,15 +44,20 @@ namespace Mirror
 
         // the grid
         // begin with a large capacity to avoid resizing & allocations.
-        Grid2D<NetworkConnectionToClient> grid = new Grid2D<NetworkConnectionToClient>(1024);
+        private Grid2D<NetworkConnectionToClient> grid = new(1024);
 
         // project 3d world position to grid position
-        Vector2Int ProjectToGrid(Vector3 position) =>
-            checkMethod == CheckMethod.XZ_FOR_3D
-            ? Vector2Int.RoundToInt(new Vector2(position.x, position.z) / resolution)
-            : Vector2Int.RoundToInt(new Vector2(position.x, position.y) / resolution);
+        private Vector2Int ProjectToGrid(Vector3 position)
+        {
+            return checkMethod == CheckMethod.XZ_FOR_3D
+                ? Vector2Int.RoundToInt(new Vector2(position.x, position.z) / resolution)
+                : Vector2Int.RoundToInt(new Vector2(position.x, position.y) / resolution);
+        }
 
-        public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnectionToClient newObserver)
+        public override bool OnCheckObserver(
+            NetworkIdentity identity,
+            NetworkConnectionToClient newObserver
+        )
         {
             // calculate projected positions
             Vector2Int projected = ProjectToGrid(identity.transform.position);
@@ -62,7 +70,10 @@ namespace Mirror
             return (projected - observerProjected).sqrMagnitude <= 2;
         }
 
-        public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnectionToClient> newObservers)
+        public override void OnRebuildObservers(
+            NetworkIdentity identity,
+            HashSet<NetworkConnectionToClient> newObservers
+        )
         {
             // add everyone in 9 neighbour grid
             // -> pass observers to GetWithNeighbours directly to avoid allocations
@@ -128,23 +139,33 @@ namespace Mirror
             }
         }
 
-// OnGUI allocates even if it does nothing. avoid in release.
+        // OnGUI allocates even if it does nothing. avoid in release.
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         // slider from dotsnet. it's nice to play around with in the benchmark
         // demo.
-        void OnGUI()
+        private void OnGUI()
         {
-            if (!showSlider) return;
+            if (!showSlider)
+            {
+                return;
+            }
 
             // only show while server is running. not on client, etc.
-            if (!NetworkServer.active) return;
+            if (!NetworkServer.active)
+            {
+                return;
+            }
 
             int height = 30;
             int width = 250;
-            GUILayout.BeginArea(new Rect(Screen.width / 2 - width / 2, Screen.height - height, width, height));
+            GUILayout.BeginArea(
+                new Rect((Screen.width / 2) - (width / 2), Screen.height - height, width, height)
+            );
             GUILayout.BeginHorizontal("Box");
             GUILayout.Label("Radius:");
-            visRange = Mathf.RoundToInt(GUILayout.HorizontalSlider(visRange, 0, 200, GUILayout.Width(150)));
+            visRange = Mathf.RoundToInt(
+                GUILayout.HorizontalSlider(visRange, 0, 200, GUILayout.Width(150))
+            );
             GUILayout.Label(visRange.ToString());
             GUILayout.EndHorizontal();
             GUILayout.EndArea();

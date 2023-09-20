@@ -5,58 +5,71 @@ namespace Mirror.Experimental
 {
     [AddComponentMenu("Network/ Experimental/Network Lerp Rigidbody")]
     [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-lerp-rigidbody")]
-    [Obsolete("Use the new NetworkRigidbodyReliable/Unreliable component with Snapshot Interpolation instead.")]
+    [Obsolete(
+        "Use the new NetworkRigidbodyReliable/Unreliable component with Snapshot Interpolation instead."
+    )]
     public class NetworkLerpRigidbody : NetworkBehaviour
     {
         [Header("Settings")]
-        [SerializeField] internal Rigidbody target = null;
+        [SerializeField]
+        internal Rigidbody target = null;
 
         [Tooltip("How quickly current velocity approaches target velocity")]
-        [SerializeField] float lerpVelocityAmount = 0.5f;
+        [SerializeField]
+        private float lerpVelocityAmount = 0.5f;
 
         [Tooltip("How quickly current position approaches target position")]
-        [SerializeField] float lerpPositionAmount = 0.5f;
+        [SerializeField]
+        private float lerpPositionAmount = 0.5f;
 
-        [Tooltip("Set to true if moves come from owner client, set to false if moves always come from server")]
-        [SerializeField] bool clientAuthority = false;
-
-        double nextSyncTime;
+        [Tooltip(
+            "Set to true if moves come from owner client, set to false if moves always come from server"
+        )]
+        [SerializeField]
+        private bool clientAuthority = false;
+        private double nextSyncTime;
 
         [SyncVar()]
-        Vector3 targetVelocity;
+        private Vector3 targetVelocity;
 
         [SyncVar()]
-        Vector3 targetPosition;
+        private Vector3 targetPosition;
 
         /// <summary>
         /// Ignore value if is host or client with Authority
         /// </summary>
-        bool IgnoreSync => isServer || ClientWithAuthority;
+        private bool IgnoreSync => isServer || ClientWithAuthority;
 
-        bool ClientWithAuthority => clientAuthority && isOwned;
+        private bool ClientWithAuthority => clientAuthority && isOwned;
 
         protected override void OnValidate()
         {
             base.OnValidate();
             if (target == null)
+            {
                 target = GetComponent<Rigidbody>();
+            }
         }
 
-        void Update()
+        private void Update()
         {
             if (isServer)
+            {
                 SyncToClients();
+            }
             else if (ClientWithAuthority)
+            {
                 SendToServer();
+            }
         }
 
-        void SyncToClients()
+        private void SyncToClients()
         {
             targetVelocity = target.velocity;
             targetPosition = target.position;
         }
 
-        void SendToServer()
+        private void SendToServer()
         {
             double now = NetworkTime.localTime; // Unity 2019 doesn't have Time.timeAsDouble yet
             if (now > nextSyncTime)
@@ -67,7 +80,7 @@ namespace Mirror.Experimental
         }
 
         [Command]
-        void CmdSendState(Vector3 velocity, Vector3 position)
+        private void CmdSendState(Vector3 velocity, Vector3 position)
         {
             target.velocity = velocity;
             target.position = position;
@@ -75,9 +88,12 @@ namespace Mirror.Experimental
             targetPosition = position;
         }
 
-        void FixedUpdate()
+        private void FixedUpdate()
         {
-            if (IgnoreSync) { return; }
+            if (IgnoreSync)
+            {
+                return;
+            }
 
             target.velocity = Vector3.Lerp(target.velocity, targetVelocity, lerpVelocityAmount);
             target.position = Vector3.Lerp(target.position, targetPosition, lerpPositionAmount);

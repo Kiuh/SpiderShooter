@@ -19,7 +19,6 @@ namespace Mirror
         public bool showRoomGUI = true;
 
         [Header("Diagnostics")]
-
         /// <summary>
         /// Diagnostic flag indicating whether this player is ready for the game to begin.
         /// <para>Invoke CmdChangeReadyState method on the client to set this flag.</para>
@@ -49,17 +48,28 @@ namespace Mirror
                 // in server and all clients, otherwise it will be respawned in the game scene which would
                 // have undesirable effects.
                 if (room.dontDestroyOnLoad)
+                {
                     DontDestroyOnLoad(gameObject);
+                }
 
                 room.roomSlots.Add(this);
 
                 if (NetworkServer.active)
+                {
                     room.RecalculateRoomPlayerIndices();
+                }
 
                 if (NetworkClient.active)
+                {
                     room.CallOnClientEnterRoom();
+                }
             }
-            else Debug.LogError("RoomPlayer could not find a NetworkRoomManager. The RoomPlayer requires a NetworkRoomManager object to function. Make sure that there is one in the scene.");
+            else
+            {
+                Debug.LogError(
+                    "RoomPlayer could not find a NetworkRoomManager. The RoomPlayer requires a NetworkRoomManager object to function. Make sure that there is one in the scene."
+                );
+            }
         }
 
         public virtual void OnDisable()
@@ -67,7 +77,7 @@ namespace Mirror
             if (NetworkClient.active && NetworkManager.singleton is NetworkRoomManager room)
             {
                 // only need to call this on client as server removes it before object is destroyed
-                room.roomSlots.Remove(this);
+                _ = room.roomSlots.Remove(this);
 
                 room.CallOnClientExitRoom();
             }
@@ -77,7 +87,7 @@ namespace Mirror
 
         #region Commands
 
-        [Command]
+        [Command(requiresAuthority = false)]
         public void CmdChangeReadyState(bool readyState)
         {
             readyToBegin = readyState;
@@ -97,14 +107,14 @@ namespace Mirror
         /// </summary>
         /// <param name="oldIndex">The old index value</param>
         /// <param name="newIndex">The new index value</param>
-        public virtual void IndexChanged(int oldIndex, int newIndex) {}
+        public virtual void IndexChanged(int oldIndex, int newIndex) { }
 
         /// <summary>
         /// This is a hook that is invoked on clients when a RoomPlayer switches between ready or not ready.
         /// <para>This function is called when the a client player calls CmdChangeReadyState.</para>
         /// </summary>
         /// <param name="newReadyState">New Ready State</param>
-        public virtual void ReadyStateChanged(bool oldReadyState, bool newReadyState) {}
+        public virtual void ReadyStateChanged(bool oldReadyState, bool newReadyState) { }
 
         #endregion
 
@@ -114,12 +124,12 @@ namespace Mirror
         /// This is a hook that is invoked on clients for all room player objects when entering the room.
         /// <para>Note: isLocalPlayer is not guaranteed to be set until OnStartLocalPlayer is called.</para>
         /// </summary>
-        public virtual void OnClientEnterRoom() {}
+        public virtual void OnClientEnterRoom() { }
 
         /// <summary>
         /// This is a hook that is invoked on clients for all room player objects when exiting the room.
         /// </summary>
-        public virtual void OnClientExitRoom() {}
+        public virtual void OnClientExitRoom() { }
 
         #endregion
 
@@ -131,32 +141,42 @@ namespace Mirror
         public virtual void OnGUI()
         {
             if (!showRoomGUI)
+            {
                 return;
+            }
 
             NetworkRoomManager room = NetworkManager.singleton as NetworkRoomManager;
             if (room)
             {
                 if (!room.showRoomGUI)
+                {
                     return;
+                }
 
                 if (!Utils.IsSceneActive(room.RoomScene))
+                {
                     return;
+                }
 
                 DrawPlayerReadyState();
                 DrawPlayerReadyButton();
             }
         }
 
-        void DrawPlayerReadyState()
+        private void DrawPlayerReadyState()
         {
             GUILayout.BeginArea(new Rect(20f + (index * 100), 200f, 90f, 130f));
 
             GUILayout.Label($"Player [{index + 1}]");
 
             if (readyToBegin)
+            {
                 GUILayout.Label("Ready");
+            }
             else
+            {
                 GUILayout.Label("Not Ready");
+            }
 
             if (((isServer && index > 0) || isServerOnly) && GUILayout.Button("REMOVE"))
             {
@@ -169,7 +189,7 @@ namespace Mirror
             GUILayout.EndArea();
         }
 
-        void DrawPlayerReadyButton()
+        private void DrawPlayerReadyButton()
         {
             if (NetworkClient.active && isLocalPlayer)
             {
@@ -178,12 +198,16 @@ namespace Mirror
                 if (readyToBegin)
                 {
                     if (GUILayout.Button("Cancel"))
+                    {
                         CmdChangeReadyState(false);
+                    }
                 }
                 else
                 {
                     if (GUILayout.Button("Ready"))
+                    {
                         CmdChangeReadyState(true);
+                    }
                 }
 
                 GUILayout.EndArea();

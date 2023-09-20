@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace SpiderShooter.OpeningScene
 {
-    [AddComponentMenu("SpiderShooter.OpeningScene.TestView")]
+    [AddComponentMenu("SpiderShooter/OpeningScene.TestView")]
     public class TestView : MonoBehaviour, IView
     {
         [SerializeField]

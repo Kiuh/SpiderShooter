@@ -18,7 +18,11 @@ namespace Mirror.SimpleWeb
     /// </summary>
     public abstract class SimpleWebClient
     {
-        public static SimpleWebClient Create(int maxMessageSize, int maxMessagesPerTick, TcpConfig tcpConfig)
+        public static SimpleWebClient Create(
+            int maxMessageSize,
+            int maxMessagesPerTick,
+            TcpConfig tcpConfig
+        )
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
             return new WebSocketClientWebGl(maxMessageSize, maxMessagesPerTick);
@@ -27,9 +31,9 @@ namespace Mirror.SimpleWeb
 #endif
         }
 
-        readonly int maxMessagesPerTick;
+        private readonly int maxMessagesPerTick;
         protected readonly int maxMessageSize;
-        public readonly ConcurrentQueue<Message> receiveQueue = new ConcurrentQueue<Message>();
+        public readonly ConcurrentQueue<Message> receiveQueue = new();
         protected readonly BufferPool bufferPool;
 
         protected ClientState state;
@@ -66,11 +70,12 @@ namespace Mirror.SimpleWeb
             bool skipEnabled = behaviour == null;
             // check enabled every time in case behaviour was disabled after data
             while (
-                (skipEnabled || behaviour.enabled) &&
-                processedCount < maxMessagesPerTick &&
+                (skipEnabled || behaviour.enabled)
+                && processedCount < maxMessagesPerTick
+                &&
                 // Dequeue last
                 receiveQueue.TryDequeue(out Message next)
-                )
+            )
             {
                 processedCount++;
 
@@ -92,7 +97,11 @@ namespace Mirror.SimpleWeb
                 }
             }
             if (receiveQueue.Count > 0)
-                Debug.LogWarning($"SimpleWebClient ProcessMessageQueue has {receiveQueue.Count} remaining.");
+            {
+                Debug.LogWarning(
+                    $"SimpleWebClient ProcessMessageQueue has {receiveQueue.Count} remaining."
+                );
+            }
         }
 
         public abstract void Connect(Uri serverAddress);

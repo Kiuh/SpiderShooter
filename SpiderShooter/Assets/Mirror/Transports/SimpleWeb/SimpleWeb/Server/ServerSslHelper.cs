@@ -7,14 +7,19 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace Mirror.SimpleWeb
 {
-    public struct SslConfig
+    public readonly struct SslConfig
     {
         public readonly bool enabled;
         public readonly string certPath;
         public readonly string certPassword;
         public readonly SslProtocols sslProtocols;
 
-        public SslConfig(bool enabled, string certPath, string certPassword, SslProtocols sslProtocols)
+        public SslConfig(
+            bool enabled,
+            string certPath,
+            string certPassword,
+            SslProtocols sslProtocols
+        )
         {
             this.enabled = enabled;
             this.certPath = certPath;
@@ -22,10 +27,11 @@ namespace Mirror.SimpleWeb
             this.sslProtocols = sslProtocols;
         }
     }
+
     internal class ServerSslHelper
     {
-        readonly SslConfig config;
-        readonly X509Certificate2 certificate;
+        private readonly SslConfig config;
+        private readonly X509Certificate2 certificate;
 
         public ServerSslHelper(SslConfig sslConfig)
         {
@@ -37,7 +43,9 @@ namespace Mirror.SimpleWeb
                 certificate = new X509Certificate2(config.certPath, config.certPassword);
 
                 Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.WriteLine($"[SimpleWebTransport] SSL Certificate {certificate.Subject} loaded with expiration of {certificate.GetExpirationDateString()}");
+                Console.WriteLine(
+                    $"[SimpleWebTransport] SSL Certificate {certificate.Subject} loaded with expiration of {certificate.GetExpirationDateString()}"
+                );
                 Console.ResetColor();
             }
         }
@@ -68,15 +76,23 @@ namespace Mirror.SimpleWeb
             }
         }
 
-        Stream CreateStream(NetworkStream stream)
+        private Stream CreateStream(NetworkStream stream)
         {
-            SslStream sslStream = new SslStream(stream, true, acceptClient);
+            SslStream sslStream = new(stream, true, acceptClient);
             sslStream.AuthenticateAsServer(certificate, false, config.sslProtocols, false);
 
             return sslStream;
         }
 
         // always accept client
-        bool acceptClient(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) => true;
+        private bool acceptClient(
+            object sender,
+            X509Certificate certificate,
+            X509Chain chain,
+            SslPolicyErrors sslPolicyErrors
+        )
+        {
+            return true;
+        }
     }
 }

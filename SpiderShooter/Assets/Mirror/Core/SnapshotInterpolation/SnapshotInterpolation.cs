@@ -21,7 +21,9 @@ namespace Mirror
             // remove the first element 'amount' times.
             // handles -1 and > count safely.
             for (int i = 0; i < amount && i < list.Count; ++i)
+            {
                 list.RemoveAt(0);
+            }
         }
     }
 
@@ -32,11 +34,12 @@ namespace Mirror
         //   caller should verify (i.e. Unity OnValidate).
         //   improves branch prediction.
         public static double Timescale(
-            double drift,                    // how far we are off from bufferTime
-            double catchupSpeed,             // in % [0,1]
-            double slowdownSpeed,            // in % [0,1]
+            double drift, // how far we are off from bufferTime
+            double catchupSpeed, // in % [0,1]
+            double slowdownSpeed, // in % [0,1]
             double absoluteCatchupNegativeThreshold, // in seconds (careful, we may run out of snapshots)
-            double absoluteCatchupPositiveThreshold) // in seconds
+            double absoluteCatchupPositiveThreshold
+        ) // in seconds
         {
             // if the drift time is too large, it means we are behind more time.
             // so we need to speed up the timescale.
@@ -65,7 +68,8 @@ namespace Mirror
         public static double DynamicAdjustment(
             double sendInterval,
             double jitterStandardDeviation,
-            double dynamicAdjustmentTolerance)
+            double dynamicAdjustmentTolerance
+        )
         {
             // jitter is equal to delivery time standard variation.
             // delivery time is made up of 'sendInterval+jitter'.
@@ -90,15 +94,19 @@ namespace Mirror
         //   NetworkBehaviour local insertion without any time adjustments.
         public static bool InsertIfNotExists<T>(
             SortedList<double, T> buffer, // snapshot buffer
-            int bufferLimit,              // don't grow infinitely
-            T snapshot)                   // the newly received snapshot
+            int bufferLimit, // don't grow infinitely
+            T snapshot
+        ) // the newly received snapshot
             where T : Snapshot
         {
             // slow clients may not be able to process incoming snapshots fast enough.
             // infinitely growing snapshots would make it even worse.
             // for example, run NetworkRigidbodyBenchmark while deep profiling client.
             // the client just grows and reallocates the buffer forever.
-            if (buffer.Count >= bufferLimit) return false;
+            if (buffer.Count >= bufferLimit)
+            {
+                return false;
+            }
 
             // SortedList does not allow duplicates.
             // we don't need to check ContainsKey (which is expensive).
@@ -125,7 +133,8 @@ namespace Mirror
         public static double TimelineClamp(
             double localTimeline,
             double bufferTime,
-            double latestRemoteTime)
+            double latestRemoteTime
+        )
         {
             // we want local timeline to always be 'bufferTime' behind remote.
             double targetTime = latestRemoteTime - bufferTime;
@@ -141,19 +150,20 @@ namespace Mirror
         // call this for every received snapshot.
         // adds / inserts it to the list & initializes local time if needed.
         public static void InsertAndAdjust<T>(
-            SortedList<double, T> buffer,                 // snapshot buffer
-            int bufferLimit,                              // don't grow infinitely
-            T snapshot,                                   // the newly received snapshot
-            ref double localTimeline,                     // local interpolation time based on server time
-            ref double localTimescale,                    // timeline multiplier to apply catchup / slowdown over time
-            float sendInterval,                           // for debugging
-            double bufferTime,                            // offset for buffering
-            double catchupSpeed,                          // in % [0,1]
-            double slowdownSpeed,                         // in % [0,1]
-            ref ExponentialMovingAverage driftEma,        // for catchup / slowdown
-            float catchupNegativeThreshold,               // in % of sendInteral (careful, we may run out of snapshots)
-            float catchupPositiveThreshold,               // in % of sendInterval
-            ref ExponentialMovingAverage deliveryTimeEma) // for dynamic buffer time adjustment
+            SortedList<double, T> buffer, // snapshot buffer
+            int bufferLimit, // don't grow infinitely
+            T snapshot, // the newly received snapshot
+            ref double localTimeline, // local interpolation time based on server time
+            ref double localTimescale, // timeline multiplier to apply catchup / slowdown over time
+            float sendInterval, // for debugging
+            double bufferTime, // offset for buffering
+            double catchupSpeed, // in % [0,1]
+            double slowdownSpeed, // in % [0,1]
+            ref ExponentialMovingAverage driftEma, // for catchup / slowdown
+            float catchupNegativeThreshold, // in % of sendInteral (careful, we may run out of snapshots)
+            float catchupPositiveThreshold, // in % of sendInterval
+            ref ExponentialMovingAverage deliveryTimeEma
+        ) // for dynamic buffer time adjustment
             where T : Snapshot
         {
             // first snapshot?
@@ -164,7 +174,9 @@ namespace Mirror
             // so we would always be behind by that lag.
             // this requires catchup later.
             if (buffer.Count == 0)
+            {
                 localTimeline = snapshot.remoteTime - bufferTime;
+            }
 
             // insert into the buffer.
             //
@@ -251,7 +263,13 @@ namespace Mirror
                 // this way we have 'default' speed most of the time(!).
                 // and only catch up / slow down for a little bit occasionally.
                 // a consistent multiplier would never be exactly 1.0.
-                localTimescale = Timescale(drift, catchupSpeed, slowdownSpeed, absoluteNegativeThreshold, absolutePositiveThreshold);
+                localTimescale = Timescale(
+                    drift,
+                    catchupSpeed,
+                    slowdownSpeed,
+                    absoluteNegativeThreshold,
+                    absolutePositiveThreshold
+                );
 
                 // debug logging
                 // UnityEngine.Debug.Log($"sendInterval={sendInterval:F3} bufferTime={bufferTime:F3} drift={drift:F3} driftEma={driftEma.Value:F3} timescale={localTimescale:F3} deliveryIntervalEma={deliveryTimeEma.Value:F3}");
@@ -264,24 +282,20 @@ namespace Mirror
         // make sure to only call this is we have > 0 snapshots.
         public static void Sample<T>(
             SortedList<double, T> buffer, // snapshot buffer
-            double localTimeline,         // local interpolation time based on server time
-            out int from,                 // the snapshot <= time
-            out int to,                   // the snapshot >= time
-            out double t)                 // interpolation factor
+            double localTimeline, // local interpolation time based on server time
+            out int from, // the snapshot <= time
+            out int to, // the snapshot >= time
+            out double t
+        ) // interpolation factor
             where T : Snapshot
         {
-            from = -1;
-            to = -1;
-            t = 0;
-
             // sample from [0,count-1] so we always have two at 'i' and 'i+1'.
             for (int i = 0; i < buffer.Count - 1; ++i)
             {
                 // is local time between these two?
                 T first = buffer.Values[i];
                 T second = buffer.Values[i + 1];
-                if (localTimeline >= first.remoteTime &&
-                    localTimeline <= second.remoteTime)
+                if (localTimeline >= first.remoteTime && localTimeline <= second.remoteTime)
                 {
                     // use these two snapshots
                     from = i;
@@ -316,9 +330,10 @@ namespace Mirror
         // time only once in NetworkClient, while stepping for each component.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void StepTime(
-            double deltaTime,         // engine delta time (unscaled)
+            double deltaTime, // engine delta time (unscaled)
             ref double localTimeline, // local interpolation time based on server time
-            double localTimescale)    // catchup / slowdown is applied to time every update)
+            double localTimescale
+        ) // catchup / slowdown is applied to time every update)
         {
             // move local forward in time, scaled with catchup / slowdown applied
             localTimeline += deltaTime * localTimescale;
@@ -336,10 +351,11 @@ namespace Mirror
         //   besides, passing "Func Interpolate" would allocate anyway.
         public static void StepInterpolation<T>(
             SortedList<double, T> buffer, // snapshot buffer
-            double localTimeline,         // local interpolation time based on server time
-            out T fromSnapshot,           // we interpolate 'from' this snapshot
-            out T toSnapshot,             // 'to' this snapshot
-            out double t)                 // at ratio 't' [0,1]
+            double localTimeline, // local interpolation time based on server time
+            out T fromSnapshot, // we interpolate 'from' this snapshot
+            out T toSnapshot, // 'to' this snapshot
+            out double t
+        ) // at ratio 't' [0,1]
             where T : Snapshot
         {
             // check this in caller:
@@ -375,12 +391,13 @@ namespace Mirror
         //   besides, passing "Func Interpolate" would allocate anyway.
         public static void Step<T>(
             SortedList<double, T> buffer, // snapshot buffer
-            double deltaTime,             // engine delta time (unscaled)
-            ref double localTimeline,     // local interpolation time based on server time
-            double localTimescale,        // catchup / slowdown is applied to time every update
-            out T fromSnapshot,           // we interpolate 'from' this snapshot
-            out T toSnapshot,             // 'to' this snapshot
-            out double t)                 // at ratio 't' [0,1]
+            double deltaTime, // engine delta time (unscaled)
+            ref double localTimeline, // local interpolation time based on server time
+            double localTimescale, // catchup / slowdown is applied to time every update
+            out T fromSnapshot, // we interpolate 'from' this snapshot
+            out T toSnapshot, // 'to' this snapshot
+            out double t
+        ) // at ratio 't' [0,1]
             where T : Snapshot
         {
             StepTime(deltaTime, ref localTimeline, localTimescale);

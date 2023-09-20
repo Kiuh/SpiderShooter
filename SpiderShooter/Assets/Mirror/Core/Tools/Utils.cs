@@ -7,7 +7,11 @@ using UnityEngine.SceneManagement;
 namespace Mirror
 {
     // Handles network messages on client and server
-    public delegate void NetworkMessageDelegate(NetworkConnection conn, NetworkReader reader, int channelId);
+    public delegate void NetworkMessageDelegate(
+        NetworkConnection conn,
+        NetworkReader reader,
+        int channelId
+    );
 
     // Handles requests to spawn objects on the client
     public delegate GameObject SpawnDelegate(Vector3 position, uint assetId);
@@ -26,7 +30,7 @@ namespace Mirror
     // add custom channels anymore.
     public static class Channels
     {
-        public const int Reliable = 0;   // ordered
+        public const int Reliable = 0; // ordered
         public const int Unreliable = 1; // unordered
     }
 
@@ -35,12 +39,10 @@ namespace Mirror
         public static uint GetTrueRandomUInt()
         {
             // use Crypto RNG to avoid having time based duplicates
-            using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
-            {
-                byte[] bytes = new byte[4];
-                rng.GetBytes(bytes);
-                return BitConverter.ToUInt32(bytes, 0);
-            }
+            using RNGCryptoServiceProvider rng = new();
+            byte[] bytes = new byte[4];
+            rng.GetBytes(bytes);
+            return BitConverter.ToUInt32(bytes, 0);
         }
 
         public static bool IsPrefab(GameObject obj)
@@ -63,12 +65,15 @@ namespace Mirror
             //                 return false;
             // #endif
 
-            return identity.gameObject.hideFlags != HideFlags.NotEditable &&
-                identity.gameObject.hideFlags != HideFlags.HideAndDontSave &&
-                identity.sceneId != 0;
+            return identity.gameObject.hideFlags != HideFlags.NotEditable
+                && identity.gameObject.hideFlags != HideFlags.HideAndDontSave
+                && identity.sceneId != 0;
         }
 
-        public static bool IsSceneObjectWithPrefabParent(GameObject gameObject, out GameObject prefab)
+        public static bool IsSceneObjectWithPrefabParent(
+            GameObject gameObject,
+            out GameObject prefab
+        )
         {
             prefab = null;
 
@@ -82,7 +87,9 @@ namespace Mirror
 
             if (prefab == null)
             {
-                Debug.LogError($"Failed to find prefab parent for scene object [name:{gameObject.name}]");
+                Debug.LogError(
+                    $"Failed to find prefab parent for scene object [name:{gameObject.name}]"
+                );
                 return false;
             }
             return true;
@@ -91,9 +98,13 @@ namespace Mirror
         // is a 2D point in screen? (from ummorpg)
         // (if width = 1024, then indices from 0..1023 are valid (=1024 indices)
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsPointInScreen(Vector2 point) =>
-            0 <= point.x && point.x < Screen.width &&
-            0 <= point.y && point.y < Screen.height;
+        public static bool IsPointInScreen(Vector2 point)
+        {
+            return 0 <= point.x
+                && point.x < Screen.width
+                && 0 <= point.y
+                && point.y < Screen.height;
+        }
 
         // pretty print bytes as KB/MB/GB/etc. from DOTSNET
         // long to support > 2GB
@@ -102,15 +113,21 @@ namespace Mirror
         {
             // bytes
             if (bytes < 1024)
+            {
                 return $"{bytes} B";
+            }
             // kilobytes
             else if (bytes < 1024L * 1024L)
-                return $"{(bytes / 1024f):F2} KB";
+            {
+                return $"{bytes / 1024f:F2} KB";
+            }
             // megabytes
             else if (bytes < 1024 * 1024L * 1024L)
-                return $"{(bytes / (1024f * 1024f)):F2} MB";
+            {
+                return $"{bytes / (1024f * 1024f):F2} MB";
+            }
             // gigabytes
-            return $"{(bytes / (1024f * 1024f * 1024f)):F2} GB";
+            return $"{bytes / (1024f * 1024f * 1024f):F2} GB";
         }
 
         // pretty print seconds as hours:minutes:seconds(.milliseconds/100)s.
@@ -119,12 +136,29 @@ namespace Mirror
         {
             TimeSpan t = TimeSpan.FromSeconds(seconds);
             string res = "";
-            if (t.Days > 0) res += $"{t.Days}d";
-            if (t.Hours > 0) res += $"{(res.Length > 0 ? " " : "")}{t.Hours}h";
-            if (t.Minutes > 0) res += $"{(res.Length > 0 ? " " : "")}{t.Minutes}m";
+            if (t.Days > 0)
+            {
+                res += $"{t.Days}d";
+            }
+
+            if (t.Hours > 0)
+            {
+                res += $"{(res.Length > 0 ? " " : "")}{t.Hours}h";
+            }
+
+            if (t.Minutes > 0)
+            {
+                res += $"{(res.Length > 0 ? " " : "")}{t.Minutes}m";
+            }
             // 0.5s, 1.5s etc. if any milliseconds. 1s, 2s etc. if any seconds
-            if (t.Milliseconds > 0) res += $"{(res.Length > 0 ? " " : "")}{t.Seconds}.{(t.Milliseconds / 100)}s";
-            else if (t.Seconds > 0) res += $"{(res.Length > 0 ? " " : "")}{t.Seconds}s";
+            if (t.Milliseconds > 0)
+            {
+                res += $"{(res.Length > 0 ? " " : "")}{t.Seconds}.{t.Milliseconds / 100}s";
+            }
+            else if (t.Seconds > 0)
+            {
+                res += $"{(res.Length > 0 ? " " : "")}{t.Seconds}s";
+            }
             // if the string is still empty because the value was '0', then at least
             // return the seconds instead of returning an empty string
             return res != "" ? res : "0s";
@@ -137,14 +171,14 @@ namespace Mirror
             // host mode has access to all spawned.
             if (NetworkServer.active)
             {
-                NetworkServer.spawned.TryGetValue(netId, out NetworkIdentity entry);
+                _ = NetworkServer.spawned.TryGetValue(netId, out NetworkIdentity entry);
                 return entry;
             }
 
             // client
             if (NetworkClient.active)
             {
-                NetworkClient.spawned.TryGetValue(netId, out NetworkIdentity entry);
+                _ = NetworkClient.spawned.TryGetValue(netId, out NetworkIdentity entry);
                 return entry;
             }
 
@@ -170,7 +204,8 @@ namespace Mirror
         // create local connections pair and connect them
         public static void CreateLocalConnections(
             out LocalConnectionToClient connectionToClient,
-            out LocalConnectionToServer connectionToServer)
+            out LocalConnectionToServer connectionToServer
+        )
         {
             connectionToServer = new LocalConnectionToServer();
             connectionToClient = new LocalConnectionToClient();
@@ -181,8 +216,7 @@ namespace Mirror
         public static bool IsSceneActive(string scene)
         {
             Scene activeScene = SceneManager.GetActiveScene();
-            return activeScene.path == scene ||
-                   activeScene.name == scene;
+            return activeScene.path == scene || activeScene.name == scene;
         }
     }
 }

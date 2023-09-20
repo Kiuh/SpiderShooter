@@ -10,7 +10,9 @@ namespace Mirror.Authenticators
     /// <para>See https://docs.unity3d.com/ScriptReference/SystemInfo-deviceUniqueIdentifier.html for details.</para>
     /// </summary>
     [AddComponentMenu("Network/ Authenticators/Device Authenticator")]
-    [HelpURL("https://mirror-networking.gitbook.io/docs/components/network-authenticators/device-authenticator")]
+    [HelpURL(
+        "https://mirror-networking.gitbook.io/docs/components/network-authenticators/device-authenticator"
+    )]
     public class DeviceAuthenticator : NetworkAuthenticator
     {
         #region Messages
@@ -55,7 +57,7 @@ namespace Mirror.Authenticators
             // do nothing, wait for client to send his id
         }
 
-        void OnAuthRequestMessage(NetworkConnectionToClient conn, AuthRequestMessage msg)
+        private void OnAuthRequestMessage(NetworkConnectionToClient conn, AuthRequestMessage msg)
         {
             Debug.Log($"connection {conn.connectionId} authenticated with id {msg.clientDeviceID}");
 
@@ -90,7 +92,7 @@ namespace Mirror.Authenticators
         public override void OnStopClient()
         {
             // unregister the handler for the authentication response
-            NetworkClient.UnregisterHandler<AuthResponseMessage>();
+            _ = NetworkClient.UnregisterHandler<AuthResponseMessage>();
         }
 
         /// <summary>
@@ -104,14 +106,17 @@ namespace Mirror.Authenticators
             if (deviceUniqueIdentifier == SystemInfo.unsupportedIdentifier)
             {
                 // Get the value from PlayerPrefs if it exists, new GUID if it doesn't
-                deviceUniqueIdentifier = PlayerPrefs.GetString("deviceUniqueIdentifier", Guid.NewGuid().ToString());
+                deviceUniqueIdentifier = PlayerPrefs.GetString(
+                    "deviceUniqueIdentifier",
+                    Guid.NewGuid().ToString()
+                );
 
                 // Store the deviceUniqueIdentifier to PlayerPrefs (in case we just made a new GUID)
                 PlayerPrefs.SetString("deviceUniqueIdentifier", deviceUniqueIdentifier);
             }
 
             // send the deviceUniqueIdentifier to the server
-            NetworkClient.Send(new AuthRequestMessage { clientDeviceID = deviceUniqueIdentifier } );
+            NetworkClient.Send(new AuthRequestMessage { clientDeviceID = deviceUniqueIdentifier });
         }
 
         /// <summary>

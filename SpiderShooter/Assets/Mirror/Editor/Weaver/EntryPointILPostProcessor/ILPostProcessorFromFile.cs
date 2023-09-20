@@ -13,16 +13,20 @@ namespace Mirror.Weaver
     public static class ILPostProcessorFromFile
     {
         // read, weave, write file via ILPostProcessor
-        public static void ILPostProcessFile(string assemblyPath, string[] references, Action<string> OnWarning, Action<string> OnError)
+        public static void ILPostProcessFile(
+            string assemblyPath,
+            string[] references,
+            Action<string> OnWarning,
+            Action<string> OnError
+        )
         {
             // we COULD Weave() with a test logger manually.
             // but for test result consistency on all platforms,
             // let's invoke the ILPostProcessor here too.
-            CompiledAssemblyFromFile assembly = new CompiledAssemblyFromFile(assemblyPath);
-            assembly.References = references;
+            CompiledAssemblyFromFile assembly = new(assemblyPath) { References = references };
 
             // create ILPP and check WillProcess like Unity would.
-            ILPostProcessorHook ilpp = new ILPostProcessorHook();
+            ILPostProcessorHook ilpp = new();
             if (ilpp.WillProcess(assembly))
             {
                 //Debug.Log($"Will Process: {assembly.Name}");

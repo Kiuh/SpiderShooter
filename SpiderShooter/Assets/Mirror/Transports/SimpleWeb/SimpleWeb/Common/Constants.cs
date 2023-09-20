@@ -59,7 +59,6 @@ namespace Mirror.SimpleWeb
         /// </summary>
         public const int UlongPayloadLength = 127;
 
-
         /// <summary>
         /// Guid used for WebSocket Protocol
         /// </summary>
@@ -72,6 +71,12 @@ namespace Mirror.SimpleWeb
         /// <summary>
         /// Handshake messages will end with \r\n\r\n
         /// </summary>
-        public static readonly byte[] endOfHandshake = new byte[4] { (byte)'\r', (byte)'\n', (byte)'\r', (byte)'\n' };
+        public static readonly byte[] endOfHandshake = new byte[4]
+        {
+            (byte)'\r',
+            (byte)'\n',
+            (byte)'\r',
+            (byte)'\n'
+        };
     }
 }
