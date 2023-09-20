@@ -15,8 +15,7 @@ namespace SpiderShooter.Spider
         private void Update()
         {
             transform.LookAt(Camera.main.transform);
-            playerInfo.text =
-                $"{spider.PlayerName}\n{new string('-', (int)(spider.Health / 20))}HP";
+            playerInfo.text = $"{spider.PlayerName}\n{new string('-', (int)(spider.Health / 20))}";
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Mirror;
+﻿using FIMSpace.Basics;
+using Mirror;
 using UnityEngine;
 
 namespace SpiderShooter.Spider
@@ -7,15 +8,15 @@ namespace SpiderShooter.Spider
     public class Controller : NetworkBehaviour
     {
         [SerializeField]
-        private Movement movement;
-
-        [SerializeField]
         private Shooting shooting;
 
         [SerializeField]
         private SpiderImpl spider;
 
-        private void FixedUpdate()
+        [SerializeField]
+        private FBasic_CharacterMovementBase characterController;
+
+        private void Update()
         {
             if (!Application.isFocused)
             {
@@ -24,24 +25,31 @@ namespace SpiderShooter.Spider
 
             if (isLocalPlayer)
             {
-                if (Input.GetKey(KeyCode.D))
-                {
-                    movement.RotateRight();
-                }
+                Vector2 inputValue = Vector2.zero;
 
                 if (Input.GetKey(KeyCode.A))
                 {
-                    movement.RotateLeft();
+                    inputValue.x = -1;
+                }
+                else if (Input.GetKey(KeyCode.D))
+                {
+                    inputValue.x = 1;
                 }
 
                 if (Input.GetKey(KeyCode.W))
                 {
-                    movement.MoveForward();
+                    inputValue.y = 1;
+                }
+                else if (Input.GetKey(KeyCode.S))
+                {
+                    inputValue.y = -1;
                 }
 
-                if (Input.GetKey(KeyCode.S))
+                SetInputAxis(inputValue);
+                SetInputDirection(Camera.main.transform.eulerAngles.y);
+                if (Input.GetKeyDown(KeyCode.Space))
                 {
-                    movement.MoveBackward();
+                    Jump();
                 }
 
                 if (Input.GetMouseButtonDown(0))
@@ -49,16 +57,26 @@ namespace SpiderShooter.Spider
                     shooting.Shoot(spider);
                 }
 
-                if (Input.GetKeyDown(KeyCode.Space))
-                {
-                    movement.Jump();
-                }
-
                 if (Input.GetKeyDown(KeyCode.Delete))
                 {
                     spider.CmdKilled();
                 }
             }
+        }
+
+        public void SetInputAxis(Vector2 inputAxis)
+        {
+            characterController.SetInputAxis(inputAxis);
+        }
+
+        public void Jump()
+        {
+            characterController.SetJumpInput();
+        }
+
+        public void SetInputDirection(float yDirection)
+        {
+            characterController.SetInputDirection(yDirection);
         }
     }
 }

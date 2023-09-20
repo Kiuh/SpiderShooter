@@ -1,4 +1,4 @@
-﻿using Cinemachine;
+﻿using FIMSpace.Basics;
 using Mirror;
 using SpiderShooter.Common;
 using SpiderShooter.Networking;
@@ -49,10 +49,6 @@ namespace SpiderShooter.Spider
         public float Health => health;
 
         [SerializeField]
-        private float bulletSpeed;
-        public float BulletSpeed => bulletSpeed;
-
-        [SerializeField]
         private float bulletDamage;
         public float BulletDamage => bulletDamage;
 
@@ -60,11 +56,11 @@ namespace SpiderShooter.Spider
         {
             if (isLocalPlayer)
             {
-                CinemachineVirtualCamera virtualCamera =
-                    FindObjectsOfType<CinemachineVirtualCamera>()
+                FBasic_TPPCameraBehaviour virtualCamera =
+                    FindObjectsOfType<FBasic_TPPCameraBehaviour>()
                         .First(x => x.gameObject.CompareTag("MainCamera"));
-                virtualCamera.LookAt = transform;
-                virtualCamera.Follow = transform;
+                virtualCamera.enabled = true;
+                virtualCamera.ToFollow = transform;
             }
             ApplyTeamColor();
         }
@@ -91,7 +87,7 @@ namespace SpiderShooter.Spider
         [ServerCallback]
         private void OnTriggerEnter(Collider other)
         {
-            if (other.TryGetComponent(out Bullet bullet))
+            if (other.TryGetComponent(out Bullet bullet) && bullet.FriendlyTeam != TeamColor)
             {
                 health -= bullet.Damage;
                 if (health == 0)

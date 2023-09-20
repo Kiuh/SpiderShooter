@@ -12,14 +12,13 @@ namespace SpiderShooter.Spider
         [SerializeField]
         private GameObject bulletPrefab;
 
-        [SerializeField]
-        private Movement movement;
-
         [Command]
         public void Shoot(SpiderImpl spider)
         {
             GameObject bullet = Instantiate(bulletPrefab, shootPoint.position, shootPoint.rotation);
-            bullet.GetComponent<Bullet>().SetDamage(spider.BulletDamage);
+            Bullet bulletComponent = bullet.GetComponent<Bullet>();
+            bulletComponent.SetDamage(spider.BulletDamage);
+            bulletComponent.SetFriendlyColor(spider.TeamColor);
             NetworkServer.Spawn(bullet);
             RpcOnFire();
         }

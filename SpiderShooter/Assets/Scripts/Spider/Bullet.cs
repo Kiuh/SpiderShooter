@@ -16,13 +16,17 @@ namespace SpiderShooter.Spider
 
         [SerializeField]
         [InspectorReadOnly]
+        private TeamColor friendlyTeam;
+        public TeamColor FriendlyTeam => friendlyTeam;
+
+        [SerializeField]
+        [InspectorReadOnly]
         private float destroyAfter = 4;
 
         [SerializeField]
         private Rigidbody rigidBody;
 
         [SerializeField]
-        [InspectorReadOnly]
         private float force = 1000;
 
         public override void OnStartServer()
@@ -46,9 +50,24 @@ namespace SpiderShooter.Spider
             this.damage = damage;
         }
 
+        public void SetFriendlyColor(TeamColor teamColor)
+        {
+            friendlyTeam = teamColor;
+        }
+
         [ServerCallback]
         private void OnTriggerEnter(Collider other)
         {
+            if (!other.CompareTag("Player"))
+            {
+                return;
+            }
+
+            if (other.TryGetComponent(out SpiderImpl spider) && spider.TeamColor == friendlyTeam)
+            {
+                return;
+            }
+
             DestroySelf();
         }
     }

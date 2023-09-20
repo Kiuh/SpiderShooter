@@ -1,66 +1,190 @@
+﻿using FIMSpace.Basics;
+using SpiderShooter.Common;
 using UnityEngine;
 
 namespace SpiderShooter.Spider
 {
     [AddComponentMenu("SpiderShooter/Spider.Movement")]
-    public class Movement : MonoBehaviour
+    public class Movement : FBasic_RigidbodyMovement
     {
-        [SerializeField]
-        private Rigidbody rigidBody;
-
-        [Header("Linear Movement")]
-        [SerializeField]
-        private float linearSpeed;
+        [Tooltip("Just lerp speed for rotating object")]
+        public float RotationSpeed = 5f;
 
         [SerializeField]
-        private float maxLinearSpeed;
-
-        [Header("Rotation Movement")]
-        [SerializeField]
-        private float angularSpeed;
+        [InspectorReadOnly]
+        private bool movingBackward = false;
 
         [SerializeField]
-        private float maxAngularSpeed;
+        private Animator animator;
 
-        [Header("Jump Movement")]
-        [SerializeField]
-        private float jumpForce;
+        private float turbo = 0f;
 
-        private void Awake()
+        protected override void Start()
         {
-            rigidBody.maxLinearVelocity = maxLinearSpeed;
-            rigidBody.maxAngularVelocity = maxAngularSpeed;
+            base.Start();
+
+            CharacterRigidbody = GetComponent<Rigidbody>();
+
+            onlyForward = true;
+
+            diagonalMultiplier = 1f;
         }
 
-        private void OnValidate()
+        protected override void Update()
         {
-            rigidBody.maxLinearVelocity = maxLinearSpeed;
-            rigidBody.maxAngularVelocity = maxAngularSpeed;
+            CheckGroundPlacement();
+
+            // Hard coded turbo
+            turbo = Input.GetKey(KeyCode.LeftShift)
+                ? Mathf.Lerp(turbo, 1f, Time.deltaTime * 10f)
+                : Mathf.Lerp(turbo, 0f, Time.deltaTime * 10f);
+
+            animator.SetBool("IsWalk", accelerationForward is > 0.1f or < -0.1f);
+
+            // Remembering unchanged direction to apply it back after all rotation calculations
+            // to avoid shuttering rotation bug when moving diagonally
+            float preTargetDir = targetDirection;
+            bool diagonalOverrides = false;
+
+            if (Grounded)
+            {
+                // Modify target rotation value if we are walking forward and to sides
+                if (verticalValue != 0f)
+                {
+                    if (!movingBackward)
+                    {
+                        targetDirection += 35f * horizontalValue;
+                    }
+                    else
+                    {
+                        targetDirection -= 35f * horizontalValue;
+                    }
+                }
+                else // or going only to sides
+                {
+                    if (horizontalValue != 0f)
+                    {
+                        lastTargetVelocityForward = newVelocityForward;
+                        accelerationForward = Mathf.Min(
+                            1f + turbo,
+                            accelerationForward + (AccelerationSpeed * Time.fixedDeltaTime)
+                        );
+                        targetDirection = inputDirection + (90f * horizontalValue);
+
+                        diagonalOverrides = true;
+                    }
+                }
+            }
+
+            // Smooth change of modified target rotation value
+            animatedDirection = Mathf.LerpAngle(
+                transform.localRotation.eulerAngles.y,
+                targetDirection,
+                Time.deltaTime * RotationSpeed
+            );
+
+            RotationCalculations();
+
+            if (!diagonalOverrides)
+            {
+                targetDirection = preTargetDir;
+            }
         }
 
-        public void MoveForward()
+        protected override void FixedUpdate()
         {
-            rigidBody.AddForce(transform.forward * linearSpeed);
+            lastTargetVelocityRight = Vector3.zero;
+            base.FixedUpdate();
         }
 
-        public void MoveBackward()
+        /// <summary>
+        /// Just rotate object to a new value of target rotation
+        /// </summary>
+        protected override void RotationCalculations()
         {
-            rigidBody.AddForce(-transform.forward * linearSpeed);
+            transform.rotation = Quaternion.Euler(0f, animatedDirection, 0f);
         }
 
-        public void RotateRight()
+        protected override void MoveForward(bool backward)
         {
-            rigidBody.angularVelocity += transform.up * angularSpeed * Time.fixedDeltaTime;
+            if (!backward) // Just moving forward
+            {
+                lastTargetVelocityForward = newVelocityForward;
+
+                accelerationForward = Mathf.Min(
+                    1f + turbo,
+                    accelerationForward + (AccelerationSpeed * Time.fixedDeltaTime)
+                );
+            }
+            else
+            {
+                lastTargetVelocityForward = newVelocityForward;
+
+                accelerationForward = onlyForward
+                    ? Mathf.Min(
+                        1f + turbo,
+                        accelerationForward + (AccelerationSpeed * Time.fixedDeltaTime)
+                    )
+                    : Mathf.Max(
+                        -1f + turbo,
+                        accelerationForward - (AccelerationSpeed * Time.fixedDeltaTime)
+                    );
+            }
+
+            movingBackward = backward;
+
+            targetDirection = backward ? inputDirection + 180f : inputDirection;
         }
 
-        public void RotateLeft()
+        protected override void Jump()
         {
-            rigidBody.angularVelocity += -transform.up * angularSpeed * Time.fixedDeltaTime;
+            base.Jump();
+
+            // We rolling all the time forward, so we must do some tweaks for sideways
+            // keys - when character jumps it must use sideways velocity calculations
+            if (horizontalValue != 0f && verticalValue == 0f)
+            {
+                CharacterRigidbody.velocity += new Vector3(
+                    -newVelocityRight.z,
+                    0f,
+                    newVelocityRight.x
+                );
+            }
         }
 
-        public void Jump()
+        /// <summary>
+        /// Overriding break movement to store velocity in a different way when stopping
+        /// </summary>
+        protected override void StoppingMovement()
         {
-            rigidBody.AddForce(transform.up * jumpForce);
+            Vector3 vel = new(0f, 0f, 1f);
+            vel = transform.TransformDirection(vel);
+            vel *= MaxSpeed;
+
+            CharacterRigidbody.velocity = new Vector3(
+                vel.x * accelerationForward,
+                CharacterRigidbody.velocity.y,
+                vel.z * accelerationForward
+            );
+            targetVelocity = CharacterRigidbody.velocity;
+
+            if (inputAxes.x == 0f)
+            {
+                if (accelerationForward > 0f)
+                {
+                    accelerationForward = Mathf.Max(
+                        0f,
+                        accelerationForward - (DecelerateSpeed * Time.fixedDeltaTime)
+                    );
+                }
+                else if (accelerationForward < 0f)
+                {
+                    accelerationForward = Mathf.Min(
+                        0f,
+                        accelerationForward + (DecelerateSpeed * Time.fixedDeltaTime)
+                    );
+                }
+            }
         }
     }
 }
