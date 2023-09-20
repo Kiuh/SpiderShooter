@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:SpiderShooter/Assets/KANIYONIKA/UltimateProceduralPrimitivesFREE/40_Scripts/10_Generators/AbstractGenerator.cs.meta
 guid: a5013e19da89748abb477775dabba8e8
+========
+guid: deb3977faa90c4cfe8ff0383e4575078
+>>>>>>>> Lobby:SpiderShooter/Assets/KANIYONIKA/UltimateProceduralPrimitivesFREE/40_Scripts/10_Generators/BoxRounded.cs.meta
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
