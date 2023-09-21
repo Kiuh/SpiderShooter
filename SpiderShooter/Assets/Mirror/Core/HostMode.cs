@@ -14,7 +14,8 @@ namespace Mirror
             // create local connections pair, both are connected
             Utils.CreateLocalConnections(
                 out LocalConnectionToClient connectionToClient,
-                out LocalConnectionToServer connectionToServer);
+                out LocalConnectionToServer connectionToServer
+            );
 
             // set client connection
             NetworkClient.connection = connectionToServer;
@@ -42,7 +43,9 @@ namespace Mirror
         }
 
         // DEPRECATED 2023-01-28
-        [Obsolete("ActivateHostScene did nothing, since identities all had .isClient set in NetworkServer.SpawnObjects.")]
-        public static void ActivateHostScene() {}
+        [Obsolete(
+            "ActivateHostScene did nothing, since identities all had .isClient set in NetworkServer.SpawnObjects."
+        )]
+        public static void ActivateHostScene() { }
     }
 }

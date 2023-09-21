@@ -1,23 +1,29 @@
-﻿using Assets.Scripts.Spider;
+﻿using FIMSpace.Basics;
 using Mirror;
+using SpiderShooter.Networking;
 using UnityEngine;
 
-namespace Spider
+namespace SpiderShooter.Spider
 {
-    [AddComponentMenu("Spider.Controller")]
+    [AddComponentMenu("SpiderShooter/Spider.Controller")]
     public class Controller : NetworkBehaviour
     {
-        [SerializeField]
-        private Movement movement;
-
         [SerializeField]
         private Shooting shooting;
 
         [SerializeField]
         private SpiderImpl spider;
 
+        [SerializeField]
+        private FBasic_CharacterMovementBase characterController;
+
         private void Update()
         {
+            if (ServerStorage.Singleton.GameEnds)
+            {
+                return;
+            }
+
             if (!Application.isFocused)
             {
                 return;
@@ -25,31 +31,58 @@ namespace Spider
 
             if (isLocalPlayer)
             {
-                if (Input.GetKey(KeyCode.D))
-                {
-                    movement.RotateRight();
-                }
+                Vector2 inputValue = Vector2.zero;
 
                 if (Input.GetKey(KeyCode.A))
                 {
-                    movement.RotateLeft();
+                    inputValue.x = -1;
+                }
+                else if (Input.GetKey(KeyCode.D))
+                {
+                    inputValue.x = 1;
                 }
 
                 if (Input.GetKey(KeyCode.W))
                 {
-                    movement.MoveForward();
+                    inputValue.y = 1;
                 }
-
-                if (Input.GetKey(KeyCode.S))
+                else if (Input.GetKey(KeyCode.S))
                 {
-                    movement.MoveBackward();
+                    inputValue.y = -1;
                 }
 
-                if (Input.GetMouseButtonDown(0))
+                SetInputAxis(inputValue);
+                SetInputDirection(Camera.main.transform.eulerAngles.y);
+                if (Input.GetKeyDown(KeyCode.Space))
+                {
+                    Jump();
+                }
+
+                if (Input.GetMouseButton(0))
                 {
                     shooting.Shoot(spider);
                 }
+
+                if (Input.GetKeyDown(KeyCode.Delete))
+                {
+                    spider.CmdKilled();
+                }
             }
+        }
+
+        public void SetInputAxis(Vector2 inputAxis)
+        {
+            characterController.SetInputAxis(inputAxis);
+        }
+
+        public void Jump()
+        {
+            characterController.SetJumpInput();
+        }
+
+        public void SetInputDirection(float yDirection)
+        {
+            characterController.SetInputDirection(yDirection);
         }
     }
 }

@@ -43,11 +43,13 @@ namespace kcp2k
         // state
         public bool connected;
 
-        public KcpClient(Action OnConnected,
-                         Action<ArraySegment<byte>, KcpChannel> OnData,
-                         Action OnDisconnected,
-                         Action<ErrorCode, string> OnError,
-                         KcpConfig config)
+        public KcpClient(
+            Action OnConnected,
+            Action<ArraySegment<byte>, KcpChannel> OnData,
+            Action OnDisconnected,
+            Action<ErrorCode, string> OnError,
+            KcpConfig config
+        )
         {
             // initialize callbacks first to ensure they can be used safely.
             this.OnConnected = OnConnected;
@@ -80,7 +82,15 @@ namespace kcp2k
 
             // create fresh peer for each new session
             // client doesn't need secure cookie.
-            peer = new KcpPeer(RawSend, OnAuthenticatedWrap, OnData, OnDisconnectedWrap, OnError, config, 0);
+            peer = new KcpPeer(
+                RawSend,
+                OnAuthenticatedWrap,
+                OnData,
+                OnDisconnectedWrap,
+                OnError,
+                config,
+                0
+            );
 
             // some callbacks need to wrapped with some extra logic
             void OnAuthenticatedWrap()
@@ -104,12 +114,13 @@ namespace kcp2k
 
             // create socket
             remoteEndPoint = new IPEndPoint(addresses[0], port);
-            socket = new Socket(remoteEndPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
-
-            // recv & send are called from main thread.
-            // need to ensure this never blocks.
-            // even a 1ms block per connection would stop us from scaling.
-            socket.Blocking = false;
+            socket = new Socket(remoteEndPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp)
+            {
+                // recv & send are called from main thread.
+                // need to ensure this never blocks.
+                // even a 1ms block per connection would stop us from scaling.
+                Blocking = false
+            };
 
             // configure buffer sizes
             Common.ConfigureSocketBuffers(socket, config.RecvBufferSize, config.SendBufferSize);
@@ -128,7 +139,10 @@ namespace kcp2k
         protected virtual bool RawReceive(out ArraySegment<byte> segment)
         {
             segment = default;
-            if (socket == null) return false;
+            if (socket == null)
+            {
+                return false;
+            }
 
             try
             {
@@ -143,7 +157,9 @@ namespace kcp2k
                 // at least log a message for easier debugging.
                 // for example, his can happen when connecting without a server.
                 // see test: ConnectWithoutServer().
-                Log.Info($"KcpClient: looks like the other end has closed the connection. This is fine: {e}");
+                Log.Info(
+                    $"KcpClient: looks like the other end has closed the connection. This is fine: {e}"
+                );
                 peer.Disconnect();
                 return false;
             }
@@ -155,7 +171,7 @@ namespace kcp2k
         {
             try
             {
-                socket.SendNonBlocking(data);
+                _ = socket.SendNonBlocking(data);
             }
             catch (SocketException e)
             {
@@ -179,7 +195,10 @@ namespace kcp2k
             // only if connected
             // otherwise we end up in a deadlock because of an open Mirror bug:
             // https://github.com/vis2k/Mirror/issues/2353
-            if (!connected) return;
+            if (!connected)
+            {
+                return;
+            }
 
             // call Disconnect and let the connection handle it.
             // DO NOT set it to null yet. it needs to be updated a few more
@@ -196,9 +215,10 @@ namespace kcp2k
             // (connection is null if not active)
             if (peer != null)
             {
-
                 while (RawReceive(out ArraySegment<byte> segment))
+                {
                     peer.RawInput(segment);
+                }
             }
 
             // RawReceive may have disconnected peer. null check again.

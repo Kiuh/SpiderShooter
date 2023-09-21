@@ -39,7 +39,7 @@ namespace Mirror
         //            fixes a bug where DestroyOwnedObjects wouldn't find the
         //            netId anymore: https://github.com/vis2k/Mirror/issues/1380
         //            Works fine with NetworkIdentity pointers though.
-        public readonly HashSet<NetworkIdentity> owned = new HashSet<NetworkIdentity>();
+        public readonly HashSet<NetworkIdentity> owned = new();
 
         // batching from server to client & client to server.
         // fewer transport calls give us significantly better performance/scale.
@@ -50,7 +50,7 @@ namespace Mirror
         // depending on the transport, this can give 10x performance.
         //
         // Dictionary<channelId, batch> because we have multiple channels.
-        protected Dictionary<int, Batcher> batches = new Dictionary<int, Batcher>();
+        protected Dictionary<int, Batcher> batches = new();
 
         /// <summary>last batch's remote timestamp. not interpolated. useful for NetworkTransform etc.</summary>
         // for any given NetworkMessage/Rpc/Cmd/OnSerialize, this was the time
@@ -68,7 +68,8 @@ namespace Mirror
             lastMessageTime = Time.time;
         }
 
-        internal NetworkConnection(int networkConnectionId) : this()
+        internal NetworkConnection(int networkConnectionId)
+            : this()
         {
             connectionId = networkConnectionId;
         }
@@ -78,8 +79,7 @@ namespace Mirror
         protected Batcher GetBatchForChannelId(int channelId)
         {
             // get existing or create new writer for the channelId
-            Batcher batch;
-            if (!batches.TryGetValue(channelId, out batch))
+            if (!batches.TryGetValue(channelId, out Batcher batch))
             {
                 // get max batch size for this channel
                 int threshold = Transport.active.GetBatchThreshold(channelId);
@@ -96,27 +96,27 @@ namespace Mirror
         public void Send<T>(T message, int channelId = Channels.Reliable)
             where T : struct, NetworkMessage
         {
-            using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+            using NetworkWriterPooled writer = NetworkWriterPool.Get();
+            // pack message
+            NetworkMessages.Pack(message, writer);
+
+            // validate packet size immediately.
+            // we know how much can fit into one batch at max.
+            // if it's larger, log an error immediately with the type <T>.
+            // previously we only logged in Update() when processing batches,
+            // but there we don't have type information anymore.
+            int max = NetworkMessages.MaxMessageSize(channelId);
+            if (writer.Position > max)
             {
-                // pack message
-                NetworkMessages.Pack(message, writer);
-
-                // validate packet size immediately.
-                // we know how much can fit into one batch at max.
-                // if it's larger, log an error immediately with the type <T>.
-                // previously we only logged in Update() when processing batches,
-                // but there we don't have type information anymore.
-                int max = NetworkMessages.MaxMessageSize(channelId);
-                if (writer.Position > max)
-                {
-                    Debug.LogError($"NetworkConnection.Send: message of type {typeof(T)} with a size of {writer.Position} bytes is larger than the max allowed message size in one batch: {max}.\nThe message was dropped, please make it smaller.");
-                    return;
-                }
-
-                // send allocation free
-                NetworkDiagnostics.OnSend(message, channelId, writer.Position, 1);
-                Send(writer.ToArraySegment(), channelId);
+                Debug.LogError(
+                    $"NetworkConnection.Send: message of type {typeof(T)} with a size of {writer.Position} bytes is larger than the max allowed message size in one batch: {max}.\nThe message was dropped, please make it smaller."
+                );
+                return;
             }
+
+            // send allocation free
+            NetworkDiagnostics.OnSend(message, channelId, writer.Position, 1);
+            Send(writer.ToArraySegment(), channelId);
         }
 
         // Send stage two: serialized NetworkMessage as ArraySegment<byte>
@@ -143,11 +143,15 @@ namespace Mirror
             //
             // NOTE: we do NOT ValidatePacketSize here yet. the final packet
             //       will be the full batch, including timestamp.
-            GetBatchForChannelId(channelId).AddMessage(segment, NetworkTime.localTime);
+            GetBatchForChannelId(channelId)
+                .AddMessage(segment, NetworkTime.localTime);
         }
 
         // Send stage three: hand off to transport
-        protected abstract void SendToTransport(ArraySegment<byte> segment, int channelId = Channels.Reliable);
+        protected abstract void SendToTransport(
+            ArraySegment<byte> segment,
+            int channelId = Channels.Reliable
+        );
 
         // flush batched messages at the end of every Update.
         internal virtual void Update()
@@ -158,28 +162,29 @@ namespace Mirror
             {
                 // make and send as many batches as necessary from the stored
                 // messages.
-                using (NetworkWriterPooled writer = NetworkWriterPool.Get())
+                using NetworkWriterPooled writer = NetworkWriterPool.Get();
+                // make a batch with our local time (double precision)
+                while (kvp.Value.GetBatch(writer))
                 {
-                    // make a batch with our local time (double precision)
-                    while (kvp.Value.GetBatch(writer))
-                    {
-                        // message size is validated in Send<T>, with test coverage.
-                        // we can send directly without checking again.
-                        ArraySegment<byte> segment = writer.ToArraySegment();
+                    // message size is validated in Send<T>, with test coverage.
+                    // we can send directly without checking again.
+                    ArraySegment<byte> segment = writer.ToArraySegment();
 
-                        // send to transport
-                        SendToTransport(segment, kvp.Key);
-                        //UnityEngine.Debug.Log($"sending batch of {writer.Position} bytes for channel={kvp.Key} connId={connectionId}");
+                    // send to transport
+                    SendToTransport(segment, kvp.Key);
+                    //UnityEngine.Debug.Log($"sending batch of {writer.Position} bytes for channel={kvp.Key} connId={connectionId}");
 
-                        // reset writer for each new batch
-                        writer.Position = 0;
-                    }
+                    // reset writer for each new batch
+                    writer.Position = 0;
                 }
             }
         }
 
         /// <summary>Check if we received a message within the last 'timeout' seconds.</summary>
-        internal virtual bool IsAlive(float timeout) => Time.time - lastMessageTime < timeout;
+        internal virtual bool IsAlive(float timeout)
+        {
+            return Time.time - lastMessageTime < timeout;
+        }
 
         /// <summary>Disconnects this connection.</summary>
         // for future reference, here is how Disconnects work in Mirror.
@@ -201,6 +206,9 @@ namespace Mirror
         // then later the transport events will do the clean up.
         public abstract void Disconnect();
 
-        public override string ToString() => $"connection({connectionId})";
+        public override string ToString()
+        {
+            return $"connection({connectionId})";
+        }
     }
 }

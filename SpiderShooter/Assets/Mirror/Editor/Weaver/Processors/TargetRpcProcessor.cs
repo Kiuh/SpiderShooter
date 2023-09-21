@@ -15,25 +15,40 @@ namespace Mirror.Weaver
                 // NetworkBehaviour.SendTargetRpc takes a NetworkConnection parameter.
                 // fixes https://github.com/vis2k/Mirror/issues/3290
                 TypeReference type = md.Parameters[0].ParameterType;
-                return type.Is<NetworkConnection>() ||
-                       type.IsDerivedFrom<NetworkConnection>();
+                return type.Is<NetworkConnection>() || type.IsDerivedFrom<NetworkConnection>();
             }
             return false;
         }
 
-        public static MethodDefinition ProcessTargetRpcInvoke(WeaverTypes weaverTypes, Readers readers, Logger Log, TypeDefinition td, MethodDefinition md, MethodDefinition rpcCallFunc, ref bool WeavingFailed)
+        public static MethodDefinition ProcessTargetRpcInvoke(
+            WeaverTypes weaverTypes,
+            Readers readers,
+            Logger Log,
+            TypeDefinition td,
+            MethodDefinition md,
+            MethodDefinition rpcCallFunc,
+            ref bool WeavingFailed
+        )
         {
             string trgName = Weaver.GenerateMethodName(Weaver.InvokeRpcPrefix, md);
 
-            MethodDefinition rpc = new MethodDefinition(trgName, MethodAttributes.Family |
-                    MethodAttributes.Static |
-                    MethodAttributes.HideBySig,
-                weaverTypes.Import(typeof(void)));
+            MethodDefinition rpc =
+                new(
+                    trgName,
+                    MethodAttributes.Family | MethodAttributes.Static | MethodAttributes.HideBySig,
+                    weaverTypes.Import(typeof(void))
+                );
 
             ILProcessor worker = rpc.Body.GetILProcessor();
             Instruction label = worker.Create(OpCodes.Nop);
 
-            NetworkBehaviourProcessor.WriteClientActiveCheck(worker, weaverTypes, md.Name, label, "TargetRPC");
+            NetworkBehaviourProcessor.WriteClientActiveCheck(
+                worker,
+                weaverTypes,
+                md.Name,
+                label,
+                "TargetRPC"
+            );
 
             // setup for reader
             worker.Emit(OpCodes.Ldarg_0);
@@ -64,8 +79,19 @@ namespace Mirror.Weaver
             }
 
             // process reader parameters and skip first one if first one is NetworkConnection
-            if (!NetworkBehaviourProcessor.ReadArguments(md, readers, Log, worker, RemoteCallType.TargetRpc, ref WeavingFailed))
+            if (
+                !NetworkBehaviourProcessor.ReadArguments(
+                    md,
+                    readers,
+                    Log,
+                    worker,
+                    RemoteCallType.TargetRpc,
+                    ref WeavingFailed
+                )
+            )
+            {
                 return null;
+            }
 
             // invoke actual command function
             worker.Emit(OpCodes.Callvirt, rpcCallFunc);
@@ -109,7 +135,15 @@ namespace Mirror.Weaver
             correctly in dependent assemblies
 
         */
-        public static MethodDefinition ProcessTargetRpcCall(WeaverTypes weaverTypes, Writers writers, Logger Log, TypeDefinition td, MethodDefinition md, CustomAttribute targetRpcAttr, ref bool WeavingFailed)
+        public static MethodDefinition ProcessTargetRpcCall(
+            WeaverTypes weaverTypes,
+            Writers writers,
+            Logger Log,
+            TypeDefinition td,
+            MethodDefinition md,
+            CustomAttribute targetRpcAttr,
+            ref bool WeavingFailed
+        )
         {
             MethodDefinition rpc = MethodProcessor.SubstituteMethod(Log, td, md, ref WeavingFailed);
 
@@ -121,8 +155,19 @@ namespace Mirror.Weaver
 
             // write all the arguments that the user passed to the TargetRpc call
             // (skip first one if first one is NetworkConnection)
-            if (!NetworkBehaviourProcessor.WriteArguments(worker, writers, Log, md, RemoteCallType.TargetRpc, ref WeavingFailed))
+            if (
+                !NetworkBehaviourProcessor.WriteArguments(
+                    worker,
+                    writers,
+                    Log,
+                    md,
+                    RemoteCallType.TargetRpc,
+                    ref WeavingFailed
+                )
+            )
+            {
                 return null;
+            }
 
             // invoke SendInternal and return
             // this

@@ -1,11 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-namespace AYellowpaper.Samples
+﻿namespace AYellowpaper.Samples
 {
-	public interface IInteractable
-	{
-		void Interact();
-	}
+    public interface IInteractable
+    {
+        void Interact();
+    }
 }

@@ -33,7 +33,7 @@ namespace Mirror
         // throwOnInvalidBytes is true.
         // writer should throw and user should fix if this ever happens.
         // unlike reader, which needs to expect it to happen from attackers.
-        internal readonly UTF8Encoding encoding = new UTF8Encoding(false, true);
+        internal readonly UTF8Encoding encoding = new(false, true);
 
         /// <summary>Reset both the position and length of the stream</summary>
         // Leaves the capacity the same so that we can reuse this writer without
@@ -68,13 +68,17 @@ namespace Mirror
 
         /// <summary>Returns allocation-free ArraySegment until 'Position'.</summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ArraySegment<byte> ToArraySegment() =>
-            new ArraySegment<byte>(buffer, 0, Position);
+        public ArraySegment<byte> ToArraySegment()
+        {
+            return new ArraySegment<byte>(buffer, 0, Position);
+        }
 
         // implicit conversion for convenience
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ArraySegment<byte>(NetworkWriter w) =>
-            w.ToArraySegment();
+        public static implicit operator ArraySegment<byte>(NetworkWriter w)
+        {
+            return w.ToArraySegment();
+        }
 
         // WriteBlittable<T> from DOTSNET.
         // this is extremely fast, but only works for blittable types.
@@ -164,7 +168,7 @@ namespace Mirror
                 // this way, we can still support blittable reads on android.
                 // see also: https://github.com/vis2k/Mirror/issues/3044
                 // (solution discovered by AIIO, FakeByte, mischa)
-                T* valueBuffer = stackalloc T[1]{value};
+                T* valueBuffer = stackalloc T[1] { value };
                 UnsafeUtility.MemCpy(ptr, valueBuffer, size);
 #else
                 // cast buffer to T* pointer, then assign value to the area
@@ -184,19 +188,25 @@ namespace Mirror
 
             // only write value if exists. saves bandwidth.
             if (value.HasValue)
+            {
                 WriteBlittable(value.Value);
+            }
         }
 
-        public void WriteByte(byte value) => WriteBlittable(value);
+        public void WriteByte(byte value)
+        {
+            WriteBlittable(value);
+        }
 
         // for byte arrays with consistent size, where the reader knows how many to read
         // (like a packet opcode that's always the same)
         public void WriteBytes(byte[] array, int offset, int count)
         {
             EnsureCapacity(Position + count);
-            Array.ConstrainedCopy(array, offset, this.buffer, Position, count);
+            Array.ConstrainedCopy(array, offset, buffer, Position, count);
             Position += count;
         }
+
         // write an unsafe byte* array.
         // useful for bit tree compression, etc.
         public unsafe bool WriteBytes(byte* ptr, int offset, int size)
@@ -224,7 +234,9 @@ namespace Mirror
             Action<NetworkWriter, T> writeDelegate = Writer<T>.write;
             if (writeDelegate == null)
             {
-                Debug.LogError($"No writer found for {typeof(T)}. This happens either if you are missing a NetworkWriter extension for your custom type, or if weaving failed. Try to reimport a script to weave again.");
+                Debug.LogError(
+                    $"No writer found for {typeof(T)}. This happens either if you are missing a NetworkWriter extension for your custom type, or if weaving failed. Try to reimport a script to weave again."
+                );
             }
             else
             {
@@ -235,8 +247,10 @@ namespace Mirror
         // print with buffer content for easier debugging.
         // [content, position / capacity].
         // showing "position / space" would be too confusing.
-        public override string ToString() =>
-            $"[{ToArraySegment().ToHexString()} @ {Position}/{Capacity}]";
+        public override string ToString()
+        {
+            return $"[{ToArraySegment().ToHexString()} @ {Position}/{Capacity}]";
+        }
     }
 
     /// <summary>Helper class that weaver populates with all writer types.</summary>

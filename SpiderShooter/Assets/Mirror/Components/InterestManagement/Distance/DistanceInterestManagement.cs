@@ -7,21 +7,31 @@ namespace Mirror
     [AddComponentMenu("Network/ Interest Management/ Distance/Distance Interest Management")]
     public class DistanceInterestManagement : InterestManagement
     {
-        [Tooltip("The maximum range that objects will be visible at. Add DistanceInterestManagementCustomRange onto NetworkIdentities for custom ranges.")]
+        [Tooltip(
+            "The maximum range that objects will be visible at. Add DistanceInterestManagementCustomRange onto NetworkIdentities for custom ranges."
+        )]
         public int visRange = 500;
 
         [Tooltip("Rebuild all every 'rebuildInterval' seconds.")]
         public float rebuildInterval = 1;
-        double lastRebuildTime;
+        private double lastRebuildTime;
 
         // cache custom ranges to avoid runtime TryGetComponent lookups
-        readonly Dictionary<NetworkIdentity, DistanceInterestManagementCustomRange> CustomRanges = new Dictionary<NetworkIdentity, DistanceInterestManagementCustomRange>();
+        private readonly Dictionary<
+            NetworkIdentity,
+            DistanceInterestManagementCustomRange
+        > CustomRanges = new();
 
         // helper function to get vis range for a given object, or default.
         [ServerCallback]
-        int GetVisRange(NetworkIdentity identity)
+        private int GetVisRange(NetworkIdentity identity)
         {
-            return CustomRanges.TryGetValue(identity, out DistanceInterestManagementCustomRange custom) ? custom.visRange : visRange;
+            return CustomRanges.TryGetValue(
+                identity,
+                out DistanceInterestManagementCustomRange custom
+            )
+                ? custom.visRange
+                : visRange;
         }
 
         [ServerCallback]
@@ -34,21 +44,32 @@ namespace Mirror
         public override void OnSpawned(NetworkIdentity identity)
         {
             if (identity.TryGetComponent(out DistanceInterestManagementCustomRange custom))
+            {
                 CustomRanges[identity] = custom;
+            }
         }
 
         public override void OnDestroyed(NetworkIdentity identity)
         {
-            CustomRanges.Remove(identity);
+            _ = CustomRanges.Remove(identity);
         }
 
-        public override bool OnCheckObserver(NetworkIdentity identity, NetworkConnectionToClient newObserver)
+        public override bool OnCheckObserver(
+            NetworkIdentity identity,
+            NetworkConnectionToClient newObserver
+        )
         {
             int range = GetVisRange(identity);
-            return Vector3.Distance(identity.transform.position, newObserver.identity.transform.position) < range;
+            return Vector3.Distance(
+                    identity.transform.position,
+                    newObserver.identity.transform.position
+                ) < range;
         }
 
-        public override void OnRebuildObservers(NetworkIdentity identity, HashSet<NetworkConnectionToClient> newObservers)
+        public override void OnRebuildObservers(
+            NetworkIdentity identity,
+            HashSet<NetworkConnectionToClient> newObservers
+        )
         {
             // cache range and .transform because both call GetComponent.
             int range = GetVisRange(identity);
@@ -69,7 +90,7 @@ namespace Mirror
                     // check distance
                     if (Vector3.Distance(conn.identity.transform.position, position) < range)
                     {
-                        newObservers.Add(conn);
+                        _ = newObservers.Add(conn);
                     }
                 }
             }

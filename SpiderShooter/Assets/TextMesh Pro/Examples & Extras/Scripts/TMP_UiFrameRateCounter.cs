@@ -1,17 +1,20 @@
 ﻿using UnityEngine;
-using System.Collections;
-
 
 namespace TMPro.Examples
 {
-    
     public class TMP_UiFrameRateCounter : MonoBehaviour
     {
         public float UpdateInterval = 5.0f;
         private float m_LastInterval = 0;
         private int m_Frames = 0;
 
-        public enum FpsCounterAnchorPositions { TopLeft, BottomLeft, TopRight, BottomRight };
+        public enum FpsCounterAnchorPositions
+        {
+            TopLeft,
+            BottomLeft,
+            TopRight,
+            BottomRight
+        };
 
         public FpsCounterAnchorPositions AnchorPosition = FpsCounterAnchorPositions.TopRight;
 
@@ -23,21 +26,27 @@ namespace TMPro.Examples
 
         private FpsCounterAnchorPositions last_AnchorPosition;
 
-        void Awake()
+        private void Awake()
         {
             if (!enabled)
+            {
                 return;
+            }
 
             Application.targetFrameRate = 1000;
 
-            GameObject frameCounter = new GameObject("Frame Counter");
+            GameObject frameCounter = new("Frame Counter");
             m_frameCounter_transform = frameCounter.AddComponent<RectTransform>();
 
-            m_frameCounter_transform.SetParent(this.transform, false);
+            m_frameCounter_transform.SetParent(transform, false);
 
             m_TextMeshPro = frameCounter.AddComponent<TextMeshProUGUI>();
-            m_TextMeshPro.font = Resources.Load<TMP_FontAsset>("Fonts & Materials/LiberationSans SDF");
-            m_TextMeshPro.fontSharedMaterial = Resources.Load<Material>("Fonts & Materials/LiberationSans SDF - Overlay");
+            m_TextMeshPro.font = Resources.Load<TMP_FontAsset>(
+                "Fonts & Materials/LiberationSans SDF"
+            );
+            m_TextMeshPro.fontSharedMaterial = Resources.Load<Material>(
+                "Fonts & Materials/LiberationSans SDF - Overlay"
+            );
 
             m_TextMeshPro.enableWordWrapping = false;
             m_TextMeshPro.fontSize = 36;
@@ -48,18 +57,18 @@ namespace TMPro.Examples
             last_AnchorPosition = AnchorPosition;
         }
 
-
-        void Start()
+        private void Start()
         {
             m_LastInterval = Time.realtimeSinceStartup;
             m_Frames = 0;
         }
 
-
-        void Update()
+        private void Update()
         {
             if (AnchorPosition != last_AnchorPosition)
+            {
                 Set_FrameCounter_Position(AnchorPosition);
+            }
 
             last_AnchorPosition = AnchorPosition;
 
@@ -72,12 +81,12 @@ namespace TMPro.Examples
                 float fps = m_Frames / (timeNow - m_LastInterval);
                 float ms = 1000.0f / Mathf.Max(fps, 0.00001f);
 
-                if (fps < 30)
-                    htmlColorTag = "<color=yellow>";
-                else if (fps < 10)
-                    htmlColorTag = "<color=red>";
-                else
-                    htmlColorTag = "<color=green>";
+                htmlColorTag =
+                    fps < 30
+                        ? "<color=yellow>"
+                        : fps < 10
+                            ? "<color=red>"
+                            : "<color=green>";
 
                 m_TextMeshPro.SetText(htmlColorTag + fpsLabel, fps, ms);
 
@@ -86,8 +95,7 @@ namespace TMPro.Examples
             }
         }
 
-
-        void Set_FrameCounter_Position(FpsCounterAnchorPositions anchor_position)
+        private void Set_FrameCounter_Position(FpsCounterAnchorPositions anchor_position)
         {
             switch (anchor_position)
             {

@@ -14,20 +14,20 @@ namespace Mirror
     {
         // supporting adding multiple batches before GetNextMessage is called.
         // just in case.
-        readonly Queue<NetworkWriterPooled> batches = new Queue<NetworkWriterPooled>();
+        private readonly Queue<NetworkWriterPooled> batches = new();
 
         public int BatchesCount => batches.Count;
 
         // NetworkReader is only created once,
         // then pointed to the first batch.
-        readonly NetworkReader reader = new NetworkReader(new byte[0]);
+        private readonly NetworkReader reader = new(new byte[0]);
 
         // timestamp that was written into the batch remotely.
         // for the batch that our reader is currently pointed at.
-        double readerRemoteTimeStamp;
+        private double readerRemoteTimeStamp;
 
         // helper function to start reading a batch.
-        void StartReadingBatch(NetworkWriterPooled batch)
+        private void StartReadingBatch(NetworkWriterPooled batch)
         {
             // point reader to it
             reader.SetBuffer(batch.ToArraySegment());
@@ -49,7 +49,9 @@ namespace Mirror
 
             // make sure we have at least 8 bytes to read for tick timestamp
             if (batch.Count < Batcher.TimestampSize)
+            {
                 return false;
+            }
 
             // put into a (pooled) writer
             // -> WriteBytes instead of WriteSegment because the latter
@@ -60,7 +62,9 @@ namespace Mirror
 
             // first batch? then point reader there
             if (batches.Count == 0)
+            {
                 StartReadingBatch(writer);
+            }
 
             // add batch
             batches.Enqueue(writer);
@@ -80,11 +84,15 @@ namespace Mirror
             // otherwise the below queue.Dequeue() would throw an
             // InvalidOperationException if operating on empty queue.
             if (batches.Count == 0)
+            {
                 return false;
+            }
 
             // was our reader pointed to anything yet?
             if (reader.Capacity == 0)
+            {
                 return false;
+            }
 
             // no more data to read?
             if (reader.Remaining == 0)
@@ -102,7 +110,10 @@ namespace Mirror
                     StartReadingBatch(next);
                 }
                 // otherwise there's nothing more to read
-                else return false;
+                else
+                {
+                    return false;
+                }
             }
 
             // use the current batch's remote timestamp
@@ -111,7 +122,9 @@ namespace Mirror
 
             // enough data to read the size prefix?
             if (reader.Remaining == 0)
+            {
                 return false;
+            }
 
             // read the size prefix as varint
             // see Batcher.AddMessage comments for explanation.
@@ -119,7 +132,9 @@ namespace Mirror
 
             // validate size prefix, in case attackers send malicious data
             if (reader.Remaining < size)
+            {
                 return false;
+            }
 
             // return the message of size
             message = reader.ReadBytesSegment(size);

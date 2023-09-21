@@ -10,12 +10,13 @@ namespace Mirror
         // reuse Pool<T>
         // we still wrap it in NetworkReaderPool.Get/Recyle so we can reset the
         // position and array before reusing.
-        static readonly Pool<NetworkReaderPooled> Pool = new Pool<NetworkReaderPooled>(
-            // byte[] will be assigned in GetReader
-            () => new NetworkReaderPooled(new byte[]{}),
-            // initial capacity to avoid allocations in the first few frames
-            1000
-        );
+        private static readonly Pool<NetworkReaderPooled> Pool =
+            new(
+                // byte[] will be assigned in GetReader
+                () => new NetworkReaderPooled(new byte[] { }),
+                // initial capacity to avoid allocations in the first few frames
+                1000
+            );
 
         /// <summary>Get the next reader in the pool. If pool is empty, creates a new Reader</summary>
         public static NetworkReaderPooled Get(byte[] bytes)

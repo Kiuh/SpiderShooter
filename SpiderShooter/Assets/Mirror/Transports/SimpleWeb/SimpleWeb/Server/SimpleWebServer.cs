@@ -11,19 +11,31 @@ namespace Mirror.SimpleWeb
         public event Action<int, ArraySegment<byte>> onData;
         public event Action<int, Exception> onError;
 
-        readonly int maxMessagesPerTick;
-        readonly WebSocketServer server;
-        readonly BufferPool bufferPool;
+        private readonly int maxMessagesPerTick;
+        private readonly WebSocketServer server;
+        private readonly BufferPool bufferPool;
 
         public bool Active { get; private set; }
 
-        public SimpleWebServer(int maxMessagesPerTick, TcpConfig tcpConfig, int maxMessageSize, int handshakeMaxSize, SslConfig sslConfig)
+        public SimpleWebServer(
+            int maxMessagesPerTick,
+            TcpConfig tcpConfig,
+            int maxMessageSize,
+            int handshakeMaxSize,
+            SslConfig sslConfig
+        )
         {
             this.maxMessagesPerTick = maxMessagesPerTick;
             // use max because bufferpool is used for both messages and handshake
             int max = Math.Max(maxMessageSize, handshakeMaxSize);
             bufferPool = new BufferPool(5, 20, max);
-            server = new WebSocketServer(tcpConfig, maxMessageSize, handshakeMaxSize, sslConfig, bufferPool);
+            server = new WebSocketServer(
+                tcpConfig,
+                maxMessageSize,
+                handshakeMaxSize,
+                sslConfig,
+                bufferPool
+            );
         }
 
         public void Start(ushort port)
@@ -46,7 +58,9 @@ namespace Mirror.SimpleWeb
 
             // make copy of array before for each, data sent to each client is the same
             foreach (int id in connectionIds)
+            {
                 server.Send(id, buffer);
+            }
         }
 
         public void SendOne(int connectionId, ArraySegment<byte> source)
@@ -56,11 +70,20 @@ namespace Mirror.SimpleWeb
             server.Send(connectionId, buffer);
         }
 
-        public bool KickClient(int connectionId) => server.CloseConnection(connectionId);
+        public bool KickClient(int connectionId)
+        {
+            return server.CloseConnection(connectionId);
+        }
 
-        public string GetClientAddress(int connectionId) => server.GetClientAddress(connectionId);
+        public string GetClientAddress(int connectionId)
+        {
+            return server.GetClientAddress(connectionId);
+        }
 
-        public Request GetClientRequest(int connectionId) => server.GetClientRequest(connectionId);
+        public Request GetClientRequest(int connectionId)
+        {
+            return server.GetClientRequest(connectionId);
+        }
 
         /// <summary>
         /// Processes all new messages
@@ -80,11 +103,12 @@ namespace Mirror.SimpleWeb
             bool skipEnabled = behaviour == null;
             // check enabled every time in case behaviour was disabled after data
             while (
-                (skipEnabled || behaviour.enabled) &&
-                processedCount < maxMessagesPerTick &&
+                (skipEnabled || behaviour.enabled)
+                && processedCount < maxMessagesPerTick
+                &&
                 // Dequeue last
                 server.receiveQueue.TryDequeue(out Message next)
-                )
+            )
             {
                 processedCount++;
 
@@ -109,7 +133,9 @@ namespace Mirror.SimpleWeb
             if (server.receiveQueue.Count > 0)
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine($"SimpleWebServer ProcessMessageQueue has {server.receiveQueue.Count} remaining.");
+                Console.WriteLine(
+                    $"SimpleWebServer ProcessMessageQueue has {server.receiveQueue.Count} remaining."
+                );
                 Console.ResetColor();
             }
         }

@@ -8,8 +8,8 @@ namespace Mirror
     {
         public delegate void SyncListChanged(Operation op, int itemIndex, T oldItem, T newItem);
 
-        readonly IList<T> objects;
-        readonly IEqualityComparer<T> comparer;
+        private readonly IList<T> objects;
+        private readonly IEqualityComparer<T> comparer;
 
         public int Count => objects.Count;
         public bool IsReadOnly => !IsWritable();
@@ -24,7 +24,7 @@ namespace Mirror
             OP_SET
         }
 
-        struct Change
+        private struct Change
         {
             internal Operation operation;
             internal int index;
@@ -35,15 +35,16 @@ namespace Mirror
         // -> insert/delete/clear is only ONE change
         // -> changing the same slot 10x caues 10 changes.
         // -> note that this grows until next sync(!)
-        readonly List<Change> changes = new List<Change>();
+        private readonly List<Change> changes = new();
 
         // how many changes we need to ignore
         // this is needed because when we initialize the list,
         // we might later receive changes that have already been applied
         // so we need to skip them
-        int changesAhead;
+        private int changesAhead;
 
-        public SyncList() : this(EqualityComparer<T>.Default) {}
+        public SyncList()
+            : this(EqualityComparer<T>.Default) { }
 
         public SyncList(IEqualityComparer<T> comparer)
         {
@@ -59,7 +60,10 @@ namespace Mirror
 
         // throw away all the changes
         // this should be called after a successful sync
-        public override void ClearChanges() => changes.Clear();
+        public override void ClearChanges()
+        {
+            changes.Clear();
+        }
 
         public override void Reset()
         {
@@ -68,19 +72,26 @@ namespace Mirror
             objects.Clear();
         }
 
-        void AddOperation(Operation op, int itemIndex, T oldItem, T newItem, bool checkAccess)
+        private void AddOperation(
+            Operation op,
+            int itemIndex,
+            T oldItem,
+            T newItem,
+            bool checkAccess
+        )
         {
             if (checkAccess && IsReadOnly)
             {
                 throw new InvalidOperationException("Synclists can only be modified by the owner.");
             }
 
-            Change change = new Change
-            {
-                operation = op,
-                index = itemIndex,
-                item = newItem
-            };
+            Change change =
+                new()
+                {
+                    operation = op,
+                    index = itemIndex,
+                    item = newItem
+                };
 
             if (IsRecording())
             {
@@ -172,23 +183,28 @@ namespace Mirror
                 // apply the operation only if it is a new change
                 // that we have not applied yet
                 bool apply = changesAhead == 0;
-                int index = 0;
-                T oldItem = default;
-                T newItem = default;
-
+                int index;
+                T oldItem;
+                T newItem;
                 switch (operation)
                 {
                     case Operation.OP_ADD:
                         newItem = reader.Read<T>();
                         if (apply)
                         {
-                            index = objects.Count;
+                            _ = objects.Count;
                             objects.Add(newItem);
                             // add dirty + changes.
                             // ClientToServer needs to set dirty in server OnDeserialize.
                             // no access check: server OnDeserialize can always
                             // write, even for ClientToServer (for broadcasting).
-                            AddOperation(Operation.OP_ADD, objects.Count - 1, default, newItem, false);
+                            AddOperation(
+                                Operation.OP_ADD,
+                                objects.Count - 1,
+                                default,
+                                newItem,
+                                false
+                            );
                         }
                         break;
 
@@ -276,23 +292,39 @@ namespace Mirror
             AddOperation(Operation.OP_CLEAR, 0, default, default, true);
         }
 
-        public bool Contains(T item) => IndexOf(item) >= 0;
+        public bool Contains(T item)
+        {
+            return IndexOf(item) >= 0;
+        }
 
-        public void CopyTo(T[] array, int index) => objects.CopyTo(array, index);
+        public void CopyTo(T[] array, int index)
+        {
+            objects.CopyTo(array, index);
+        }
 
         public int IndexOf(T item)
         {
             for (int i = 0; i < objects.Count; ++i)
+            {
                 if (comparer.Equals(item, objects[i]))
+                {
                     return i;
+                }
+            }
+
             return -1;
         }
 
         public int FindIndex(Predicate<T> match)
         {
             for (int i = 0; i < objects.Count; ++i)
+            {
                 if (match(objects[i]))
+                {
                     return i;
+                }
+            }
+
             return -1;
         }
 
@@ -304,10 +336,15 @@ namespace Mirror
 
         public List<T> FindAll(Predicate<T> match)
         {
-            List<T> results = new List<T>();
+            List<T> results = new();
             for (int i = 0; i < objects.Count; ++i)
+            {
                 if (match(objects[i]))
+                {
                     results.Add(objects[i]);
+                }
+            }
+
             return results;
         }
 
@@ -346,14 +383,18 @@ namespace Mirror
 
         public int RemoveAll(Predicate<T> match)
         {
-            List<T> toRemove = new List<T>();
+            List<T> toRemove = new();
             for (int i = 0; i < objects.Count; ++i)
+            {
                 if (match(objects[i]))
+                {
                     toRemove.Add(objects[i]);
+                }
+            }
 
             foreach (T entry in toRemove)
             {
-                Remove(entry);
+                _ = Remove(entry);
             }
 
             return toRemove.Count;
@@ -373,11 +414,20 @@ namespace Mirror
             }
         }
 
-        public Enumerator GetEnumerator() => new Enumerator(this);
+        public Enumerator GetEnumerator()
+        {
+            return new Enumerator(this);
+        }
 
-        IEnumerator<T> IEnumerable<T>.GetEnumerator() => new Enumerator(this);
+        IEnumerator<T> IEnumerable<T>.GetEnumerator()
+        {
+            return new Enumerator(this);
+        }
 
-        IEnumerator IEnumerable.GetEnumerator() => new Enumerator(this);
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return new Enumerator(this);
+        }
 
         // default Enumerator allocates. we need a custom struct Enumerator to
         // not allocate on the heap.
@@ -391,8 +441,8 @@ namespace Mirror
         // => this is extremely important for MMO scale networking
         public struct Enumerator : IEnumerator<T>
         {
-            readonly SyncList<T> list;
-            int index;
+            private readonly SyncList<T> list;
+            private int index;
             public T Current { get; private set; }
 
             public Enumerator(SyncList<T> list)
@@ -412,9 +462,14 @@ namespace Mirror
                 return true;
             }
 
-            public void Reset() => index = -1;
+            public void Reset()
+            {
+                index = -1;
+            }
+
             object IEnumerator.Current => Current;
-            public void Dispose() {}
+
+            public void Dispose() { }
         }
     }
 }

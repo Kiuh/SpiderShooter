@@ -3,7 +3,7 @@ using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 
-namespace Common.Inspector
+namespace SpiderShooter.Common.Inspector
 {
     [CustomPropertyDrawer(typeof(InspectorReadOnlyAttribute))]
     public class InspectorReadOnlyAttributeDrawer : PropertyDrawer
@@ -19,7 +19,7 @@ namespace Common.Inspector
 }
 #endif
 
-namespace Common
+namespace SpiderShooter.Common
 {
     public class InspectorReadOnlyAttribute : PropertyAttribute { }
 }

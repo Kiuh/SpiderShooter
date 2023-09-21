@@ -1,35 +1,53 @@
-﻿using Assets.Scripts.Spider;
-using Common;
-using Mirror;
+﻿using Mirror;
+using SpiderShooter.Common;
 using UnityEngine;
 
-namespace Spider
+namespace SpiderShooter.Spider
 {
     [SelectionBase]
     [RequireComponent(typeof(Collider))]
-    [AddComponentMenu("Spider.Bullet")]
+    [AddComponentMenu("SpiderShooter/Spider.Bullet")]
     public class Bullet : NetworkBehaviour
     {
         [SerializeField]
         [InspectorReadOnly]
-        private Vector3 flyingDirection;
-
-        [SerializeField]
-        [InspectorReadOnly]
-        private float flyingSpeed;
-
-        [SerializeField]
-        [InspectorReadOnly]
         private float damage;
+        public float Damage => damage;
 
-        public void SetFlyingDirection(Vector3 direction)
+        [SerializeField]
+        [InspectorReadOnly]
+        private uint ownerNetId;
+        public uint OwnerNetId => ownerNetId;
+
+        [SerializeField]
+        [InspectorReadOnly]
+        private TeamColor friendlyTeam;
+        public TeamColor FriendlyTeam => friendlyTeam;
+
+        [SerializeField]
+        [InspectorReadOnly]
+        private float destroyAfter = 4;
+
+        [SerializeField]
+        private Rigidbody rigidBody;
+
+        [SerializeField]
+        private float force = 1000;
+
+        public override void OnStartServer()
         {
-            flyingDirection = direction;
+            Invoke(nameof(DestroySelf), destroyAfter);
         }
 
-        public void SetFlyingSpeed(float speed)
+        private void Start()
         {
-            flyingSpeed = speed;
+            rigidBody.AddForce(transform.forward * force);
+        }
+
+        [Server]
+        private void DestroySelf()
+        {
+            NetworkServer.Destroy(gameObject);
         }
 
         public void SetDamage(float damage)
@@ -37,24 +55,30 @@ namespace Spider
             this.damage = damage;
         }
 
-        private void Update()
+        public void SetFriendlyColor(TeamColor teamColor)
         {
-            transform.Translate(flyingSpeed * Time.deltaTime * flyingDirection);
+            friendlyTeam = teamColor;
+        }
+
+        public void SetOwnerNetId(uint netId)
+        {
+            ownerNetId = netId;
         }
 
         [ServerCallback]
         private void OnTriggerEnter(Collider other)
         {
-            if (other.gameObject.tag is "Environment")
+            if (!other.CompareTag("Player"))
             {
-                NetworkServer.Destroy(gameObject);
+                return;
             }
-            if (other.gameObject.tag is "SpiderBody")
+
+            if (other.TryGetComponent(out SpiderImpl spider) && spider.TeamColor == friendlyTeam)
             {
-                SpiderImpl spider = other.gameObject.GetComponentInParent<SpiderImpl>();
-                spider.TakeDamage(damage);
-                NetworkServer.Destroy(gameObject);
+                return;
             }
+
+            DestroySelf();
         }
     }
 }

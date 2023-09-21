@@ -5,11 +5,10 @@ namespace Mirror
     // [RequireComponent(typeof(Rigidbody))] <- OnValidate ensures this is on .target
     public class NetworkRigidbodyReliable : NetworkTransformReliable
     {
-        new bool clientAuthority =>
-            syncDirection == SyncDirection.ClientToServer;
+        private new bool clientAuthority => syncDirection == SyncDirection.ClientToServer;
 
-        Rigidbody rb;
-        bool wasKinematic;
+        private Rigidbody rb;
+        private bool wasKinematic;
 
         // cach Rigidbody and original isKinematic setting
         protected override void Awake()
@@ -19,7 +18,10 @@ namespace Mirror
             rb = target.GetComponent<Rigidbody>();
             if (rb == null)
             {
-                Debug.LogError($"{name}'s NetworkRigidbody.target {target.name} is missing a Rigidbody", this);
+                Debug.LogError(
+                    $"{name}'s NetworkRigidbody.target {target.name} is missing a Rigidbody",
+                    this
+                );
                 return;
             }
             wasKinematic = rb.isKinematic;
@@ -31,14 +33,21 @@ namespace Mirror
         // for example, a game may run as client, set rigidbody.iskinematic=true,
         // then run as server, where .iskinematic isn't touched and remains at
         // the overwritten=true, even though the user set it to false originally.
-        public override void OnStopServer() => rb.isKinematic = wasKinematic;
-        public override void OnStopClient() => rb.isKinematic = wasKinematic;
+        public override void OnStopServer()
+        {
+            rb.isKinematic = wasKinematic;
+        }
+
+        public override void OnStopClient()
+        {
+            rb.isKinematic = wasKinematic;
+        }
 
         // overwriting Construct() and Apply() to set Rigidbody.MovePosition
         // would give more jittery movement.
 
         // FixedUpdate for physics
-        void FixedUpdate()
+        private void FixedUpdate()
         {
             // who ever has authority moves the Rigidbody with physics.
             // everyone else simply sets it to kinematic.
@@ -55,7 +64,10 @@ namespace Mirror
                 // only set to kinematic if we don't own it
                 // otherwise don't touch isKinematic.
                 // the authority owner might use it either way.
-                if (!owned) rb.isKinematic = true;
+                if (!owned)
+                {
+                    rb.isKinematic = true;
+                }
             }
             // client only
             else if (isClient)
@@ -67,7 +79,10 @@ namespace Mirror
                 // only set to kinematic if we don't own it
                 // otherwise don't touch isKinematic.
                 // the authority owner might use it either way.
-                if (!owned) rb.isKinematic = true;
+                if (!owned)
+                {
+                    rb.isKinematic = true;
+                }
             }
             // server only
             else if (isServer)
@@ -78,7 +93,10 @@ namespace Mirror
                 // only set to kinematic if we don't own it
                 // otherwise don't touch isKinematic.
                 // the authority owner might use it either way.
-                if (!owned) rb.isKinematic = true;
+                if (!owned)
+                {
+                    rb.isKinematic = true;
+                }
             }
         }
 
@@ -90,7 +108,10 @@ namespace Mirror
             // but we can ensure that .target has a Rigidbody, and use it.
             if (target.GetComponent<Rigidbody>() == null)
             {
-                Debug.LogWarning($"{name}'s NetworkRigidbody.target {target.name} is missing a Rigidbody", this);
+                Debug.LogWarning(
+                    $"{name}'s NetworkRigidbody.target {target.name} is missing a Rigidbody",
+                    this
+                );
             }
         }
     }

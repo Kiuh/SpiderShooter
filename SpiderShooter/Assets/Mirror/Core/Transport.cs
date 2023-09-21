@@ -94,7 +94,10 @@ namespace Mirror
 
         /// <summary>Sends a message to the server over the given channel.</summary>
         // The ArraySegment is only valid until returning. Copy if needed.
-        public abstract void ClientSend(ArraySegment<byte> segment, int channelId = Channels.Reliable);
+        public abstract void ClientSend(
+            ArraySegment<byte> segment,
+            int channelId = Channels.Reliable
+        );
 
         /// <summary>Disconnects the client from the server</summary>
         public abstract void ClientDisconnect();
@@ -111,7 +114,11 @@ namespace Mirror
         public abstract void ServerStart();
 
         /// <summary>Send a message to a client over the given channel.</summary>
-        public abstract void ServerSend(int connectionId, ArraySegment<byte> segment, int channelId = Channels.Reliable);
+        public abstract void ServerSend(
+            int connectionId,
+            ArraySegment<byte> segment,
+            int channelId = Channels.Reliable
+        );
 
         /// <summary>Disconnect a client from the server.</summary>
         public abstract void ServerDisconnect(int connectionId);
@@ -154,8 +161,9 @@ namespace Mirror
         //
         // => see NetworkLoop.cs for detailed explanations!
 #pragma warning disable UNT0001 // Empty Unity message
-        public void Update() {}
-        public void LateUpdate() {}
+        public void Update() { }
+
+        public void LateUpdate() { }
 #pragma warning restore UNT0001 // Empty Unity message
 
         /// <summary>
@@ -170,10 +178,13 @@ namespace Mirror
         //    them from NetworkClient/Server
         // => VIRTUAL for now so we can take our time to convert transports
         //    without breaking anything.
-        public virtual void ClientEarlyUpdate() {}
-        public virtual void ServerEarlyUpdate() {}
-        public virtual void ClientLateUpdate() {}
-        public virtual void ServerLateUpdate() {}
+        public virtual void ClientEarlyUpdate() { }
+
+        public virtual void ServerEarlyUpdate() { }
+
+        public virtual void ClientLateUpdate() { }
+
+        public virtual void ServerLateUpdate() { }
 
         /// <summary>Shut down the transport, both as client and server</summary>
         public abstract void Shutdown();

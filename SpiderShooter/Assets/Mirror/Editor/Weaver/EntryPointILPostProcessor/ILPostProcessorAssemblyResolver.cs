@@ -13,36 +13,32 @@
 //
 // we need a custom resolver for ILPostProcessor.
 #if UNITY_2020_3_OR_NEWER
+using Mono.CecilX;
 using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using Mono.CecilX;
 using Unity.CompilationPipeline.Common.ILPostProcessing;
 
 namespace Mirror.Weaver
 {
-    class ILPostProcessorAssemblyResolver : IAssemblyResolver
+    internal class ILPostProcessorAssemblyResolver : IAssemblyResolver
     {
-        readonly string[] assemblyReferences;
+        private readonly string[] assemblyReferences;
 
         // originally we used Dictionary + lock.
         // Resolve() is called thousands of times for large projects.
         // ILPostProcessor is multithreaded, so best to use ConcurrentDictionary without the lock here.
-        readonly ConcurrentDictionary<string, AssemblyDefinition> assemblyCache =
-            new ConcurrentDictionary<string, AssemblyDefinition>();
+        private readonly ConcurrentDictionary<string, AssemblyDefinition> assemblyCache = new();
 
         // Resolve() calls FindFile() every time.
         // thousands of times for String => mscorlib alone in large projects.
         // cache the results! ILPostProcessor is multithreaded, so use a ConcurrentDictionary here.
-        readonly ConcurrentDictionary<string, string> fileNameCache =
-            new ConcurrentDictionary<string, string>();
-
-        readonly ICompiledAssembly compiledAssembly;
-        AssemblyDefinition selfAssembly;
-
-        readonly Logger Log;
+        private readonly ConcurrentDictionary<string, string> fileNameCache = new();
+        private readonly ICompiledAssembly compiledAssembly;
+        private AssemblyDefinition selfAssembly;
+        private readonly Logger Log;
 
         public ILPostProcessorAssemblyResolver(ICompiledAssembly compiledAssembly, Logger Log)
         {
@@ -62,8 +58,10 @@ namespace Mirror.Weaver
             // Cleanup
         }
 
-        public AssemblyDefinition Resolve(AssemblyNameReference name) =>
-            Resolve(name, new ReaderParameters(ReadingMode.Deferred));
+        public AssemblyDefinition Resolve(AssemblyNameReference name)
+        {
+            return Resolve(name, new ReaderParameters(ReadingMode.Deferred));
+        }
 
         // here is an example on when this is called:
         //   Player : NetworkBehaviour has a [SyncVar] of type String.
@@ -79,7 +77,9 @@ namespace Mirror.Weaver
         public AssemblyDefinition Resolve(AssemblyNameReference name, ReaderParameters parameters)
         {
             if (name.Name == compiledAssembly.Name)
+            {
                 return selfAssembly;
+            }
 
             // cache FindFile.
             // in large projects, this is called thousands(!) of times for String=>mscorlib alone.
@@ -89,7 +89,7 @@ namespace Mirror.Weaver
             if (!fileNameCache.TryGetValue(name.Name, out string fileName))
             {
                 fileName = FindFile(name.Name);
-                fileNameCache.TryAdd(name.Name, fileName);
+                _ = fileNameCache.TryAdd(name.Name, fileName);
             }
 
             if (fileName == null)
@@ -98,7 +98,9 @@ namespace Mirror.Weaver
                 // let's make it obvious why we returned null for easier debugging.
                 // NOTE: if this fails for "System.Private.CoreLib":
                 //       ILPostProcessorReflectionImporter fixes it!
-                Log.Warning($"ILPostProcessorAssemblyResolver.Resolve: Failed to find file for {name}");
+                Log.Warning(
+                    $"ILPostProcessorAssemblyResolver.Resolve: Failed to find file for {name}"
+                );
                 return null;
             }
 
@@ -106,7 +108,9 @@ namespace Mirror.Weaver
             DateTime lastWriteTime = File.GetLastWriteTime(fileName);
             string cacheKey = fileName + lastWriteTime;
             if (assemblyCache.TryGetValue(cacheKey, out AssemblyDefinition result))
+            {
                 return result;
+            }
 
             // otherwise resolve and cache a new assembly
             parameters.AssemblyResolver = this;
@@ -114,22 +118,26 @@ namespace Mirror.Weaver
 
             string pdb = fileName + ".pdb";
             if (File.Exists(pdb))
+            {
                 parameters.SymbolStream = MemoryStreamFor(pdb);
+            }
 
             AssemblyDefinition assemblyDefinition = AssemblyDefinition.ReadAssembly(ms, parameters);
-            assemblyCache.TryAdd(cacheKey, assemblyDefinition);
+            _ = assemblyCache.TryAdd(cacheKey, assemblyDefinition);
             return assemblyDefinition;
         }
 
         // find assemblyname in assembly's references
-        string FindFile(string name)
+        private string FindFile(string name)
         {
             // perhaps the type comes from a .dll or .exe
             // check both in one call without Linq instead of iterating twice like originally
             foreach (string r in assemblyReferences)
             {
                 if (Path.GetFileNameWithoutExtension(r) == name)
+                {
                     return r;
+                }
             }
 
             // this is called thousands(!) of times.
@@ -143,11 +151,15 @@ namespace Mirror.Weaver
             // in the ILPostProcessing API. As a workaround, we rely on the fact here that the indirect references
             // are always located next to direct references, so we search in all directories of direct references we
             // got passed, and if we find the file in there, we resolve to it.
-            foreach (string parentDir in assemblyReferences.Select(Path.GetDirectoryName).Distinct())
+            foreach (
+                string parentDir in assemblyReferences.Select(Path.GetDirectoryName).Distinct()
+            )
             {
                 string candidate = Path.Combine(parentDir, dllName);
                 if (File.Exists(candidate))
+                {
                     return candidate;
+                }
             }
 
             return null;
@@ -156,24 +168,39 @@ namespace Mirror.Weaver
         // open file as MemoryStream.
         // ILPostProcessor is multithreaded.
         // retry a few times in case another thread is still accessing the file.
-        static MemoryStream MemoryStreamFor(string fileName)
+        private static MemoryStream MemoryStreamFor(string fileName)
         {
-            return Retry(10, TimeSpan.FromSeconds(1), () =>
-            {
-                byte[] byteArray;
-                using (FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            return Retry(
+                10,
+                TimeSpan.FromSeconds(1),
+                () =>
                 {
-                    byteArray = new byte[fs.Length];
-                    int readLength = fs.Read(byteArray, 0, (int)fs.Length);
-                    if (readLength != fs.Length)
-                        throw new InvalidOperationException("File read length is not full length of file.");
-                }
+                    byte[] byteArray;
+                    using (
+                        FileStream fs =
+                            new(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)
+                    )
+                    {
+                        byteArray = new byte[fs.Length];
+                        int readLength = fs.Read(byteArray, 0, (int)fs.Length);
+                        if (readLength != fs.Length)
+                        {
+                            throw new InvalidOperationException(
+                                "File read length is not full length of file."
+                            );
+                        }
+                    }
 
-                return new MemoryStream(byteArray);
-            });
+                    return new MemoryStream(byteArray);
+                }
+            );
         }
 
-        static MemoryStream Retry(int retryCount, TimeSpan waitTime, Func<MemoryStream> func)
+        private static MemoryStream Retry(
+            int retryCount,
+            TimeSpan waitTime,
+            Func<MemoryStream> func
+        )
         {
             try
             {
@@ -182,7 +209,10 @@ namespace Mirror.Weaver
             catch (IOException)
             {
                 if (retryCount == 0)
+                {
                     throw;
+                }
+
                 Console.WriteLine($"Caught IO Exception, trying {retryCount} more times");
                 Thread.Sleep(waitTime);
                 return Retry(retryCount - 1, waitTime, func);

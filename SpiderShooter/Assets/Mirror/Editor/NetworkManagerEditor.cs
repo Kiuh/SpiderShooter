@@ -8,8 +8,8 @@ namespace Mirror
     [CanEditMultipleObjects]
     public class NetworkManagerEditor : Editor
     {
-        SerializedProperty spawnListProperty;
-        ReorderableList spawnList;
+        private SerializedProperty spawnListProperty;
+        private ReorderableList spawnList;
         protected NetworkManager networkManager;
 
         protected void Init()
@@ -35,16 +35,16 @@ namespace Mirror
         public override void OnInspectorGUI()
         {
             Init();
-            DrawDefaultInspector();
+            _ = DrawDefaultInspector();
             EditorGUI.BeginChangeCheck();
             spawnList.DoLayoutList();
             if (EditorGUI.EndChangeCheck())
             {
-                serializedObject.ApplyModifiedProperties();
+                _ = serializedObject.ApplyModifiedProperties();
             }
         }
 
-        static void DrawHeader(Rect headerRect)
+        private static void DrawHeader(Rect headerRect)
         {
             GUI.Label(headerRect, "Registered Spawnable Prefabs:");
         }
@@ -62,16 +62,22 @@ namespace Mirror
             else
             {
                 NetworkIdentity identity = go.GetComponent<NetworkIdentity>();
-                label = new GUIContent(go.name, identity != null ? $"AssetId: [{identity.assetId}]" : "No Network Identity");
+                label = new GUIContent(
+                    go.name,
+                    identity != null ? $"AssetId: [{identity.assetId}]" : "No Network Identity"
+                );
             }
 
-            GameObject newGameObject = (GameObject)EditorGUI.ObjectField(r, label, go, typeof(GameObject), false);
+            GameObject newGameObject = (GameObject)
+                EditorGUI.ObjectField(r, label, go, typeof(GameObject), false);
 
             if (newGameObject != go)
             {
                 if (newGameObject != null && !newGameObject.GetComponent<NetworkIdentity>())
                 {
-                    Debug.LogError($"Prefab {newGameObject} cannot be added as spawnable as it doesn't have a NetworkIdentity.");
+                    Debug.LogError(
+                        $"Prefab {newGameObject} cannot be added as spawnable as it doesn't have a NetworkIdentity."
+                    );
                     return;
                 }
                 prefab.objectReferenceValue = newGameObject;
@@ -88,7 +94,9 @@ namespace Mirror
             spawnListProperty.arraySize += 1;
             list.index = spawnListProperty.arraySize - 1;
 
-            SerializedProperty obj = spawnListProperty.GetArrayElementAtIndex(spawnListProperty.arraySize - 1);
+            SerializedProperty obj = spawnListProperty.GetArrayElementAtIndex(
+                spawnListProperty.arraySize - 1
+            );
             obj.objectReferenceValue = null;
 
             spawnList.index = spawnList.count - 1;
