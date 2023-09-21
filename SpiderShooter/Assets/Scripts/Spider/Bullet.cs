@@ -16,6 +16,11 @@ namespace SpiderShooter.Spider
 
         [SerializeField]
         [InspectorReadOnly]
+        private uint ownerNetId;
+        public uint OwnerNetId => ownerNetId;
+
+        [SerializeField]
+        [InspectorReadOnly]
         private TeamColor friendlyTeam;
         public TeamColor FriendlyTeam => friendlyTeam;
 
@@ -53,6 +58,11 @@ namespace SpiderShooter.Spider
         public void SetFriendlyColor(TeamColor teamColor)
         {
             friendlyTeam = teamColor;
+        }
+
+        public void SetOwnerNetId(uint netId)
+        {
+            ownerNetId = netId;
         }
 
         [ServerCallback]

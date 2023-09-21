@@ -61,7 +61,7 @@ namespace SpiderShooter.LobbyScene
 
             if (roomPlayerExt.isLocalPlayer)
             {
-                playerImage.color = new Color(121, 255, 140);
+                playerImage.color = new Color(121 / 255.0f, 255 / 255.0f, 140 / 255.0f);
             }
             else
             {

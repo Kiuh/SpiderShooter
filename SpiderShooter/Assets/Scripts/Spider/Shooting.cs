@@ -19,6 +19,7 @@ namespace SpiderShooter.Spider
             Bullet bulletComponent = bullet.GetComponent<Bullet>();
             bulletComponent.SetDamage(spider.BulletDamage);
             bulletComponent.SetFriendlyColor(spider.TeamColor);
+            bulletComponent.SetOwnerNetId(spider.netIdentity.netId);
             NetworkServer.Spawn(bullet);
             RpcOnFire();
         }

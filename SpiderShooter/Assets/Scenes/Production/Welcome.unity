@@ -845,6 +845,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7265182022501214845, guid: 5ed636cd109f558459f36a8973e8f9f4, type: 3}
+      propertyPath: port
+      value: 8888
+      objectReference: {fileID: 0}
     - target: {fileID: 7423013415010659139, guid: 5ed636cd109f558459f36a8973e8f9f4, type: 3}
       propertyPath: RoomScene
       value: Assets/Scenes/Production/Lobby.unity
@@ -899,7 +903,7 @@ PrefabInstance:
       objectReference: {fileID: 5628724722059533475, guid: 68eecbf4e41e5db40899ff4b21e9ba38, type: 3}
     - target: {fileID: 7423013415010659139, guid: 5ed636cd109f558459f36a8973e8f9f4, type: 3}
       propertyPath: minimumPlayersToPlayInPublic
-      value: 4
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 8538171761736495365, guid: 5ed636cd109f558459f36a8973e8f9f4, type: 3}
       propertyPath: OnServerFound.m_PersistentCalls.m_Calls.Array.size

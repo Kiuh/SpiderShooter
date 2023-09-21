@@ -66,5 +66,26 @@ namespace SpiderShooter.Networking
             get => blueTeamKillCount;
             set => blueTeamKillCount = value;
         }
+
+        [SyncVar]
+        [SerializeField]
+        private int killsToWin = 25;
+        public int KillsToWin
+        {
+            get => killsToWin;
+            set => killsToWin = value;
+        }
+
+        public void AddTeamKill(TeamColor team)
+        {
+            if (team == TeamColor.Blue)
+            {
+                RedTeamKillCount++;
+            }
+            else
+            {
+                BlueTeamKillCount++;
+            }
+        }
     }
 }

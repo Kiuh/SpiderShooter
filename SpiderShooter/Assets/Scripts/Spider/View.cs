@@ -12,6 +12,14 @@ namespace SpiderShooter.Spider
         [SerializeField]
         private SpiderImpl spider;
 
+        private void Start()
+        {
+            if (spider.isLocalPlayer)
+            {
+                Destroy(gameObject);
+            }
+        }
+
         private void Update()
         {
             transform.LookAt(Camera.main.transform);

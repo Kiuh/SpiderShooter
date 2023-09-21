@@ -31,6 +31,12 @@ namespace SpiderShooter.LobbyScene
         [SerializeField]
         private TMP_InputField blueTeamName;
 
+        [SerializeField]
+        private GameObject errorPanel;
+
+        [SerializeField]
+        private TMP_Text errorText;
+
         public static Controller Singleton { get; private set; }
 
         public void Awake()
@@ -86,8 +92,14 @@ namespace SpiderShooter.LobbyScene
             Result result = RoomManager.Singleton.PlayGameplayScene();
             if (result.Failure)
             {
-                Debug.Log(result.Error);
+                ShowError(result.Error);
             }
+        }
+
+        private void ShowError(string message)
+        {
+            errorPanel.gameObject.SetActive(true);
+            errorText.text = message;
         }
     }
 }

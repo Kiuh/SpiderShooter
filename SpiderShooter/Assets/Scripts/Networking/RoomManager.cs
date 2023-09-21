@@ -51,8 +51,27 @@ namespace SpiderShooter.Networking
 
         public override void OnRoomServerPlayersReady() { }
 
+        public void AddKillToPlayer(uint netId)
+        {
+            IEnumerable<SpiderImpl> players = GameObject
+                .FindGameObjectsWithTag("Player")
+                .ToList()
+                .Cast<SpiderImpl>();
+
+            foreach (SpiderImpl player in players)
+            {
+                if (player.netIdentity.netId == netId)
+                {
+                    player.KillCount++;
+                }
+            }
+        }
+
         public Result PlayGameplayScene()
         {
+            ServerChangeScene(GameplayScene);
+            return new SuccessResult();
+
             if (!roomSlots.All(x => x.readyToBegin))
             {
                 return new FailResult("Not all players Ready.");
