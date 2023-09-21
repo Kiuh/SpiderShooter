@@ -1,5 +1,4 @@
-﻿using SpiderShooter.Common;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace SpiderShooter.GameScene
 {
@@ -13,22 +12,12 @@ namespace SpiderShooter.GameScene
             Singleton = this;
         }
 
-        [SerializeField]
-        [InspectorReadOnly]
-        private int redTeamKillCount = 0;
-        public int RedTeamKillCount
+        private void Update()
         {
-            get => redTeamKillCount;
-            set => redTeamKillCount = value;
-        }
-
-        [SerializeField]
-        [InspectorReadOnly]
-        private int blueTeamKillCount = 0;
-        public int BlueTeamKillCount
-        {
-            get => blueTeamKillCount;
-            set => blueTeamKillCount = value;
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                Application.Quit();
+            }
         }
     }
 }

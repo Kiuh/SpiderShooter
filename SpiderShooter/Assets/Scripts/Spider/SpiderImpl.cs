@@ -71,16 +71,15 @@ namespace SpiderShooter.Spider
             transform.SetPositionAndRotation(position, rotation);
         }
 
-        [ClientRpc]
-        private void RpcAddTeamKill(TeamColor team)
+        private void AddTeamKill(TeamColor team)
         {
             if (team == TeamColor.Blue)
             {
-                GameScene.Controller.Singleton.RedTeamKillCount++;
+                ServerStorage.Singleton.RedTeamKillCount++;
             }
             else
             {
-                GameScene.Controller.Singleton.BlueTeamKillCount++;
+                ServerStorage.Singleton.BlueTeamKillCount++;
             }
         }
 
@@ -105,7 +104,7 @@ namespace SpiderShooter.Spider
                         .GetRandomStartPosition(TeamColor)
                         .transform;
                     TeleportToPosition(transform.position, transform.rotation);
-                    RpcAddTeamKill(TeamColor);
+                    AddTeamKill(TeamColor);
                 }
             }
         }
@@ -124,7 +123,7 @@ namespace SpiderShooter.Spider
             health = 100;
             Transform transform = RoomManager.Singleton.GetRandomStartPosition(TeamColor).transform;
             TeleportToPosition(transform.position, transform.rotation);
-            RpcAddTeamKill(TeamColor);
+            AddTeamKill(TeamColor);
         }
     }
 }

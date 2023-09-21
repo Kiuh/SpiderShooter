@@ -874,6 +874,10 @@ PrefabInstance:
       value: Assets/Scenes/Kiuh/Game.unity
       objectReference: {fileID: 0}
     - target: {fileID: 7423013415010659139, guid: 5ed636cd109f558459f36a8973e8f9f4, type: 3}
+      propertyPath: networkAddress
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7423013415010659139, guid: 5ed636cd109f558459f36a8973e8f9f4, type: 3}
       propertyPath: maxRedTeamCount
       value: 4
       objectReference: {fileID: 0}
@@ -4456,6 +4460,79 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1989498119}
   m_CullTransparentMesh: 1
+--- !u!1001 &7643201301873720199
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1401334691730156496, guid: 19062b9891b53194bb512527a060160f, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 974.47186
+      objectReference: {fileID: 0}
+    - target: {fileID: 1401334691730156496, guid: 19062b9891b53194bb512527a060160f, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 578.87164
+      objectReference: {fileID: 0}
+    - target: {fileID: 1401334691730156496, guid: 19062b9891b53194bb512527a060160f, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.12947673
+      objectReference: {fileID: 0}
+    - target: {fileID: 1401334691730156496, guid: 19062b9891b53194bb512527a060160f, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1401334691730156496, guid: 19062b9891b53194bb512527a060160f, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1401334691730156496, guid: 19062b9891b53194bb512527a060160f, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1401334691730156496, guid: 19062b9891b53194bb512527a060160f, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1401334691730156496, guid: 19062b9891b53194bb512527a060160f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1401334691730156496, guid: 19062b9891b53194bb512527a060160f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1401334691730156496, guid: 19062b9891b53194bb512527a060160f, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4420404055332022015, guid: 19062b9891b53194bb512527a060160f, type: 3}
+      propertyPath: m_Name
+      value: ServerStorage
+      objectReference: {fileID: 0}
+    - target: {fileID: 4528137599098605852, guid: 19062b9891b53194bb512527a060160f, type: 3}
+      propertyPath: blueTeamName
+      value: Blue Team
+      objectReference: {fileID: 0}
+    - target: {fileID: 4528137599098605852, guid: 19062b9891b53194bb512527a060160f, type: 3}
+      propertyPath: syncDirection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5186653870313082483, guid: 19062b9891b53194bb512527a060160f, type: 3}
+      propertyPath: sceneId
+      value: 3782421470
+      objectReference: {fileID: 0}
+    - target: {fileID: 5186653870313082483, guid: 19062b9891b53194bb512527a060160f, type: 3}
+      propertyPath: visible
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 19062b9891b53194bb512527a060160f, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -4469,3 +4546,4 @@ SceneRoots:
   - {fileID: 767023872}
   - {fileID: 243489283}
   - {fileID: 1649848650}
+  - {fileID: 7643201301873720199}

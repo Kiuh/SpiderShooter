@@ -17,9 +17,6 @@ namespace SpiderShooter.OpeningScene
         private ServerDiscovery networkDiscovery;
 
         [SerializeField]
-        private ServerStorage serverStoragePrefab;
-
-        [SerializeField]
         private float refreshTime = 2f;
 
         [SerializeField]
@@ -59,9 +56,10 @@ namespace SpiderShooter.OpeningScene
                 RoomManager.Singleton.StartHost();
                 networkDiscovery.AdvertiseServer();
 
-                ServerStorage storage = Instantiate(serverStoragePrefab);
-                storage.Initialize();
-                storage.LobbyCode = result.Data.Split('.').Skip(2).Aggregate((x, y) => x + "-" + y);
+                ServerStorage.Singleton.LobbyCode = result.Data
+                    .Split('.')
+                    .Skip(2)
+                    .Aggregate((x, y) => x + "-" + y);
 
                 LocalClientData.Singleton.PlayerName = playerName;
                 return new SuccessResult();

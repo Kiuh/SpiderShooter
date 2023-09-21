@@ -7,18 +7,19 @@ namespace SpiderShooter.Networking
     [AddComponentMenu("SpiderShooter/Networking.ServerStorage")]
     public class ServerStorage : NetworkBehaviour
     {
-        public static ServerStorage Singleton { get; private set; }
+        public static ServerStorage Singleton { get; private set; } = null;
 
-        public void Initialize()
+        public void Awake()
         {
             if (Singleton != null)
             {
-                Destroy(this);
+                Destroy(Singleton.gameObject);
             }
             Singleton = this;
             DontDestroyOnLoad(this);
         }
 
+        [SyncVar]
         [SerializeField]
         [InspectorReadOnly]
         private string lobbyCode = "0.0.0.0";
@@ -28,8 +29,8 @@ namespace SpiderShooter.Networking
             set => lobbyCode = value;
         }
 
+        [SyncVar]
         [SerializeField]
-        [InspectorReadOnly]
         private string redTeamName = "Red Team";
         public string RedTeamName
         {
@@ -37,15 +38,16 @@ namespace SpiderShooter.Networking
             set => redTeamName = value;
         }
 
+        [SyncVar]
         [SerializeField]
-        [InspectorReadOnly]
-        private int blueTeamName = 0;
-        public int BlueTeamName
+        private string blueTeamName = "Blue Team";
+        public string BlueTeamName
         {
             get => blueTeamName;
             set => blueTeamName = value;
         }
 
+        [SyncVar]
         [SerializeField]
         [InspectorReadOnly]
         private int redTeamKillCount = 0;
@@ -55,6 +57,7 @@ namespace SpiderShooter.Networking
             set => redTeamKillCount = value;
         }
 
+        [SyncVar]
         [SerializeField]
         [InspectorReadOnly]
         private int blueTeamKillCount = 0;

@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &4407246011953013871
+--- !u!1 &4420404055332022015
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,60 +8,58 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 5782844968956188447}
-  - component: {fileID: 3848052952430024986}
-  - component: {fileID: 7835193129119932676}
+  - component: {fileID: 1401334691730156496}
+  - component: {fileID: 4528137599098605852}
+  - component: {fileID: 5186653870313082483}
   m_Layer: 0
-  m_Name: LobbyController
+  m_Name: ServerStorage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &5782844968956188447
+--- !u!4 &1401334691730156496
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4407246011953013871}
+  m_GameObject: {fileID: 4420404055332022015}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 924.43164, y: 549.1702, z: 2.2150261}
+  m_LocalPosition: {x: 974.47186, y: 578.87164, z: 0.12947673}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3848052952430024986
+--- !u!114 &4528137599098605852
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4407246011953013871}
+  m_GameObject: {fileID: 4420404055332022015}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ab93b4f3ada78c4e8d5a176c306fb30, type: 3}
+  m_Script: {fileID: 11500000, guid: 75caf6ea1ab01b84bb6c2f63f1ccff31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  redTeamContainer: {fileID: 0}
-  blueTeamContainer: {fileID: 0}
-  lobbyPlayerPrefab: {fileID: 0}
-  lobbyCode: {fileID: 0}
-  startGameButton: {fileID: 0}
-  redTeamName: {fileID: 0}
-  blueTeamName: {fileID: 0}
---- !u!114 &7835193129119932676
+  lobbyCode: 0.0.0.0
+  redTeamName: Red Team
+  blueTeamName: 0
+  redTeamKillCount: 0
+  blueTeamKillCount: 0
+--- !u!114 &5186653870313082483
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4407246011953013871}
+  m_GameObject: {fileID: 4420404055332022015}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}

@@ -64,10 +64,6 @@ namespace SpiderShooter.Networking
                 CmdSetPlayerName(LocalClientData.Singleton.PlayerName);
             }
             Controller.Singleton.CreateLobbyPlayer(this);
-            if (isLocalPlayer)
-            {
-                Controller.Singleton.SetLobbyCode();
-            }
         }
 
         public event Action<bool> OnReadyStateChanged;

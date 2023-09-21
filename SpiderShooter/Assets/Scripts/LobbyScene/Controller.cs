@@ -25,6 +25,12 @@ namespace SpiderShooter.LobbyScene
         [SerializeField]
         private Button startGameButton;
 
+        [SerializeField]
+        private TMP_InputField redTeamName;
+
+        [SerializeField]
+        private TMP_InputField blueTeamName;
+
         public static Controller Singleton { get; private set; }
 
         public void Awake()
@@ -32,18 +38,26 @@ namespace SpiderShooter.LobbyScene
             Singleton = this;
         }
 
+        // Called by input field
+        public void RedTeamNameChange(string newName)
+        {
+            ServerStorage.Singleton.RedTeamName = newName;
+        }
+
+        // Called by input field
+        public void BlueTeamNameChange(string newName)
+        {
+            ServerStorage.Singleton.BlueTeamName = newName;
+        }
+
         public override void OnStartClient()
         {
             if (!isServer)
             {
+                redTeamName.interactable = false;
+                blueTeamName.interactable = false;
                 startGameButton.gameObject.SetActive(false);
             }
-        }
-
-        [Command(requiresAuthority = false)]
-        public void SetLobbyCode()
-        {
-            lobbyCode.text = ServerStorage.Singleton.LobbyCode;
         }
 
         public void CreateLobbyPlayer(RoomPlayer roomPlayer)
@@ -52,6 +66,18 @@ namespace SpiderShooter.LobbyScene
             RoomPlayerView player = lobbyPlayer.GetComponent<RoomPlayerView>();
             player.SetContainersByTeam(redTeamContainer, blueTeamContainer);
             player.SetNetworkRoomPlayer(roomPlayer);
+        }
+
+        private void Update()
+        {
+            lobbyCode.text = ServerStorage.Singleton.LobbyCode;
+            redTeamName.text = ServerStorage.Singleton.RedTeamName;
+            blueTeamName.text = ServerStorage.Singleton.BlueTeamName;
+
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                Application.Quit();
+            }
         }
 
         // Called by button

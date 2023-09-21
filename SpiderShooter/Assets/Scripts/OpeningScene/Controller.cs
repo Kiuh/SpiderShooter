@@ -35,6 +35,14 @@ namespace SpiderShooter.OpeningScene
             SetRandomNick();
         }
 
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                Application.Quit();
+            }
+        }
+
         // Called by button
         public void ReloadNameButtonClick()
         {

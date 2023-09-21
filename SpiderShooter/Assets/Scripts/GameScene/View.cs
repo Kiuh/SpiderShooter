@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿using SpiderShooter.Networking;
+using TMPro;
 using UnityEngine;
 
 namespace SpiderShooter.GameScene
@@ -9,14 +10,11 @@ namespace SpiderShooter.GameScene
         [SerializeField]
         private TMP_Text countText;
 
-        [SerializeField]
-        private Controller controller;
-
         private void Update()
         {
             countText.text =
-                $"<color=#FF0000>{controller.RedTeamKillCount}</color>"
-                + $" - <color=#0000FF>{controller.BlueTeamKillCount}</color>";
+                $"<color=#FF0000>{ServerStorage.Singleton.RedTeamKillCount}</color>"
+                + $" - <color=#0000FF>{ServerStorage.Singleton.BlueTeamKillCount}</color>";
         }
     }
 }
