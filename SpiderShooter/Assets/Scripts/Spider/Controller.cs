@@ -1,5 +1,6 @@
 ﻿using FIMSpace.Basics;
 using Mirror;
+using SpiderShooter.Networking;
 using UnityEngine;
 
 namespace SpiderShooter.Spider
@@ -18,6 +19,11 @@ namespace SpiderShooter.Spider
 
         private void Update()
         {
+            if (ServerStorage.Singleton.GameEnds)
+            {
+                return;
+            }
+
             if (!Application.isFocused)
             {
                 return;

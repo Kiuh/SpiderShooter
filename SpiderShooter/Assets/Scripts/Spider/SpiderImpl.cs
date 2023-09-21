@@ -53,6 +53,7 @@ namespace SpiderShooter.Spider
         public float BulletDamage => bulletDamage;
 
         [SyncVar]
+        [SerializeField]
         [InspectorReadOnly]
         private int killCount = 0;
         public int KillCount
@@ -104,16 +105,7 @@ namespace SpiderShooter.Spider
                         .transform;
                     TeleportToPosition(transform.position, transform.rotation);
                     ServerStorage.Singleton.AddTeamKill(TeamColor);
-
-                    if (
-                        ServerStorage.Singleton.RedTeamKillCount
-                            >= ServerStorage.Singleton.KillsToWin
-                        || ServerStorage.Singleton.BlueTeamKillCount
-                            >= ServerStorage.Singleton.KillsToWin
-                    )
-                    {
-                        GameScene.Controller.Singleton.RpcShowWinPanel();
-                    }
+                    CheckForWin();
                 }
             }
         }
@@ -125,6 +117,20 @@ namespace SpiderShooter.Spider
             Transform transform = RoomManager.Singleton.GetRandomStartPosition(TeamColor).transform;
             TeleportToPosition(transform.position, transform.rotation);
             ServerStorage.Singleton.AddTeamKill(TeamColor);
+            CheckForWin();
+        }
+
+        [Command(requiresAuthority = false)]
+        public void CheckForWin()
+        {
+            if (
+                ServerStorage.Singleton.RedTeamKillCount >= ServerStorage.Singleton.KillsToWin
+                || ServerStorage.Singleton.BlueTeamKillCount >= ServerStorage.Singleton.KillsToWin
+            )
+            {
+                ServerStorage.Singleton.GameEnds = true;
+                GameScene.Controller.Singleton.RpcShowWinPanel();
+            }
         }
     }
 }

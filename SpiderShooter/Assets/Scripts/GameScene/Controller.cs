@@ -1,4 +1,5 @@
-﻿using Mirror;
+﻿using FIMSpace.Basics;
+using Mirror;
 using SpiderShooter.Common;
 using SpiderShooter.Networking;
 using SpiderShooter.Spider;
@@ -68,12 +69,16 @@ namespace SpiderShooter.GameScene
             }
         }
 
-        [ClientRpc(includeOwner = true)]
+        [ClientRpc]
         public void RpcShowWinPanel()
         {
             winPanel.SetActive(true);
 
-            Time.timeScale = 0;
+            FindObjectOfType<FBasic_TPPCameraBehaviour>()
+                .GetComponent<FBasic_TPPCameraBehaviour>()
+                .enabled = false;
+
+            Time.timeScale = 0f;
             ServerStorage storage = ServerStorage.Singleton;
             TeamColor winTeamColor =
                 storage.BlueTeamKillCount > storage.RedTeamKillCount
@@ -82,10 +87,10 @@ namespace SpiderShooter.GameScene
             titleLabel.text =
                 $"{(winTeamColor == TeamColor.Red ? storage.RedTeamName : storage.BlueTeamName)} Wins";
 
-            IEnumerable<SpiderImpl> players = GameObject
-                .FindGameObjectsWithTag("Player")
-                .ToList()
-                .Cast<SpiderImpl>();
+            List<GameObject> playersObjects = GameObject.FindGameObjectsWithTag("Player").ToList();
+            IEnumerable<SpiderImpl> players = playersObjects.Select(
+                x => x.GetComponent<SpiderImpl>()
+            );
 
             IEnumerable<SpiderImpl> redTeamPlayers = players.Where(
                 x => x.TeamColor == TeamColor.Red
@@ -94,40 +99,55 @@ namespace SpiderShooter.GameScene
                 x => x.TeamColor == TeamColor.Blue
             );
 
-            StringBuilder stringBuilder = new("");
-
-            _ = stringBuilder.AppendLine(
-                $"{storage.RedTeamName} - total kills {storage.RedTeamKillCount}"
-            );
-            SpiderImpl bestPlayer = redTeamPlayers.OrderBy(x => x.KillCount).First();
-            _ = stringBuilder.AppendLine($"Best Player - {bestPlayer.PlayerName}");
-            _ = stringBuilder.AppendLine($"{bestPlayer.KillCount} kills");
-            _ = stringBuilder.AppendLine();
-            int playersKillCount = 0;
-            foreach (SpiderImpl player in redTeamPlayers)
+            if (redTeamPlayers.Count() > 0)
             {
-                playersKillCount += player.KillCount;
-                _ = stringBuilder.AppendLine($"{player.PlayerName} - {player.KillCount} kills");
+                StringBuilder stringBuilder = new("");
+                _ = stringBuilder.AppendLine(
+                    $"{storage.RedTeamName} - total kills {storage.RedTeamKillCount}"
+                );
+                SpiderImpl bestPlayer = redTeamPlayers.OrderBy(x => x.KillCount).First();
+                _ = stringBuilder.AppendLine($"Best Player - {bestPlayer.PlayerName}");
+                _ = stringBuilder.AppendLine($"{bestPlayer.KillCount} kills");
+                _ = stringBuilder.AppendLine();
+                int playersKillCount = 0;
+                foreach (SpiderImpl player in redTeamPlayers)
+                {
+                    playersKillCount += player.KillCount;
+                    _ = stringBuilder.AppendLine($"{player.PlayerName} - {player.KillCount} kills");
+                }
+                _ = stringBuilder.AppendLine(
+                    $"Suicide: {storage.BlueTeamKillCount - playersKillCount}"
+                );
+                redTeamStatistic.text = stringBuilder.ToString();
             }
-            _ = stringBuilder.AppendLine($"Suicide: {storage.RedTeamKillCount - playersKillCount}");
-            redTeamStatistic.text = stringBuilder.ToString();
-
-            stringBuilder = new("");
-            _ = stringBuilder.AppendLine(storage.BlueTeamName);
-            bestPlayer = blueTeamPlayers.OrderBy(x => x.KillCount).First();
-            _ = stringBuilder.AppendLine($"Best Player - {bestPlayer.PlayerName}");
-            _ = stringBuilder.AppendLine($"{bestPlayer.KillCount} kills");
-            _ = stringBuilder.AppendLine();
-            playersKillCount = 0;
-            foreach (SpiderImpl player in blueTeamPlayers)
+            else
             {
-                playersKillCount += player.KillCount;
-                _ = stringBuilder.AppendLine($"{player.PlayerName} - {player.KillCount} kills");
+                redTeamStatistic.text = "No players in team.";
             }
-            _ = stringBuilder.AppendLine(
-                $"Suicide: {storage.BlueTeamKillCount - playersKillCount}"
-            );
-            blueTeamStatistic.text = stringBuilder.ToString();
+
+            if (blueTeamPlayers.Count() > 0)
+            {
+                StringBuilder stringBuilder = new("");
+                _ = stringBuilder.AppendLine(storage.BlueTeamName);
+                SpiderImpl bestPlayer = blueTeamPlayers.OrderBy(x => x.KillCount).First();
+                _ = stringBuilder.AppendLine($"Best Player - {bestPlayer.PlayerName}");
+                _ = stringBuilder.AppendLine($"{bestPlayer.KillCount} kills");
+                _ = stringBuilder.AppendLine();
+                int playersKillCount = 0;
+                foreach (SpiderImpl player in blueTeamPlayers)
+                {
+                    playersKillCount += player.KillCount;
+                    _ = stringBuilder.AppendLine($"{player.PlayerName} - {player.KillCount} kills");
+                }
+                _ = stringBuilder.AppendLine(
+                    $"Suicide: {storage.RedTeamKillCount - playersKillCount}"
+                );
+                blueTeamStatistic.text = stringBuilder.ToString();
+            }
+            else
+            {
+                blueTeamStatistic.text = "No players in team.";
+            }
         }
 
         // Called by button
