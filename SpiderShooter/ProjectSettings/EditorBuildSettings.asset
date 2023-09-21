@@ -6,11 +6,11 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Kiuh/Offline.unity
-    guid: ba3f9d7f0cd88b048b1d7401ece9d6fb
+    path: Assets/Scenes/Production/Welcome.unity
+    guid: a38844ef1164cd34e98619f6df915f01
   - enabled: 1
-    path: Assets/Scenes/Kiuh/Lobby.unity
-    guid: 557f7a205aaf001478c59b2cfad93500
+    path: Assets/Scenes/Production/Lobby.unity
+    guid: 13fd24869415bd141b95a25cfb5dde90
   - enabled: 1
     path: Assets/Scenes/Kiuh/Game.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab

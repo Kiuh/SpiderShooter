@@ -12,9 +12,6 @@ namespace SpiderShooter.Networking
     {
         public static RoomManager Singleton { get; private set; }
 
-        public string RoomCode =>
-            networkAddress.Split('.').Skip(2).Aggregate((x, y) => x + "-" + y);
-
         public bool IsFullLobby => roomSlots.Count >= maxBlueTeamCount + maxRedTeamCount;
 
         [Header("Custom Properties")]
@@ -26,7 +23,7 @@ namespace SpiderShooter.Networking
         [SerializeField]
         private int maxRedTeamCount;
 
-        [Range(1, 4)]
+        [Range(1, 8)]
         [SerializeField]
         private int minimumPlayersToPlayInPublic;
 
@@ -36,25 +33,12 @@ namespace SpiderShooter.Networking
             Singleton = this;
         }
 
-        public TeamColor GetFreeTeamColor()
+        public TeamColor GetNextTeamColor()
         {
             IEnumerable<RoomPlayer> extRoomsSlots = roomSlots.Cast<RoomPlayer>();
-            int reds = extRoomsSlots.Count(
-                x => x.TeamColor.Value == TeamColor.Red && x.TeamColor.IsNotNull
-            );
-            int blues = extRoomsSlots.Count(
-                x => x.TeamColor.Value == TeamColor.Blue && x.TeamColor.IsNotNull
-            );
-
-            return IsFullLobby
-                ? throw new System.InvalidOperationException()
-                : reds == maxRedTeamCount
-                    ? TeamColor.Blue
-                    : blues == maxBlueTeamCount
-                        ? TeamColor.Red
-                        : reds > blues
-                            ? TeamColor.Blue
-                            : TeamColor.Red;
+            int reds = extRoomsSlots.Count(x => x.TeamColor == TeamColor.Red);
+            int blues = extRoomsSlots.Count(x => x.TeamColor == TeamColor.Blue);
+            return reds > blues ? TeamColor.Blue : TeamColor.Red;
         }
 
         public StartPosition GetRandomStartPosition(TeamColor teamColor)
@@ -65,46 +49,33 @@ namespace SpiderShooter.Networking
             return list.Skip(Random.Range(0, list.Count())).First();
         }
 
-        public override void OnRoomServerPlayersReady()
-        {
-            if (
-                ServerStorage.Singleton.LobbyMode == LobbyMode.Public
-                && minimumPlayersToPlayInPublic <= roomSlots.Count
-            )
-            {
-                PlayGameplayScene();
-            }
-        }
+        public override void OnRoomServerPlayersReady() { }
 
-        public void PlayGameplayScene()
+        public Result PlayGameplayScene()
         {
-            //if (!roomSlots.All(x => x.readyToBegin))
-            //{
-            //    Debug.Log("Not all players Ready.");
-            //    return;
-            //}
-            //IEnumerable<RoomPlayer> extRoomsSlots = roomSlots.Cast<RoomPlayer>();
-            //if (!extRoomsSlots.Any(x => x.TeamColor.Value == TeamColor.Blue))
-            //{
-            //    Debug.Log("At Lest 1 must be in blue team.");
-            //    return;
-            //}
-            //if (!extRoomsSlots.Any(x => x.TeamColor.Value == TeamColor.Red))
-            //{
-            //    Debug.Log("At Lest 1 must be in red team.");
-            //    return;
-            //}
-            //if (extRoomsSlots.Count(x => x.TeamColor.Value == TeamColor.Red) > maxRedTeamCount)
-            //{
-            //    Debug.Log($"Max players in red team - {maxRedTeamCount}.");
-            //    return;
-            //}
-            //if (extRoomsSlots.Count(x => x.TeamColor.Value == TeamColor.Blue) > maxBlueTeamCount)
-            //{
-            //    Debug.Log($"Max players in blue team - {maxBlueTeamCount}.");
-            //    return;
-            //}
+            if (!roomSlots.All(x => x.readyToBegin))
+            {
+                return new FailResult("Not all players Ready.");
+            }
+            IEnumerable<RoomPlayer> extRoomsSlots = roomSlots.Cast<RoomPlayer>();
+            if (!extRoomsSlots.Any(x => x.TeamColor == TeamColor.Blue))
+            {
+                return new FailResult("At Lest 1 must be in blue team.");
+            }
+            if (!extRoomsSlots.Any(x => x.TeamColor == TeamColor.Red))
+            {
+                return new FailResult("At Lest 1 must be in red team.");
+            }
+            if (extRoomsSlots.Count(x => x.TeamColor == TeamColor.Red) > maxRedTeamCount)
+            {
+                return new FailResult($"Max players in red team - {maxRedTeamCount}.");
+            }
+            if (extRoomsSlots.Count(x => x.TeamColor == TeamColor.Blue) > maxBlueTeamCount)
+            {
+                return new FailResult($"Max players in blue team - {maxBlueTeamCount}.");
+            }
             ServerChangeScene(GameplayScene);
+            return new SuccessResult();
         }
 
         public override GameObject OnRoomServerCreateRoomPlayer(NetworkConnectionToClient conn)
@@ -114,6 +85,8 @@ namespace SpiderShooter.Networking
                 Vector3.zero,
                 Quaternion.identity
             );
+            RoomPlayer roomPlayer = newRoomPlayer.GetComponent<RoomPlayer>();
+            roomPlayer.TeamColor = GetNextTeamColor();
             return newRoomPlayer;
         }
 
@@ -129,7 +102,7 @@ namespace SpiderShooter.Networking
             RoomPlayer roomPlayerExt = roomPlayer.GetComponent<RoomPlayer>();
 
             StartPosition startPosition = netStartPositions
-                .Where(x => x.TeamColor == roomPlayerExt.TeamColor.Value && !x.IsBusy)
+                .Where(x => x.TeamColor == roomPlayerExt.TeamColor && !x.IsBusy)
                 .First();
 
             GameObject spiderGameObject = Instantiate(
@@ -152,7 +125,7 @@ namespace SpiderShooter.Networking
             RoomPlayer roomPlayerExt = roomPlayer.GetComponent<RoomPlayer>();
             SpiderImpl spider = gamePlayer.GetComponent<SpiderImpl>();
 
-            spider.TeamColor = roomPlayerExt.TeamColor.Value;
+            spider.TeamColor = roomPlayerExt.TeamColor;
             spider.PlayerName = roomPlayerExt.PlayerName;
 
             return true;

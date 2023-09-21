@@ -21,20 +21,29 @@ namespace SpiderShooter.Networking
 
         [SerializeField]
         [InspectorReadOnly]
-        private LobbyMode lobbyMode;
-        public LobbyMode LobbyMode
+        private string lobbyCode = "0.0.0.0";
+        public string LobbyCode
         {
-            get => lobbyMode;
-            set => lobbyMode = value;
+            get => lobbyCode;
+            set => lobbyCode = value;
         }
 
         [SerializeField]
         [InspectorReadOnly]
-        private string lobbyName;
-        public string LobbyName
+        private string redTeamName = "Red Team";
+        public string RedTeamName
         {
-            get => lobbyName;
-            set => lobbyName = value;
+            get => redTeamName;
+            set => redTeamName = value;
+        }
+
+        [SerializeField]
+        [InspectorReadOnly]
+        private int blueTeamName = 0;
+        public int BlueTeamName
+        {
+            get => blueTeamName;
+            set => blueTeamName = value;
         }
 
         [SerializeField]

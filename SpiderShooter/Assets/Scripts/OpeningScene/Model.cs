@@ -1,5 +1,4 @@
-﻿using AYellowpaper;
-using SpiderShooter.Common;
+﻿using SpiderShooter.Common;
 using SpiderShooter.General;
 using SpiderShooter.Networking;
 using System;
@@ -21,10 +20,6 @@ namespace SpiderShooter.OpeningScene
         private ServerStorage serverStoragePrefab;
 
         [SerializeField]
-        private InterfaceReference<IView> view;
-        private IView Visual => view.Value;
-
-        [SerializeField]
         private float refreshTime = 2f;
 
         [SerializeField]
@@ -35,10 +30,7 @@ namespace SpiderShooter.OpeningScene
 
         private void Awake()
         {
-            Visual.OnJoinLobby += () => JoinLobby(Visual.CodeToJoinLobby);
-            Visual.OnCreateLobby += () => HostServer(LobbyMode.Private);
-            Visual.OnPlayRandomLobby += PlayRandomLobby;
-
+            networkDiscovery.OnServerFound.AddListener(OnDiscoveredServer);
             networkDiscovery.StartDiscovery();
         }
 
@@ -53,92 +45,78 @@ namespace SpiderShooter.OpeningScene
             }
         }
 
-        private void HostServer(LobbyMode lobbyMode)
+        public Result HostServer(string playerName)
         {
             try
             {
-                // LAN Host
-                RoomManager.Singleton.networkAddress = GetLocalIPAddress();
+                Result<string> result = GetLocalIPAddress();
+                if (result.Failure)
+                {
+                    return new FailResult(result.Error);
+                }
+
+                RoomManager.Singleton.networkAddress = result.Data;
                 RoomManager.Singleton.StartHost();
                 networkDiscovery.AdvertiseServer();
 
                 ServerStorage storage = Instantiate(serverStoragePrefab);
                 storage.Initialize();
+                storage.LobbyCode = result.Data.Split('.').Skip(2).Aggregate((x, y) => x + "-" + y);
 
-                ServerStorage.Singleton.LobbyMode = lobbyMode;
-                ServerStorage.Singleton.LobbyName =
-                    lobbyMode == LobbyMode.Private
-                        ? Visual.ServerNameForCreating
-                        : GenerateRandomLobbyName();
-                LocalClientData.Singleton.PlayerName = Visual.PlayerName;
+                LocalClientData.Singleton.PlayerName = playerName;
+                return new SuccessResult();
             }
-            catch
+            catch (Exception ex)
             {
-                Visual.ShowErrorDialog("One computer cannot have more than one server.");
+                return new FailResult(ex.Message);
             }
         }
 
-        private void PlayRandomLobby()
-        {
-            IEnumerable<ServerResponseExt> accessedServers = discoveredServers.Values.Where(
-                x => x.LobbyMode == LobbyMode.Public && !x.IsFullLobby
-            );
-            if (accessedServers.Count() > 0)
-            {
-                ConnectToServer(accessedServers.First().Uri);
-            }
-            else
-            {
-                HostServer(LobbyMode.Public);
-            }
-        }
-
-        private void JoinLobby(string code)
+        public Result JoinLobby(string code, string playerName)
         {
             string dnsSaveHost = "192.168." + code.Replace("-", ".");
-            ServerResponseExt? server = discoveredServers.Values.FirstOrDefault(
-                x => x.LobbyMode == LobbyMode.Private && x.Uri.DnsSafeHost == dnsSaveHost
+            ServerResponseExt server = discoveredServers.Values.FirstOrDefault(
+                x => x.Uri.DnsSafeHost == dnsSaveHost
             );
-            if (server == null)
-            {
-                Visual.ShowErrorDialog("Cannot find server with this code");
-            }
-            else
-            {
-                ConnectToServer(server.Value.Uri);
-            }
+            return server.Uri == null
+                ? new FailResult("Cannot find server with this code")
+                : ConnectToServer(server.Uri, playerName);
         }
 
-        private void ConnectToServer(Uri uri)
+        private Result ConnectToServer(Uri uri, string playerName)
         {
-            networkDiscovery.StopDiscovery();
-            RoomManager.Singleton.StartClient(uri);
-            LocalClientData.Singleton.PlayerName = Visual.PlayerName;
+            try
+            {
+                networkDiscovery.StopDiscovery();
+                RoomManager.Singleton.StartClient(uri);
+                LocalClientData.Singleton.PlayerName = playerName;
+                return new SuccessResult();
+            }
+            catch (Exception ex)
+            {
+                networkDiscovery.StartDiscovery();
+                return new FailResult(ex.Message);
+            }
         }
 
-        // Called by Discovered manager
         public void OnDiscoveredServer(ServerResponseExt info)
         {
             discoveredServers[info.ServerId] = info;
         }
 
-        private string GenerateRandomLobbyName()
-        {
-            // TODO: implement random generator
-            return "Random name";
-        }
-
-        private string GetLocalIPAddress()
+        private Result<string> GetLocalIPAddress()
         {
             IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
             foreach (IPAddress ip in host.AddressList)
             {
                 if (ip.AddressFamily == AddressFamily.InterNetwork)
                 {
-                    return ip.ToString();
+                    return new SuccessResult<string>(ip.ToString());
                 }
             }
-            throw new Exception("No network adapters with an IPv4 address in the system!");
+            return new FailResult<string>(
+                "No network adapters with an IPv4 address in the system!"
+            );
         }
     }
 }

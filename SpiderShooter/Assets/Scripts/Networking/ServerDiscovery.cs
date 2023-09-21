@@ -1,6 +1,5 @@
 ﻿using Mirror;
 using Mirror.Discovery;
-using SpiderShooter.Common;
 using System;
 using System.Net;
 using UnityEngine;
@@ -12,8 +11,6 @@ namespace SpiderShooter.Networking
         public IPEndPoint EndPoint { get; set; }
 
         public bool IsFullLobby;
-
-        public LobbyMode LobbyMode;
 
         public Uri Uri;
 
@@ -41,7 +38,6 @@ namespace SpiderShooter.Networking
                 {
                     ServerId = ServerId,
                     Uri = transport.ServerUri(),
-                    LobbyMode = ServerStorage.Singleton.LobbyMode,
                     IsFullLobby = RoomManager.Singleton.IsFullLobby,
                 };
             }

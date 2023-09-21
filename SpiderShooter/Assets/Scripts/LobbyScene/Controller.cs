@@ -1,25 +1,29 @@
-using AYellowpaper;
 using Mirror;
 using SpiderShooter.Common;
 using SpiderShooter.Networking;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace SpiderShooter.LobbyScene
 {
     [AddComponentMenu("SpiderShooter/LobbyScene.Controller")]
-    public class Controller : MonoBehaviour
+    public class Controller : NetworkBehaviour
     {
         [SerializeField]
-        private InterfaceReference<IView> view;
-        private IView Visual => view.Value;
+        private RectTransform redTeamContainer;
 
         [SerializeField]
-        private RectTransform initContainer;
+        private RectTransform blueTeamContainer;
 
         [SerializeField]
         private GameObject lobbyPlayerPrefab;
 
-        public LobbyMode LobbyMode { get; private set; }
+        [SerializeField]
+        private TMP_Text lobbyCode;
+
+        [SerializeField]
+        private Button startGameButton;
 
         public static Controller Singleton { get; private set; }
 
@@ -28,50 +32,36 @@ namespace SpiderShooter.LobbyScene
             Singleton = this;
         }
 
-        private void Start()
+        public override void OnStartClient()
         {
-            Visual.OnHostPlayTrigger += RoomManager.Singleton.PlayGameplayScene;
-            Visual.OnHostQuitTrigger += RoomManager.Singleton.StopHost;
-            if (NetworkServer.active)
+            if (!isServer)
             {
-                Visual.SetPlayTriggerMode(VisualElementMode.Interactable);
-                Visual.SetQuitTriggerMode(VisualElementMode.Interactable);
-                Visual.SetLobbyCode(RoomManager.Singleton.RoomCode);
-                Visual.SetHostMode();
-            }
-            else
-            {
-                Visual.SetPlayTriggerMode(VisualElementMode.Hidden);
-                Visual.SetQuitTriggerMode(VisualElementMode.Hidden);
-                Visual.SetClientMode();
+                startGameButton.gameObject.SetActive(false);
             }
         }
 
-        public void SetLobbyName(string oldValue, string newValue)
+        [Command(requiresAuthority = false)]
+        public void SetLobbyCode()
         {
-            Visual.SetLobbyName(newValue);
-        }
-
-        public void SetLobbyMode(LobbyMode oldValue, LobbyMode newValue)
-        {
-            LobbyMode = newValue;
-            Visual.SetPlayTriggerMode(
-                NetworkServer.active && newValue == LobbyMode.Private
-                    ? VisualElementMode.Interactable
-                    : VisualElementMode.Hidden
-            );
-            Visual.SetQuitTriggerMode(
-                NetworkServer.active && newValue == LobbyMode.Private
-                    ? VisualElementMode.Interactable
-                    : VisualElementMode.Hidden
-            );
-            Visual.SetLobbyMode(newValue);
+            lobbyCode.text = ServerStorage.Singleton.LobbyCode;
         }
 
         public void CreateLobbyPlayer(RoomPlayer roomPlayer)
         {
-            GameObject lobbyPlayer = Instantiate(lobbyPlayerPrefab, initContainer);
-            lobbyPlayer.GetComponent<Player.Controller>().SetNetworkRoomPlayer(roomPlayer);
+            GameObject lobbyPlayer = Instantiate(lobbyPlayerPrefab);
+            RoomPlayerView player = lobbyPlayer.GetComponent<RoomPlayerView>();
+            player.SetContainersByTeam(redTeamContainer, blueTeamContainer);
+            player.SetNetworkRoomPlayer(roomPlayer);
+        }
+
+        // Called by button
+        public void StartGame()
+        {
+            Result result = RoomManager.Singleton.PlayGameplayScene();
+            if (result.Failure)
+            {
+                Debug.Log(result.Error);
+            }
         }
     }
 }
