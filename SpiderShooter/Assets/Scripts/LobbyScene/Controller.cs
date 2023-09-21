@@ -76,9 +76,12 @@ namespace SpiderShooter.LobbyScene
 
         private void Update()
         {
-            lobbyCode.text = ServerStorage.Singleton.LobbyCode;
-            redTeamName.text = ServerStorage.Singleton.RedTeamName;
-            blueTeamName.text = ServerStorage.Singleton.BlueTeamName;
+            if (ServerStorage.Singleton != null)
+            {
+                lobbyCode.text = ServerStorage.Singleton.LobbyCode;
+                redTeamName.text = ServerStorage.Singleton.RedTeamName;
+                blueTeamName.text = ServerStorage.Singleton.BlueTeamName;
+            }
 
             if (Input.GetKeyDown(KeyCode.Escape))
             {

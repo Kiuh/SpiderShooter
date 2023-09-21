@@ -23,6 +23,9 @@ namespace SpiderShooter.OpeningScene
         [InspectorReadOnly]
         private float timer = 0;
 
+        [SerializeField]
+        private GameObject serverStoragePrefab;
+
         private readonly Dictionary<long, ServerResponseExt> discoveredServers = new();
 
         private void Awake()
@@ -53,15 +56,18 @@ namespace SpiderShooter.OpeningScene
                 }
 
                 RoomManager.Singleton.networkAddress = result.Data;
+
+                LocalClientData.Singleton.PlayerName = playerName;
+
                 RoomManager.Singleton.StartHost();
                 networkDiscovery.AdvertiseServer();
 
+                Instantiate(serverStoragePrefab).GetComponent<ServerStorage>().Initialize();
                 ServerStorage.Singleton.LobbyCode = result.Data
                     .Split('.')
                     .Skip(2)
                     .Aggregate((x, y) => x + "-" + y);
 
-                LocalClientData.Singleton.PlayerName = playerName;
                 return new SuccessResult();
             }
             catch (Exception ex)
@@ -88,6 +94,7 @@ namespace SpiderShooter.OpeningScene
                 networkDiscovery.StopDiscovery();
                 RoomManager.Singleton.StartClient(uri);
                 LocalClientData.Singleton.PlayerName = playerName;
+                Instantiate(serverStoragePrefab).GetComponent<ServerStorage>().Initialize();
                 return new SuccessResult();
             }
             catch (Exception ex)

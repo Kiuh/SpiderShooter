@@ -7,9 +7,9 @@ namespace SpiderShooter.Networking
     [AddComponentMenu("SpiderShooter/Networking.ServerStorage")]
     public class ServerStorage : NetworkBehaviour
     {
-        public static ServerStorage Singleton { get; private set; } = null;
+        public static ServerStorage Singleton { get; private set; }
 
-        public void Awake()
+        public void Initialize()
         {
             if (Singleton != null)
             {
