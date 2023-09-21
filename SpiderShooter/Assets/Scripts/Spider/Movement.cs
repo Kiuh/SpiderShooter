@@ -30,6 +30,12 @@ namespace SpiderShooter.Spider
             diagonalMultiplier = 1f;
         }
 
+        public void ResetForces()
+        {
+            CharacterRigidbody.velocity = Vector3.zero;
+            accelerationForward = 0;
+        }
+
         protected override void Update()
         {
             CheckGroundPlacement();

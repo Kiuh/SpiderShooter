@@ -67,6 +67,12 @@ namespace SpiderShooter.OpeningScene
         // Called by button
         public void JoinLobbyButtonClick()
         {
+            joinLobbyNameInput.text = joinLobbyNameInput.text.Trim();
+            if (joinLobbyNameInput.text.Count() <= 3)
+            {
+                ShowError("Name must be at least 4 characters.");
+                return;
+            }
             Result result = model.JoinLobby(lobbyCodeToJointInput.text, joinLobbyNameInput.text);
             if (result.Failure)
             {
@@ -77,6 +83,12 @@ namespace SpiderShooter.OpeningScene
         // Called by button
         public void CreateLobbyButtonClick()
         {
+            defaultNameInput.text = defaultNameInput.text.Trim();
+            if (defaultNameInput.text.Count() <= 3)
+            {
+                ShowError("Name must be at least 4 characters.");
+                return;
+            }
             Result result = model.HostServer(defaultNameInput.text);
             if (result.Failure)
             {

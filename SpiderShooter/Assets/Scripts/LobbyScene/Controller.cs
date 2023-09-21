@@ -92,6 +92,18 @@ namespace SpiderShooter.LobbyScene
         // Called by button
         public void StartGame()
         {
+            redTeamName.text = redTeamName.text.Trim();
+            blueTeamName.text = blueTeamName.text.Trim();
+            if (redTeamName.text.Length <= 3 || blueTeamName.text.Length <= 3)
+            {
+                ShowError("Team name must be at least 4 characters.");
+                return;
+            }
+            if (redTeamName.text == blueTeamName.text)
+            {
+                ShowError("Team names must be different.");
+                return;
+            }
             Result result = RoomManager.Singleton.PlayGameplayScene();
             if (result.Failure)
             {

@@ -31,18 +31,6 @@ namespace SpiderShooter.Spider
             set => teamColor = value;
         }
 
-        public void ApplyTeamColor()
-        {
-            Color color = teamColor == TeamColor.Red ? Color.red : Color.blue;
-            foreach (Transform item in transform)
-            {
-                if (item.TryGetComponent(out MeshRenderer meshRenderer))
-                {
-                    meshRenderer.material.color = color;
-                }
-            }
-        }
-
         [SyncVar]
         [SerializeField]
         private float health;
@@ -62,6 +50,9 @@ namespace SpiderShooter.Spider
             set => killCount = value;
         }
 
+        [SerializeField]
+        private Movement movement;
+
         public override void OnStartClient()
         {
             if (isLocalPlayer)
@@ -76,10 +67,23 @@ namespace SpiderShooter.Spider
             ApplyTeamColor();
         }
 
+        public void ApplyTeamColor()
+        {
+            Color color = teamColor == TeamColor.Red ? Color.red : Color.blue;
+            foreach (Transform item in transform)
+            {
+                if (item.TryGetComponent(out MeshRenderer meshRenderer))
+                {
+                    meshRenderer.material.color = color;
+                }
+            }
+        }
+
         [ClientRpc]
         private void TeleportToPosition(Vector3 position, Quaternion rotation)
         {
             transform.SetPositionAndRotation(position, rotation);
+            movement.ResetForces();
         }
 
         [ServerCallback]
