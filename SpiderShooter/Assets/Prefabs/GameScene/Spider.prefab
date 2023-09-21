@@ -228,6 +228,8 @@ MonoBehaviour:
   teamColor: 0
   health: 100
   bulletDamage: 20
+  killCount: 0
+  movement: {fileID: 1080644486283147807}
 --- !u!114 &183901776379737969
 MonoBehaviour:
   m_ObjectHideFlags: 0
