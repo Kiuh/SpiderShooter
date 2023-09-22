@@ -1,11 +1,10 @@
-﻿using FIMSpace.Basics;
-using SpiderShooter.Common;
+﻿using SpiderShooter.Common;
 using UnityEngine;
 
 namespace SpiderShooter.Spider
 {
     [AddComponentMenu("SpiderShooter/Spider.Movement")]
-    public class Movement : FBasic_RigidbodyMovement
+    public class Movement : FBasics.FBasic_RigidbodyMovement
     {
         [Tooltip("Just lerp speed for rotating object")]
         public float RotationSpeed = 5f;
@@ -14,8 +13,7 @@ namespace SpiderShooter.Spider
         [InspectorReadOnly]
         private bool movingBackward = false;
 
-        [SerializeField]
-        private Animator animator;
+        private SpiderAnimator spiderAnimator;
 
         private float turbo = 0f;
 
@@ -24,28 +22,33 @@ namespace SpiderShooter.Spider
             base.Start();
 
             CharacterRigidbody = GetComponent<Rigidbody>();
-
             onlyForward = true;
-
             diagonalMultiplier = 1f;
+        }
+
+        public void SetSpiderAnimator(SpiderAnimator spiderAnimator)
+        {
+            this.spiderAnimator = spiderAnimator;
         }
 
         public void ResetForces()
         {
             CharacterRigidbody.velocity = Vector3.zero;
             accelerationForward = 0;
+            fakeYVelocity = -3;
         }
 
         protected override void Update()
         {
             CheckGroundPlacement();
 
+            // Additional animation stuff
+            spiderAnimator.Animate(accelerationForward);
+
             // Hard coded turbo
             turbo = Input.GetKey(KeyCode.LeftShift)
                 ? Mathf.Lerp(turbo, 1f, Time.deltaTime * 10f)
                 : Mathf.Lerp(turbo, 0f, Time.deltaTime * 10f);
-
-            animator.SetBool("IsWalk", accelerationForward is > 0.1f or < -0.1f);
 
             // Remembering unchanged direction to apply it back after all rotation calculations
             // to avoid shuttering rotation bug when moving diagonally

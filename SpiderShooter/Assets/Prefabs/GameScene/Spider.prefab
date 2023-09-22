@@ -43,13 +43,12 @@ GameObject:
   - component: {fileID: 3884211258037490866}
   - component: {fileID: 7310489477629152042}
   - component: {fileID: 3666850732884461098}
-  - component: {fileID: 1468139278174236959}
-  - component: {fileID: 3800684050432633450}
   - component: {fileID: 2464633893358319975}
   - component: {fileID: 183901776379737969}
   - component: {fileID: 8431263281458354958}
   - component: {fileID: 1080644486283147807}
   - component: {fileID: 1613597563436440028}
+  - component: {fileID: 3967819312563476023}
   m_Layer: 0
   m_Name: Spider
   m_TagString: Player
@@ -141,74 +140,6 @@ MonoBehaviour:
   serverOnly: 0
   visible: 0
   hasSpawned: 0
---- !u!114 &1468139278174236959
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2490896121734775634}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a553cb17010b2403e8523b558bffbc14, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0
-  target: {fileID: 3286413828972708143}
-  clientAuthority: 0
-  syncPosition: 1
-  syncRotation: 1
-  syncScale: 0
-  interpolatePosition: 1
-  interpolateRotation: 1
-  interpolateScale: 1
-  coordinateSpace: 0
-  sendIntervalMultiplier: 1
-  timelineOffset: 0
-  showGizmos: 0
-  showOverlay: 0
-  overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
-  onlySyncOnChange: 1
-  bufferResetMultiplier: 3
-  positionSensitivity: 0.01
-  rotationSensitivity: 0.01
-  scaleSensitivity: 0.01
---- !u!114 &3800684050432633450
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2490896121734775634}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b20dc110904e47f8a154cdcf6433eae, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0
-  target: {fileID: 3286413828972708143}
-  clientAuthority: 0
-  syncPosition: 1
-  syncRotation: 1
-  syncScale: 0
-  interpolatePosition: 1
-  interpolateRotation: 1
-  interpolateScale: 1
-  coordinateSpace: 0
-  sendIntervalMultiplier: 1
-  timelineOffset: 0
-  showGizmos: 0
-  showOverlay: 0
-  overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
-  onlySyncOnChange: 1
-  bufferResetMultiplier: 3
-  positionSensitivity: 0.01
-  rotationSensitivity: 0.01
-  scaleSensitivity: 0.01
 --- !u!114 &2464633893358319975
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -229,7 +160,11 @@ MonoBehaviour:
   health: 100
   bulletDamage: 20
   killCount: 0
+  redTeamMaterial: {fileID: 2100000, guid: 426e148186fa58c4a96ff88b92913f70, type: 2}
+  blueTeamMaterial: {fileID: 2100000, guid: 2977f9f75fc4fbc44802ec8565a53b30, type: 2}
+  meshRenderer: {fileID: 4253661616229584572}
   movement: {fileID: 1080644486283147807}
+  animator: {fileID: 615162943187795370}
 --- !u!114 &183901776379737969
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -265,6 +200,8 @@ MonoBehaviour:
   syncInterval: 0
   shootPoint: {fileID: 6593014698232595028}
   bulletPrefab: {fileID: 5628724722059533475, guid: 68eecbf4e41e5db40899ff4b21e9ba38, type: 3}
+  reloadTime: 0.7
+  currentReloadTime: 0
 --- !u!114 &1080644486283147807
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -289,7 +226,6 @@ MonoBehaviour:
   PushDownYVelocity: -20
   RotationSpeed: 2
   movingBackward: 0
-  animator: {fileID: 615162943187795370}
 --- !u!136 &1613597563436440028
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -313,6 +249,41 @@ CapsuleCollider:
   m_Height: 0
   m_Direction: 1
   m_Center: {x: 0, y: 0.3, z: 0}
+--- !u!114 &3967819312563476023
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2490896121734775634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ff3ba0becae47b8b9381191598957c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 1
+  syncMode: 0
+  syncInterval: 0
+  target: {fileID: 3286413828972708143}
+  clientAuthority: 0
+  syncPosition: 1
+  syncRotation: 1
+  syncScale: 0
+  interpolatePosition: 1
+  interpolateRotation: 1
+  interpolateScale: 1
+  coordinateSpace: 0
+  sendIntervalMultiplier: 1
+  timelineOffset: 0
+  showGizmos: 0
+  showOverlay: 0
+  overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
+  onlySyncOnChange: 1
+  onlySyncOnChangeCorrectionMultiplier: 2
+  rotationSensitivity: 0.01
+  compressRotation: 0
+  positionPrecision: 0.01
+  scalePrecision: 0.01
 --- !u!1 &4053795441114908023
 GameObject:
   m_ObjectHideFlags: 0
@@ -616,6 +587,10 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: -2038572291263972409, guid: 7077de4cdd236a14783e62e7b5a6956a, type: 3}
+      propertyPath: m_Materials.Array.data[1]
+      value: 
+      objectReference: {fileID: 2100000, guid: 426e148186fa58c4a96ff88b92913f70, type: 2}
     - target: {fileID: 919132149155446097, guid: 7077de4cdd236a14783e62e7b5a6956a, type: 3}
       propertyPath: m_Name
       value: Model
@@ -628,6 +603,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 615162943187795370}
   m_SourcePrefab: {fileID: 100100000, guid: 7077de4cdd236a14783e62e7b5a6956a, type: 3}
+--- !u!137 &4253661616229584572 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -2038572291263972409, guid: 7077de4cdd236a14783e62e7b5a6956a, type: 3}
+  m_PrefabInstance: {fileID: 6394412175906420091}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &6087998285230409770 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 7077de4cdd236a14783e62e7b5a6956a, type: 3}
@@ -643,7 +623,7 @@ Animator:
   m_GameObject: {fileID: 6087998285230409770}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: c898f31ccd68a7f40b71454fe3e987ab, type: 2}
+  m_Controller: {fileID: 9100000, guid: 7e1aeffec247ca348a0a2f731706a83a, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0

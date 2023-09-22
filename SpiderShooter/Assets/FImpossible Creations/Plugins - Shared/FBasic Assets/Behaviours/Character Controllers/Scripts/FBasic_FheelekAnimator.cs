@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace FIMSpace.Basics
 {
@@ -38,25 +37,36 @@ namespace FIMSpace.Basics
             // But for this to work animation launched from PlayAnimationHoldUntilIdle() must direct to Idle state machine in animator window
             // I used it for attack animations for example, but in humanoid skeleton etc. it can be unusable
             if (AnimationHolder)
+            {
                 if (waitForIdle)
                 {
                     AnimatorStateInfo nextInfo = animator.GetNextAnimatorStateInfo(locomotionLayer);
                     if (!nextInfo.IsName(lastAnimation))
                     {
                         if (animator.IsInTransition(locomotionLayer))
+                        {
                             waitForIdle = false;
+                        }
                         else
                         {
-                            AnimatorStateInfo info = animator.GetCurrentAnimatorStateInfo(locomotionLayer);
+                            AnimatorStateInfo info = animator.GetCurrentAnimatorStateInfo(
+                                locomotionLayer
+                            );
                             if (!info.IsName(lastAnimation))
+                            {
                                 waitForIdle = false;
+                            }
                         }
                     }
 
-                    if (!waitForIdle) AnimationHolder = false;
+                    if (!waitForIdle)
+                    {
+                        AnimationHolder = false;
+                    }
 
                     return;
                 }
+            }
 
             if (!AnimationHolder)
             {
@@ -66,10 +76,22 @@ namespace FIMSpace.Basics
                 if (!controller.Grounded)
                 {
                     if (controller.CharacterRigidbody.velocity.y < 0f)
-                        if (Physics.Raycast(controller.transform.position, -controller.transform.up, 0.1f - controller.CharacterRigidbody.velocity.y * Time.fixedDeltaTime))
+                    {
+                        if (
+                            Physics.Raycast(
+                                controller.transform.position,
+                                -controller.transform.up,
+                                0.1f
+                                    - (
+                                        controller.CharacterRigidbody.velocity.y
+                                        * Time.fixedDeltaTime
+                                    )
+                            )
+                        )
                         {
                             Landing();
                         }
+                    }
                 }
 
                 landingTimer -= Time.deltaTime;
@@ -79,7 +101,9 @@ namespace FIMSpace.Basics
             {
                 if (!animator.IsInTransition(locomotionLayer))
                 {
-                    AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(locomotionLayer);
+                    AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(
+                        locomotionLayer
+                    );
 
                     if (stateInfo.normalizedTime > 0.7f)
                     {
@@ -93,10 +117,10 @@ namespace FIMSpace.Basics
             {
                 if (controller.Grounded)
                 {
-                    if (acc < -0.1f || acc > 0.1f)
+                    if (acc is < (-0.1f) or > 0.1f)
                     {
                         CrossfadeTo(defaultRun, 0.25f, locomotionLayer);
-                        LerpValue("AnimSpeed", (acc / controller.MaxSpeed) * 8f);
+                        LerpValue("AnimSpeed", acc / controller.MaxSpeed * 8f);
                     }
                     else
                     {
@@ -120,7 +144,11 @@ namespace FIMSpace.Basics
         /// <summary>
         /// Crossfades to target animation and locks from launching other animations until state machine not turn back or be turning back to "Idle"
         /// </summary>
-        public void PlayAnimationHoldUntilIdle(string animation, float crossfadeTime = 0.2f, int animationLayer = 0)
+        public void PlayAnimationHoldUntilIdle(
+            string animation,
+            float crossfadeTime = 0.2f,
+            int animationLayer = 0
+        )
         {
             CrossfadeTo(animation, crossfadeTime, animationLayer);
             AnimationHolder = true;
@@ -158,16 +186,17 @@ namespace FIMSpace.Basics
         /// <summary>
         /// Executed when controller jumps succesfully
         /// </summary>
-        public virtual void Jump()
-        {
-        }
+        public virtual void Jump() { }
 
         /// <summary>
         /// Animate landing animation if we hit ground hard enough
         /// </summary>
         protected virtual void Landing()
         {
-            if (landingTimer > 0f) return;
+            if (landingTimer > 0f)
+            {
+                return;
+            }
 
             if (controller.CharacterRigidbody.velocity.y < -4.5f)
             {

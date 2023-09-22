@@ -62,8 +62,7 @@ namespace SpiderShooter.OpeningScene
                 RoomManager.Singleton.StartHost();
                 networkDiscovery.AdvertiseServer();
 
-                Instantiate(serverStoragePrefab).GetComponent<ServerStorage>().Initialize();
-                ServerStorage.Singleton.LobbyCode = result.Data
+                LocalClientData.Singleton.BufferIP = result.Data
                     .Split('.')
                     .Skip(2)
                     .Aggregate((x, y) => x + "-" + y);
@@ -94,7 +93,6 @@ namespace SpiderShooter.OpeningScene
                 networkDiscovery.StopDiscovery();
                 RoomManager.Singleton.StartClient(uri);
                 LocalClientData.Singleton.PlayerName = playerName;
-                Instantiate(serverStoragePrefab).GetComponent<ServerStorage>().Initialize();
                 return new SuccessResult();
             }
             catch (Exception ex)

@@ -11,6 +11,92 @@ namespace SpiderShooter.Networking
     public class RoomPlayer : NetworkRoomPlayer
     {
         [Header("Custom Properties")]
+        public static RoomPlayer Singleton;
+
+        public void Initialize()
+        {
+            Singleton = this;
+        }
+
+        [SyncVar]
+        [SerializeField]
+        private bool mainUser = false;
+
+        [SyncVar]
+        [SerializeField]
+        private string lobbyCode = "----";
+        public string LobbyCode
+        {
+            get => lobbyCode;
+            set => lobbyCode = value;
+        }
+
+        [SyncVar]
+        [SerializeField]
+        private string redTeamName = "Red Team";
+        public string RedTeamName
+        {
+            get => redTeamName;
+            set => redTeamName = value;
+        }
+
+        [SyncVar]
+        [SerializeField]
+        private string blueTeamName = "Blue Team";
+        public string BlueTeamName
+        {
+            get => blueTeamName;
+            set => blueTeamName = value;
+        }
+
+        [SyncVar]
+        [SerializeField]
+        private int redTeamKillCount = 0;
+        public int RedTeamKillCount
+        {
+            get => redTeamKillCount;
+            set => redTeamKillCount = value;
+        }
+
+        [SyncVar]
+        [SerializeField]
+        private int blueTeamKillCount = 0;
+        public int BlueTeamKillCount
+        {
+            get => blueTeamKillCount;
+            set => blueTeamKillCount = value;
+        }
+
+        [SyncVar]
+        [SerializeField]
+        private int killsToWin = 25;
+        public int KillsToWin
+        {
+            get => killsToWin;
+            set => killsToWin = value;
+        }
+
+        [SyncVar]
+        [SerializeField]
+        private bool gameEnds = false;
+        public bool GameEnds
+        {
+            get => gameEnds;
+            set => gameEnds = value;
+        }
+
+        public void AddTeamKill(TeamColor team)
+        {
+            if (team == TeamColor.Blue)
+            {
+                RedTeamKillCount++;
+            }
+            else
+            {
+                BlueTeamKillCount++;
+            }
+        }
+
         [SyncVar(hook = nameof(PlayerNameVarChanged))]
         [SerializeField]
         [InspectorReadOnly]
@@ -61,7 +147,19 @@ namespace SpiderShooter.Networking
         {
             if (isLocalPlayer)
             {
+                if (isServer)
+                {
+                    LobbyCode = LocalClientData.Singleton.BufferIP;
+                    redTeamName = "Red Team";
+                    blueTeamName = "BlueTeamName";
+                    killsToWin = 25;
+                    mainUser = true;
+                }
                 CmdSetPlayerName(LocalClientData.Singleton.PlayerName);
+            }
+            if (mainUser)
+            {
+                Initialize();
             }
             Controller.Singleton.CreateLobbyPlayer(this);
         }
