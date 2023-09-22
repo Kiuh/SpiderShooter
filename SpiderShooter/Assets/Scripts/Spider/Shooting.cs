@@ -20,6 +20,9 @@ namespace SpiderShooter.Spider
         [InspectorReadOnly]
         private float currentReloadTime;
 
+        [SerializeField]
+        private float backstepForce;
+
         private void Update()
         {
             if (currentReloadTime > 0)
@@ -42,6 +45,8 @@ namespace SpiderShooter.Spider
             bulletComponent.SetFriendlyColor(spider.TeamColor);
             bulletComponent.SetOwnerNetId(spider.Uid);
             NetworkServer.Spawn(bullet);
+
+            spider.Movement.PushBack(backstepForce);
 
             currentReloadTime = reloadTime;
         }

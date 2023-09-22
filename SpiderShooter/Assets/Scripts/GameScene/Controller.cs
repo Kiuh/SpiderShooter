@@ -174,7 +174,7 @@ namespace SpiderShooter.GameScene
 
                 SpiderImpl bestPlayer = blueTeamPlayers.OrderBy(x => x.KillCount).First();
 
-                redTeamBestPlayer.text =
+                blueTeamBestPlayer.text =
                     $"Best Player - {bestPlayer.PlayerName} {bestPlayer.KillCount} kills {bestPlayer.DeathCount} deaths";
 
                 string buffer = "";

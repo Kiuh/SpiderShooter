@@ -117,7 +117,7 @@ namespace SpiderShooter.LobbyScene
             }
             else
             {
-                playerModel.connectionToClient.Disconnect();
+                playerModel.connectionToServer.Disconnect();
             }
         }
 

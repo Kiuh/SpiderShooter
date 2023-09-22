@@ -26,6 +26,11 @@ namespace SpiderShooter.Spider
             diagonalMultiplier = 1f;
         }
 
+        public void PushBack(float force)
+        {
+            CharacterRigidbody.AddForce(-transform.forward * force);
+        }
+
         public void SetSpiderAnimator(SpiderAnimator spiderAnimator)
         {
             this.spiderAnimator = spiderAnimator;

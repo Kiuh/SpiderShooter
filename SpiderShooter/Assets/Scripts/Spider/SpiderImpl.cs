@@ -83,6 +83,8 @@ namespace SpiderShooter.Spider
         [SerializeField]
         private Movement movement;
 
+        public Movement Movement => movement;
+
         [SerializeField]
         private Animator animator;
 
