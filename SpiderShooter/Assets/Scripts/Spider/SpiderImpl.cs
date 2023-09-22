@@ -50,6 +50,16 @@ namespace SpiderShooter.Spider
             set => killCount = value;
         }
 
+        [SyncVar]
+        [SerializeField]
+        [InspectorReadOnly]
+        private int deathCount = 0;
+        public int DeathCount
+        {
+            get => deathCount;
+            set => deathCount = value;
+        }
+
         [SerializeField]
         private Material redTeamMaterial;
 
@@ -101,21 +111,34 @@ namespace SpiderShooter.Spider
         }
 
         [ServerCallback]
+        private void OnCollisionEnter(Collision collision)
+        {
+            if (collision.collider.CompareTag("Death Zone"))
+            {
+                CmdKilled();
+            }
+        }
+
+        [ServerCallback]
         private void OnTriggerEnter(Collider other)
         {
-            if (other.TryGetComponent(out Bullet bullet) && bullet.FriendlyTeam != TeamColor)
+            if (other.TryGetComponent(out Bullet bullet))
             {
-                health -= bullet.Damage;
-                if (health == 0)
+                if (bullet.FriendlyTeam != TeamColor)
                 {
-                    RoomManager.Singleton.AddKillToPlayer(bullet.OwnerNetId);
-                    health = 100;
-                    Transform transform = RoomManager.Singleton
-                        .GetRandomStartPosition(TeamColor)
-                        .transform;
-                    TeleportToPosition(transform.position, transform.rotation);
-                    RoomPlayer.Singleton.AddTeamKill(TeamColor);
-                    CheckForWin();
+                    health -= bullet.Damage;
+                    if (health == 0)
+                    {
+                        CmdKilled();
+                        //RoomManager.Singleton.AddKillToPlayer(bullet.OwnerNetId);
+                        //health = 100;
+                        //Transform transform = RoomManager.Singleton
+                        //    .GetRandomStartPosition(TeamColor)
+                        //    .transform;
+                        //TeleportToPosition(transform.position, transform.rotation);
+                        //RoomPlayer.Singleton.AddTeamKill(TeamColor);
+                        //CmdCheckForWin();
+                    }
                 }
             }
         }
@@ -124,14 +147,15 @@ namespace SpiderShooter.Spider
         public void CmdKilled()
         {
             health = 100;
+            deathCount++;
             Transform transform = RoomManager.Singleton.GetRandomStartPosition(TeamColor).transform;
             TeleportToPosition(transform.position, transform.rotation);
             RoomPlayer.Singleton.AddTeamKill(TeamColor);
-            CheckForWin();
+            CmdCheckForWin();
         }
 
         [Command(requiresAuthority = false)]
-        public void CheckForWin()
+        public void CmdCheckForWin()
         {
             if (
                 RoomPlayer.Singleton.RedTeamKillCount >= RoomPlayer.Singleton.KillsToWin

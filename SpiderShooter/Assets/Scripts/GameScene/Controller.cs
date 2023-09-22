@@ -15,10 +15,22 @@ namespace SpiderShooter.GameScene
     public class Controller : NetworkBehaviour
     {
         [SerializeField]
-        private TMP_Text teamsKillsLabel;
+        private TMP_Text heathLabel;
 
         [SerializeField]
-        private TMP_Text playerInfoLabel;
+        private TMP_Text teamNameLabel;
+
+        [SerializeField]
+        private TMP_Text playerNameLabel;
+
+        [SerializeField]
+        private TMP_Text vsLabel;
+
+        [SerializeField]
+        private TMP_Text killsToWinLabel;
+
+        [SerializeField]
+        private TMP_Text killDeathLabel;
 
         [SerializeField]
         private GameObject winPanel;
@@ -50,17 +62,18 @@ namespace SpiderShooter.GameScene
 
         private void Update()
         {
-            teamsKillsLabel.text =
-                $"Kills to win: {RoomPlayer.Singleton.KillsToWin}\n"
-                + $"{RoomPlayer.Singleton.RedTeamName} - {RoomPlayer.Singleton.RedTeamKillCount}\n"
-                + $"{RoomPlayer.Singleton.BlueTeamName} - {RoomPlayer.Singleton.BlueTeamKillCount}";
+            killsToWinLabel.text = $"Kills to win: {RoomPlayer.Singleton.KillsToWin}";
+            vsLabel.text =
+                $"{RoomPlayer.Singleton.RedTeamName} - [{RoomPlayer.Singleton.RedTeamKillCount}] VS "
+                + $"[{RoomPlayer.Singleton.BlueTeamKillCount}] - {RoomPlayer.Singleton.BlueTeamName}";
 
             if (localPlayer != null)
             {
-                playerInfoLabel.text =
-                    $"{(localPlayer.TeamColor == TeamColor.Red ? RoomPlayer.Singleton.RedTeamName : RoomPlayer.Singleton.BlueTeamName)}"
-                    + $"\n{localPlayer.PlayerName}"
-                    + $"\n{localPlayer.KillCount} - your score";
+                teamNameLabel.text =
+                    $"{(localPlayer.TeamColor == TeamColor.Red ? RoomPlayer.Singleton.RedTeamName : RoomPlayer.Singleton.BlueTeamName)}";
+                playerNameLabel.text = $"{localPlayer.PlayerName}";
+                killDeathLabel.text = $"{localPlayer.KillCount}/{localPlayer.DeathCount}";
+                heathLabel.text = $"HP/{(int)localPlayer.Health}";
             }
 
             if (Input.GetKeyDown(KeyCode.Escape))

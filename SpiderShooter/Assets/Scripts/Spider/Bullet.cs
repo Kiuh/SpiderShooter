@@ -32,12 +32,18 @@ namespace SpiderShooter.Spider
         private Rigidbody rigidBody;
 
         [SerializeField]
+        private Collider ownCollider;
+
+        [SerializeField]
         private float force = 1000;
 
         public override void OnStartServer()
         {
             Invoke(nameof(DestroySelf), destroyAfter);
         }
+
+        [SerializeField]
+        private GameObject model;
 
         private void Start()
         {
@@ -68,17 +74,22 @@ namespace SpiderShooter.Spider
         [ServerCallback]
         private void OnTriggerEnter(Collider other)
         {
-            if (!other.CompareTag("Player"))
+            if (other.gameObject.CompareTag("Player"))
             {
                 return;
             }
 
-            if (other.TryGetComponent(out SpiderImpl spider) && spider.TeamColor == friendlyTeam)
+            if (
+                other.gameObject.CompareTag("SpiderBody")
+                && other.GetComponentInParent<SpiderImpl>().TeamColor == friendlyTeam
+            )
             {
                 return;
             }
 
-            DestroySelf();
+            rigidBody.velocity = rigidBody.velocity.normalized * 10;
+            rigidBody.useGravity = true;
+            ownCollider.isTrigger = false;
         }
     }
 }
