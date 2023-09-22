@@ -1,4 +1,5 @@
-﻿using SpiderShooter.Common;
+﻿using Mirror;
+using SpiderShooter.Common;
 using SpiderShooter.General;
 using SpiderShooter.Networking;
 using System;
@@ -62,7 +63,9 @@ namespace SpiderShooter.OpeningScene
                 RoomManager.Singleton.StartHost();
                 networkDiscovery.AdvertiseServer();
 
-                Instantiate(serverStoragePrefab).GetComponent<ServerStorage>().Initialize();
+                GameObject storage = Instantiate(serverStoragePrefab);
+                NetworkServer.Spawn(storage);
+                storage.GetComponent<ServerStorage>().Initialize();
                 ServerStorage.Singleton.LobbyCode = result.Data
                     .Split('.')
                     .Skip(2)
@@ -94,7 +97,6 @@ namespace SpiderShooter.OpeningScene
                 networkDiscovery.StopDiscovery();
                 RoomManager.Singleton.StartClient(uri);
                 LocalClientData.Singleton.PlayerName = playerName;
-                Instantiate(serverStoragePrefab).GetComponent<ServerStorage>().Initialize();
                 return new SuccessResult();
             }
             catch (Exception ex)

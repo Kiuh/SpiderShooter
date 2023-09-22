@@ -1,11 +1,10 @@
-﻿using FIMSpace.Basics;
-using SpiderShooter.Common;
+﻿using SpiderShooter.Common;
 using UnityEngine;
 
 namespace SpiderShooter.Spider
 {
     [AddComponentMenu("SpiderShooter/Spider.Movement")]
-    public class Movement : FBasic_RigidbodyMovement
+    public class Movement : FBasics.FBasic_RigidbodyMovement
     {
         [Tooltip("Just lerp speed for rotating object")]
         public float RotationSpeed = 5f;
@@ -13,9 +12,6 @@ namespace SpiderShooter.Spider
         [SerializeField]
         [InspectorReadOnly]
         private bool movingBackward = false;
-
-        [SerializeField]
-        private Animator animator;
 
         private SpiderAnimator spiderAnimator;
 
@@ -26,15 +22,20 @@ namespace SpiderShooter.Spider
             base.Start();
 
             CharacterRigidbody = GetComponent<Rigidbody>();
-            spiderAnimator = new SpiderAnimator(this, animator);
             onlyForward = true;
             diagonalMultiplier = 1f;
+        }
+
+        public void SetSpiderAnimator(SpiderAnimator spiderAnimator)
+        {
+            this.spiderAnimator = spiderAnimator;
         }
 
         public void ResetForces()
         {
             CharacterRigidbody.velocity = Vector3.zero;
             accelerationForward = 0;
+            fakeYVelocity = -3;
         }
 
         protected override void Update()
