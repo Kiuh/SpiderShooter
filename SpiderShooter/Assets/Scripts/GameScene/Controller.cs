@@ -51,14 +51,14 @@ namespace SpiderShooter.GameScene
         private void Update()
         {
             teamsKillsLabel.text =
-                $"Kills to win: {ServerStorage.Singleton.KillsToWin}\n"
-                + $"{ServerStorage.Singleton.RedTeamName} - {ServerStorage.Singleton.RedTeamKillCount}\n"
-                + $"{ServerStorage.Singleton.BlueTeamName} - {ServerStorage.Singleton.BlueTeamKillCount}";
+                $"Kills to win: {RoomPlayer.Singleton.KillsToWin}\n"
+                + $"{RoomPlayer.Singleton.RedTeamName} - {RoomPlayer.Singleton.RedTeamKillCount}\n"
+                + $"{RoomPlayer.Singleton.BlueTeamName} - {RoomPlayer.Singleton.BlueTeamKillCount}";
 
             if (localPlayer != null)
             {
                 playerInfoLabel.text =
-                    $"{(localPlayer.TeamColor == TeamColor.Red ? ServerStorage.Singleton.RedTeamName : ServerStorage.Singleton.BlueTeamName)}"
+                    $"{(localPlayer.TeamColor == TeamColor.Red ? RoomPlayer.Singleton.RedTeamName : RoomPlayer.Singleton.BlueTeamName)}"
                     + $"\n{localPlayer.PlayerName}"
                     + $"\n{localPlayer.KillCount} - your score";
             }
@@ -79,7 +79,7 @@ namespace SpiderShooter.GameScene
                 .enabled = false;
 
             Time.timeScale = 0f;
-            ServerStorage storage = ServerStorage.Singleton;
+            RoomPlayer storage = RoomPlayer.Singleton;
             TeamColor winTeamColor =
                 storage.BlueTeamKillCount > storage.RedTeamKillCount
                     ? TeamColor.Blue

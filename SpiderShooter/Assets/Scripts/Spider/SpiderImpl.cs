@@ -67,7 +67,7 @@ namespace SpiderShooter.Spider
 
         private SpiderAnimator spiderAnimator;
 
-        private void Start()
+        private void Awake()
         {
             spiderAnimator = new SpiderAnimator(movement, animator);
             movement.SetSpiderAnimator(spiderAnimator);
@@ -114,7 +114,7 @@ namespace SpiderShooter.Spider
                         .GetRandomStartPosition(TeamColor)
                         .transform;
                     TeleportToPosition(transform.position, transform.rotation);
-                    ServerStorage.Singleton.AddTeamKill(TeamColor);
+                    RoomPlayer.Singleton.AddTeamKill(TeamColor);
                     CheckForWin();
                 }
             }
@@ -126,7 +126,7 @@ namespace SpiderShooter.Spider
             health = 100;
             Transform transform = RoomManager.Singleton.GetRandomStartPosition(TeamColor).transform;
             TeleportToPosition(transform.position, transform.rotation);
-            ServerStorage.Singleton.AddTeamKill(TeamColor);
+            RoomPlayer.Singleton.AddTeamKill(TeamColor);
             CheckForWin();
         }
 
@@ -134,11 +134,11 @@ namespace SpiderShooter.Spider
         public void CheckForWin()
         {
             if (
-                ServerStorage.Singleton.RedTeamKillCount >= ServerStorage.Singleton.KillsToWin
-                || ServerStorage.Singleton.BlueTeamKillCount >= ServerStorage.Singleton.KillsToWin
+                RoomPlayer.Singleton.RedTeamKillCount >= RoomPlayer.Singleton.KillsToWin
+                || RoomPlayer.Singleton.BlueTeamKillCount >= RoomPlayer.Singleton.KillsToWin
             )
             {
-                ServerStorage.Singleton.GameEnds = true;
+                RoomPlayer.Singleton.GameEnds = true;
                 GameScene.Controller.Singleton.RpcShowWinPanel();
             }
         }

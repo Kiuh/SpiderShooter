@@ -18,6 +18,9 @@ namespace SpiderShooter.General
             DontDestroyOnLoad(this);
         }
 
+        [InspectorReadOnly]
+        public string BufferIP;
+
         [SerializeField]
         [InspectorReadOnly]
         private string playerName = "No player name";

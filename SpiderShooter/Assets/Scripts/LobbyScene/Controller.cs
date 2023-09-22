@@ -47,13 +47,13 @@ namespace SpiderShooter.LobbyScene
         // Called by input field
         public void RedTeamNameChange(string newName)
         {
-            ServerStorage.Singleton.RedTeamName = newName;
+            RoomPlayer.Singleton.RedTeamName = newName;
         }
 
         // Called by input field
         public void BlueTeamNameChange(string newName)
         {
-            ServerStorage.Singleton.BlueTeamName = newName;
+            RoomPlayer.Singleton.BlueTeamName = newName;
         }
 
         public override void OnStartClient()
@@ -76,11 +76,12 @@ namespace SpiderShooter.LobbyScene
 
         private void Update()
         {
-            if (ServerStorage.Singleton != null)
+            Debug.Log(RoomPlayer.Singleton);
+            if (RoomPlayer.Singleton != null)
             {
-                lobbyCode.text = ServerStorage.Singleton.LobbyCode;
-                redTeamName.text = ServerStorage.Singleton.RedTeamName;
-                blueTeamName.text = ServerStorage.Singleton.BlueTeamName;
+                lobbyCode.text = RoomPlayer.Singleton.LobbyCode;
+                redTeamName.text = RoomPlayer.Singleton.RedTeamName;
+                blueTeamName.text = RoomPlayer.Singleton.BlueTeamName;
             }
 
             if (Input.GetKeyDown(KeyCode.Escape))
