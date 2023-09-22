@@ -76,7 +76,6 @@ namespace SpiderShooter.LobbyScene
 
         private void Update()
         {
-            Debug.Log(RoomPlayer.Singleton);
             if (RoomPlayer.Singleton != null)
             {
                 lobbyCode.text = RoomPlayer.Singleton.LobbyCode;
