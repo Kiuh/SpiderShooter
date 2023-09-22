@@ -55,8 +55,7 @@ namespace SpiderShooter.Networking
         {
             IEnumerable<SpiderImpl> players = GameObject
                 .FindGameObjectsWithTag("Player")
-                .ToList()
-                .Cast<SpiderImpl>();
+                .Select(x => x.GetComponent<SpiderImpl>());
 
             foreach (SpiderImpl player in players)
             {

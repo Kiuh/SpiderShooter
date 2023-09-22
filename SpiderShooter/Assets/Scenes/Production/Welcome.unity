@@ -1750,15 +1750,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1873316955669841659, guid: 6cdd61c3eda138249ab3e8195ec9ce09, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 994.09784
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1873316955669841659, guid: 6cdd61c3eda138249ab3e8195ec9ce09, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 535.71576
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1873316955669841659, guid: 6cdd61c3eda138249ab3e8195ec9ce09, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 11.502762
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1873316955669841659, guid: 6cdd61c3eda138249ab3e8195ec9ce09, type: 3}
       propertyPath: m_LocalRotation.w
@@ -4440,7 +4440,7 @@ MonoBehaviour:
   networkDiscovery: {fileID: 243489284}
   refreshTime: 2
   timer: 0
-  serverStoragePrefab: {fileID: 4420404055332022015, guid: 19062b9891b53194bb512527a060160f, type: 3}
+  serverStoragePrefab: {fileID: 6740584872334369020, guid: 09946b8d03abb3548bfc935402300056, type: 3}
 --- !u!4 &9157727301726613270
 Transform:
   m_ObjectHideFlags: 0

@@ -18,7 +18,7 @@ namespace SpiderShooter.Spider
 
         private void Update()
         {
-            if (ServerStorage.Singleton.GameEnds)
+            if (RoomPlayer.Singleton.GameEnds)
             {
                 return;
             }

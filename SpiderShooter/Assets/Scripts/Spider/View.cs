@@ -23,7 +23,11 @@ namespace SpiderShooter.Spider
         private void Update()
         {
             transform.LookAt(Camera.main.transform);
-            playerInfo.text = $"{spider.PlayerName}\n{new string('-', (int)(spider.Health / 20))}";
+            if (spider.Health > 0)
+            {
+                playerInfo.text =
+                    $"{spider.PlayerName}\n{new string('-', (int)(spider.Health / 20))}";
+            }
         }
     }
 }

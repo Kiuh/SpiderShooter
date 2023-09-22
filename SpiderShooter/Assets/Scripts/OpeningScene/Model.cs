@@ -1,5 +1,4 @@
-﻿using Mirror;
-using SpiderShooter.Common;
+﻿using SpiderShooter.Common;
 using SpiderShooter.General;
 using SpiderShooter.Networking;
 using System;
@@ -63,10 +62,7 @@ namespace SpiderShooter.OpeningScene
                 RoomManager.Singleton.StartHost();
                 networkDiscovery.AdvertiseServer();
 
-                GameObject storage = Instantiate(serverStoragePrefab);
-                NetworkServer.Spawn(storage);
-                storage.GetComponent<ServerStorage>().Initialize();
-                ServerStorage.Singleton.LobbyCode = result.Data
+                LocalClientData.Singleton.BufferIP = result.Data
                     .Split('.')
                     .Skip(2)
                     .Aggregate((x, y) => x + "-" + y);
