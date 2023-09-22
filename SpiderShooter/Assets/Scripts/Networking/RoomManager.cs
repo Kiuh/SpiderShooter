@@ -68,9 +68,6 @@ namespace SpiderShooter.Networking
 
         public Result PlayGameplayScene()
         {
-            ServerChangeScene(GameplayScene);
-            return new SuccessResult();
-
             if (!roomSlots.All(x => x.readyToBegin))
             {
                 return new FailResult("Not all players Ready.");
