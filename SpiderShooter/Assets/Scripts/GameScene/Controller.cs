@@ -5,7 +5,6 @@ using SpiderShooter.Networking;
 using SpiderShooter.Spider;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using TMPro;
 using UnityEngine;
 
@@ -38,11 +37,37 @@ namespace SpiderShooter.GameScene
         [SerializeField]
         private TMP_Text titleLabel;
 
+        [Header("Red team")]
         [SerializeField]
-        private TMP_Text redTeamStatistic;
+        private TMP_Text redTeamName;
 
         [SerializeField]
-        private TMP_Text blueTeamStatistic;
+        private TMP_Text redTeamKills;
+
+        [SerializeField]
+        private TMP_Text redTeamBestPlayer;
+
+        [SerializeField]
+        private TMP_Text redTeamPlayersList;
+
+        [SerializeField]
+        private TMP_Text redTeamSuicides;
+
+        [Header("Blue team")]
+        [SerializeField]
+        private TMP_Text blueTeamName;
+
+        [SerializeField]
+        private TMP_Text blueTeamKills;
+
+        [SerializeField]
+        private TMP_Text blueTeamBestPlayer;
+
+        [SerializeField]
+        private TMP_Text blueTeamPlayersList;
+
+        [SerializeField]
+        private TMP_Text blueTeamSuicides;
 
         [SerializeField]
         [InspectorReadOnly]
@@ -114,55 +139,60 @@ namespace SpiderShooter.GameScene
                 x => x.TeamColor == TeamColor.Blue
             );
 
+            int redPlayersKills = 0;
+
             if (redTeamPlayers.Count() > 0)
             {
-                StringBuilder stringBuilder = new("");
-                _ = stringBuilder.AppendLine(
-                    $"{storage.RedTeamName} - total kills {storage.RedTeamKillCount}"
-                );
+                redTeamName.text = storage.RedTeamName;
+                redTeamKills.text = $"{storage.RedTeamKillCount} kills";
+
                 SpiderImpl bestPlayer = redTeamPlayers.OrderBy(x => x.KillCount).First();
-                _ = stringBuilder.AppendLine($"Best Player - {bestPlayer.PlayerName}");
-                _ = stringBuilder.AppendLine($"{bestPlayer.KillCount} kills");
-                _ = stringBuilder.AppendLine();
-                int playersKillCount = 0;
+
+                redTeamBestPlayer.text =
+                    $"Best Player - {bestPlayer.PlayerName} {bestPlayer.KillCount} kills {bestPlayer.DeathCount} deaths";
+
+                string buffer = "";
                 foreach (SpiderImpl player in redTeamPlayers)
                 {
-                    playersKillCount += player.KillCount;
-                    _ = stringBuilder.AppendLine($"{player.PlayerName} - {player.KillCount} kills");
+                    redPlayersKills += player.KillCount;
+                    buffer +=
+                        $"{player.PlayerName} - {player.KillCount} kills {player.DeathCount} deaths\n";
                 }
-                _ = stringBuilder.AppendLine(
-                    $"Suicide: {storage.BlueTeamKillCount - playersKillCount}"
-                );
-                redTeamStatistic.text = stringBuilder.ToString();
+                redTeamPlayersList.text = buffer;
             }
             else
             {
-                redTeamStatistic.text = "No players in team.";
+                redTeamName.text = "No players in team.";
             }
+
+            int bluePlayersKills = 0;
 
             if (blueTeamPlayers.Count() > 0)
             {
-                StringBuilder stringBuilder = new("");
-                _ = stringBuilder.AppendLine(storage.BlueTeamName);
+                blueTeamName.text = storage.BlueTeamName;
+                blueTeamKills.text = $"{storage.BlueTeamKillCount} kills";
+
                 SpiderImpl bestPlayer = blueTeamPlayers.OrderBy(x => x.KillCount).First();
-                _ = stringBuilder.AppendLine($"Best Player - {bestPlayer.PlayerName}");
-                _ = stringBuilder.AppendLine($"{bestPlayer.KillCount} kills");
-                _ = stringBuilder.AppendLine();
-                int playersKillCount = 0;
+
+                redTeamBestPlayer.text =
+                    $"Best Player - {bestPlayer.PlayerName} {bestPlayer.KillCount} kills {bestPlayer.DeathCount} deaths";
+
+                string buffer = "";
                 foreach (SpiderImpl player in blueTeamPlayers)
                 {
-                    playersKillCount += player.KillCount;
-                    _ = stringBuilder.AppendLine($"{player.PlayerName} - {player.KillCount} kills");
+                    bluePlayersKills += player.KillCount;
+                    buffer +=
+                        $"{player.PlayerName} - {player.KillCount} kills {player.DeathCount} deaths\n";
                 }
-                _ = stringBuilder.AppendLine(
-                    $"Suicide: {storage.RedTeamKillCount - playersKillCount}"
-                );
-                blueTeamStatistic.text = stringBuilder.ToString();
+                blueTeamPlayersList.text = buffer;
             }
             else
             {
-                blueTeamStatistic.text = "No players in team.";
+                blueTeamName.text = "No players in team.";
             }
+
+            redTeamSuicides.text = $"Suicide: {storage.BlueTeamKillCount - bluePlayersKills}";
+            blueTeamSuicides.text = $"Suicide: {storage.RedTeamKillCount - redPlayersKills}";
         }
 
         // Called by button

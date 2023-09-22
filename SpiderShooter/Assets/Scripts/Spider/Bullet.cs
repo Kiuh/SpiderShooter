@@ -26,7 +26,7 @@ namespace SpiderShooter.Spider
 
         [SerializeField]
         [InspectorReadOnly]
-        private float destroyAfter = 4;
+        private float destroyAfter = 10;
 
         [SerializeField]
         private Rigidbody rigidBody;
@@ -87,7 +87,7 @@ namespace SpiderShooter.Spider
                 return;
             }
 
-            rigidBody.velocity = rigidBody.velocity.normalized * 10;
+            rigidBody.velocity = rigidBody.velocity.normalized * 25;
             rigidBody.useGravity = true;
             ownCollider.isTrigger = false;
         }
