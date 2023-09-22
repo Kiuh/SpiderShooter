@@ -265,7 +265,7 @@ MonoBehaviour:
   syncInterval: 0
   shootPoint: {fileID: 6593014698232595028}
   bulletPrefab: {fileID: 5628724722059533475, guid: 68eecbf4e41e5db40899ff4b21e9ba38, type: 3}
-  reloadTime: 0
+  reloadTime: 0.7
   currentReloadTime: 0
 --- !u!114 &1080644486283147807
 MonoBehaviour:

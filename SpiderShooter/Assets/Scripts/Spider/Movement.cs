@@ -17,6 +17,8 @@ namespace SpiderShooter.Spider
         [SerializeField]
         private Animator animator;
 
+        private SpiderAnimator spiderAnimator;
+
         private float turbo = 0f;
 
         protected override void Start()
@@ -24,9 +26,8 @@ namespace SpiderShooter.Spider
             base.Start();
 
             CharacterRigidbody = GetComponent<Rigidbody>();
-
+            spiderAnimator = new SpiderAnimator(this, animator);
             onlyForward = true;
-
             diagonalMultiplier = 1f;
         }
 
@@ -40,12 +41,13 @@ namespace SpiderShooter.Spider
         {
             CheckGroundPlacement();
 
+            // Additional animation stuff
+            spiderAnimator.Animate(accelerationForward);
+
             // Hard coded turbo
             turbo = Input.GetKey(KeyCode.LeftShift)
                 ? Mathf.Lerp(turbo, 1f, Time.deltaTime * 10f)
                 : Mathf.Lerp(turbo, 0f, Time.deltaTime * 10f);
-
-            animator.SetBool("IsWalk", accelerationForward is > 0.1f or < -0.1f);
 
             // Remembering unchanged direction to apply it back after all rotation calculations
             // to avoid shuttering rotation bug when moving diagonally
