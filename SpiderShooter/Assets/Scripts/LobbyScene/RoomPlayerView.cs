@@ -68,13 +68,13 @@ namespace SpiderShooter.LobbyScene
                 if (roomPlayerExt.isServer)
                 {
                     changeReadyState.interactable = false;
-                    leaveButtonText.text = "Kick";
+                    leave.gameObject.SetActive(false);
                 }
                 else
                 {
                     changeReadyState.interactable = false;
                     changeTeamButton.interactable = false;
-                    leave.interactable = false;
+                    leave.gameObject.SetActive(false);
                 }
             }
         }
