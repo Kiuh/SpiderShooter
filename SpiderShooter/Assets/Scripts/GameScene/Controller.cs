@@ -72,6 +72,8 @@ namespace SpiderShooter.GameScene
         [ClientRpc]
         public void RpcShowWinPanel()
         {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
             winPanel.SetActive(true);
 
             FindObjectOfType<FBasic_TPPCameraBehaviour>()

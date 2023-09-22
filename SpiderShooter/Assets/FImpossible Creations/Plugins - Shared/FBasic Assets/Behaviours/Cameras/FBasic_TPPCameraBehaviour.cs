@@ -77,10 +77,10 @@ namespace FIMSpace.Basics
             targetSphericRotation = new Vector2(0f, 23f);
             animatedSphericRotation = targetSphericRotation;
 
-            //if ( LockCursor )
-            //{
-            //    HelperSwitchCursor();
-            //}
+            if (LockCursor)
+            {
+                HelperSwitchCursor();
+            }
         }
 
         private Vector3 prePos = Vector3.zero;

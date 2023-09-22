@@ -40,15 +40,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3286413828972708143}
-  - component: {fileID: 3884211258037490866}
   - component: {fileID: 7310489477629152042}
   - component: {fileID: 3666850732884461098}
   - component: {fileID: 2464633893358319975}
   - component: {fileID: 183901776379737969}
   - component: {fileID: 8431263281458354958}
   - component: {fileID: 1080644486283147807}
-  - component: {fileID: 1613597563436440028}
   - component: {fileID: 3967819312563476023}
+  - component: {fileID: 9082626403672292936}
   m_Layer: 0
   m_Name: Spider
   m_TagString: Player
@@ -75,27 +74,6 @@ Transform:
   - {fileID: 7503898095772617533}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &3884211258037490866
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2490896121734775634}
-  m_Material: {fileID: 13400000, guid: eb19863d016099244a9e75e45a3aa0aa, type: 2}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1.2, y: 0.5, z: 1.2}
-  m_Center: {x: 0, y: 0.35, z: 0}
 --- !u!54 &7310489477629152042
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -226,29 +204,6 @@ MonoBehaviour:
   PushDownYVelocity: -20
   RotationSpeed: 2
   movingBackward: 0
---- !u!136 &1613597563436440028
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2490896121734775634}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.25
-  m_Height: 0
-  m_Direction: 1
-  m_Center: {x: 0, y: 0.3, z: 0}
 --- !u!114 &3967819312563476023
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -284,6 +239,29 @@ MonoBehaviour:
   compressRotation: 0
   positionPrecision: 0.01
   scalePrecision: 0.01
+--- !u!136 &9082626403672292936
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2490896121734775634}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.35
+  m_Height: 1.5
+  m_Direction: 2
+  m_Center: {x: 0, y: 0.4, z: 0}
 --- !u!1 &4053795441114908023
 GameObject:
   m_ObjectHideFlags: 0

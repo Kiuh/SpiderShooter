@@ -33,7 +33,7 @@ namespace SpiderShooter.Spider.FBasics
         protected float diagonalMultiplier = 0.7f;
 
         /// <summary> Capsule collider to use some variables from it </summary>
-        protected CapsuleCollider capsuleCollider;
+        protected Collider capsuleCollider;
 
         /// <summary> Remembered velocity for some helper actions on rigidbody </summary>
         protected Vector3 targetVelocity = Vector3.zero;
@@ -52,7 +52,7 @@ namespace SpiderShooter.Spider.FBasics
             base.Start();
 
             CharacterRigidbody = GetComponent<Rigidbody>();
-            capsuleCollider = GetComponent<CapsuleCollider>();
+            capsuleCollider = GetComponent<Collider>();
 
             if (ChracterLayerMask == 0)
             {
