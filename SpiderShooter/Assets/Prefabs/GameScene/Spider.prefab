@@ -229,7 +229,11 @@ MonoBehaviour:
   health: 100
   bulletDamage: 20
   killCount: 0
+  redTeamMaterial: {fileID: 2100000, guid: 426e148186fa58c4a96ff88b92913f70, type: 2}
+  blueTeamMaterial: {fileID: 2100000, guid: 2977f9f75fc4fbc44802ec8565a53b30, type: 2}
+  meshRenderer: {fileID: 4253661616229584572}
   movement: {fileID: 1080644486283147807}
+  animator: {fileID: 615162943187795370}
 --- !u!114 &183901776379737969
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -291,7 +295,6 @@ MonoBehaviour:
   PushDownYVelocity: -20
   RotationSpeed: 2
   movingBackward: 0
-  animator: {fileID: 615162943187795370}
 --- !u!136 &1613597563436440028
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -618,6 +621,10 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: -2038572291263972409, guid: 7077de4cdd236a14783e62e7b5a6956a, type: 3}
+      propertyPath: m_Materials.Array.data[1]
+      value: 
+      objectReference: {fileID: 2100000, guid: 426e148186fa58c4a96ff88b92913f70, type: 2}
     - target: {fileID: 919132149155446097, guid: 7077de4cdd236a14783e62e7b5a6956a, type: 3}
       propertyPath: m_Name
       value: Model
@@ -630,6 +637,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 615162943187795370}
   m_SourcePrefab: {fileID: 100100000, guid: 7077de4cdd236a14783e62e7b5a6956a, type: 3}
+--- !u!137 &4253661616229584572 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -2038572291263972409, guid: 7077de4cdd236a14783e62e7b5a6956a, type: 3}
+  m_PrefabInstance: {fileID: 6394412175906420091}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &6087998285230409770 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 7077de4cdd236a14783e62e7b5a6956a, type: 3}

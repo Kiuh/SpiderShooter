@@ -51,7 +51,27 @@ namespace SpiderShooter.Spider
         }
 
         [SerializeField]
+        private Material redTeamMaterial;
+
+        [SerializeField]
+        private Material blueTeamMaterial;
+
+        [SerializeField]
+        private SkinnedMeshRenderer meshRenderer;
+
+        [SerializeField]
         private Movement movement;
+
+        [SerializeField]
+        private Animator animator;
+
+        private SpiderAnimator spiderAnimator;
+
+        private void Start()
+        {
+            spiderAnimator = new SpiderAnimator(movement, animator);
+            movement.SetSpiderAnimator(spiderAnimator);
+        }
 
         public override void OnStartClient()
         {
@@ -69,21 +89,15 @@ namespace SpiderShooter.Spider
 
         public void ApplyTeamColor()
         {
-            Color color = teamColor == TeamColor.Red ? Color.red : Color.blue;
-            foreach (Transform item in transform)
-            {
-                if (item.TryGetComponent(out MeshRenderer meshRenderer))
-                {
-                    meshRenderer.material.color = color;
-                }
-            }
+            meshRenderer.materials[1] =
+                teamColor == TeamColor.Red ? redTeamMaterial : blueTeamMaterial;
         }
 
         [ClientRpc]
         private void TeleportToPosition(Vector3 position, Quaternion rotation)
         {
             transform.SetPositionAndRotation(position, rotation);
-            //movement.ResetForces();
+            movement.ResetForces();
         }
 
         [ServerCallback]
@@ -95,14 +109,6 @@ namespace SpiderShooter.Spider
                 if (health == 0)
                 {
                     RoomManager.Singleton.AddKillToPlayer(bullet.OwnerNetId);
-                    if (TeamColor == TeamColor.Red)
-                    {
-                        ServerStorage.Singleton.BlueTeamKillCount++;
-                    }
-                    else
-                    {
-                        ServerStorage.Singleton.RedTeamKillCount++;
-                    }
                     health = 100;
                     Transform transform = RoomManager.Singleton
                         .GetRandomStartPosition(TeamColor)

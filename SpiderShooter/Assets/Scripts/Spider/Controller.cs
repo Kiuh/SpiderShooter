@@ -1,5 +1,4 @@
-﻿using FIMSpace.Basics;
-using Mirror;
+﻿using Mirror;
 using SpiderShooter.Networking;
 using UnityEngine;
 
@@ -15,7 +14,7 @@ namespace SpiderShooter.Spider
         private SpiderImpl spider;
 
         [SerializeField]
-        private FBasic_CharacterMovementBase characterController;
+        private FBasics.FBasic_CharacterMovementBase characterController;
 
         private void Update()
         {
