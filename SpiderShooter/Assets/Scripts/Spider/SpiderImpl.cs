@@ -83,7 +83,7 @@ namespace SpiderShooter.Spider
         private void TeleportToPosition(Vector3 position, Quaternion rotation)
         {
             transform.SetPositionAndRotation(position, rotation);
-            movement.ResetForces();
+            //movement.ResetForces();
         }
 
         [ServerCallback]

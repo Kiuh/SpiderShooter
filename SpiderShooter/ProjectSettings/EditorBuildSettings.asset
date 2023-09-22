@@ -12,6 +12,6 @@ EditorBuildSettings:
     path: Assets/Scenes/Production/Lobby.unity
     guid: 13fd24869415bd141b95a25cfb5dde90
   - enabled: 1
-    path: Assets/Scenes/Kiuh/Game.unity
-    guid: 9fc0d4010bbf28b4594072e72b8655ab
+    path: Assets/Scenes/Production/Playing.unity
+    guid: b80e8b32bbcc82249b69f5bdfd5b34f3
   m_configObjects: {}

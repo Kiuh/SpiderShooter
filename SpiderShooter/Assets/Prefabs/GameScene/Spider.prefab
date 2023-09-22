@@ -265,6 +265,8 @@ MonoBehaviour:
   syncInterval: 0
   shootPoint: {fileID: 6593014698232595028}
   bulletPrefab: {fileID: 5628724722059533475, guid: 68eecbf4e41e5db40899ff4b21e9ba38, type: 3}
+  reloadTime: 0
+  currentReloadTime: 0
 --- !u!114 &1080644486283147807
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -643,7 +645,7 @@ Animator:
   m_GameObject: {fileID: 6087998285230409770}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: c898f31ccd68a7f40b71454fe3e987ab, type: 2}
+  m_Controller: {fileID: 9100000, guid: 7e1aeffec247ca348a0a2f731706a83a, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0

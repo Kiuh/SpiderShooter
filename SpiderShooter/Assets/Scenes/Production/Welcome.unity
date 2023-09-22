@@ -887,7 +887,7 @@ PrefabInstance:
       objectReference: {fileID: 2490896121734775634, guid: ee3fa6e2d8c0f8c49aabd24c6ab4085c, type: 3}
     - target: {fileID: 7423013415010659139, guid: 5ed636cd109f558459f36a8973e8f9f4, type: 3}
       propertyPath: GameplayScene
-      value: Assets/Scenes/Kiuh/Game.unity
+      value: Assets/Scenes/Production/Playing.unity
       objectReference: {fileID: 0}
     - target: {fileID: 7423013415010659139, guid: 5ed636cd109f558459f36a8973e8f9f4, type: 3}
       propertyPath: networkAddress
