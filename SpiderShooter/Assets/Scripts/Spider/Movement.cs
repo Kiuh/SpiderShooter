@@ -86,11 +86,23 @@ namespace SpiderShooter.Spider
             }
 
             // Smooth change of modified target rotation value
-            animatedDirection = Mathf.LerpAngle(
-                transform.localRotation.eulerAngles.y,
-                targetDirection,
-                Time.deltaTime * RotationSpeed
-            );
+            if (
+                Input.GetKey(KeyCode.A)
+                || Input.GetKey(KeyCode.W)
+                || Input.GetKey(KeyCode.S)
+                || Input.GetKey(KeyCode.D)
+                || Input.GetKeyDown(KeyCode.A)
+                || Input.GetKeyDown(KeyCode.W)
+                || Input.GetKeyDown(KeyCode.S)
+                || Input.GetKeyDown(KeyCode.D)
+            )
+            {
+                animatedDirection = Mathf.LerpAngle(
+                    transform.localRotation.eulerAngles.y,
+                    targetDirection,
+                    Time.deltaTime * RotationSpeed
+                );
+            }
 
             RotationCalculations();
 

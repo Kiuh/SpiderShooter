@@ -40,17 +40,10 @@ namespace SpiderShooter.Spider
             Bullet bulletComponent = bullet.GetComponent<Bullet>();
             bulletComponent.SetDamage(spider.BulletDamage);
             bulletComponent.SetFriendlyColor(spider.TeamColor);
-            bulletComponent.SetOwnerNetId(spider.netIdentity.netId);
+            bulletComponent.SetOwnerNetId(spider.Uid);
             NetworkServer.Spawn(bullet);
-            RpcOnFire();
 
             currentReloadTime = reloadTime;
-        }
-
-        [ClientRpc]
-        private void RpcOnFire()
-        {
-            //animator.SetTrigger("Shoot");
         }
     }
 }

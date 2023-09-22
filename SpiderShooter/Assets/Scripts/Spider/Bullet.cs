@@ -16,8 +16,8 @@ namespace SpiderShooter.Spider
 
         [SerializeField]
         [InspectorReadOnly]
-        private uint ownerNetId;
-        public uint OwnerNetId => ownerNetId;
+        private string ownerNetId;
+        public string OwnerNetId => ownerNetId;
 
         [SerializeField]
         [InspectorReadOnly]
@@ -26,7 +26,7 @@ namespace SpiderShooter.Spider
 
         [SerializeField]
         [InspectorReadOnly]
-        private float destroyAfter = 10;
+        private float destroyAfter = 25;
 
         [SerializeField]
         private Rigidbody rigidBody;
@@ -66,7 +66,7 @@ namespace SpiderShooter.Spider
             friendlyTeam = teamColor;
         }
 
-        public void SetOwnerNetId(uint netId)
+        public void SetOwnerNetId(string netId)
         {
             ownerNetId = netId;
         }

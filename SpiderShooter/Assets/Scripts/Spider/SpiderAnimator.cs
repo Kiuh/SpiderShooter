@@ -9,6 +9,8 @@ namespace SpiderShooter.Spider
     {
         public bool AnimationHolder = false;
 
+        private bool lockDeath = false;
+
         private Movement controller;
         private Animator animator;
 
@@ -26,8 +28,24 @@ namespace SpiderShooter.Spider
             this.animator = animator;
         }
 
+        public void PlayDeath()
+        {
+            lockDeath = true;
+            CrossfadeTo("Death");
+        }
+
+        public void ContinueRegular()
+        {
+            lockDeath = false;
+        }
+
         public void Animate(float acceleration)
         {
+            if (lockDeath)
+            {
+                return;
+            }
+
             if (AnimationHolder)
             {
                 if (waitForIdle)

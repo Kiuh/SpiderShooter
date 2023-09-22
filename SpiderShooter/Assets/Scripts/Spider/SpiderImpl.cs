@@ -2,6 +2,8 @@
 using Mirror;
 using SpiderShooter.Common;
 using SpiderShooter.Networking;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -11,6 +13,12 @@ namespace SpiderShooter.Spider
     [AddComponentMenu("SpiderShooter/Spider.SpiderImpl")]
     public class SpiderImpl : NetworkBehaviour
     {
+        [SyncVar]
+        [SerializeField]
+        [InspectorReadOnly]
+        private string uid;
+        public string Uid => uid;
+
         [SyncVar]
         [SerializeField]
         [InspectorReadOnly]
@@ -61,6 +69,9 @@ namespace SpiderShooter.Spider
         }
 
         [SerializeField]
+        private Material standardMaterial;
+
+        [SerializeField]
         private Material redTeamMaterial;
 
         [SerializeField]
@@ -87,6 +98,7 @@ namespace SpiderShooter.Spider
         {
             if (isLocalPlayer)
             {
+                uid = new System.Guid().ToString();
                 FBasic_TPPCameraBehaviour virtualCamera =
                     FindObjectsOfType<FBasic_TPPCameraBehaviour>()
                         .First(x => x.gameObject.CompareTag("MainCamera"));
@@ -97,10 +109,20 @@ namespace SpiderShooter.Spider
             ApplyTeamColor();
         }
 
+        [Command(requiresAuthority = false)]
         public void ApplyTeamColor()
         {
-            meshRenderer.materials[1] =
-                teamColor == TeamColor.Red ? redTeamMaterial : blueTeamMaterial;
+            RpcTeamColor();
+        }
+
+        [ClientRpc]
+        public void RpcTeamColor()
+        {
+            meshRenderer.materials = new Material[2]
+            {
+                standardMaterial,
+                teamColor == TeamColor.Red ? redTeamMaterial : blueTeamMaterial
+            };
         }
 
         [ClientRpc]
@@ -113,6 +135,11 @@ namespace SpiderShooter.Spider
         [ServerCallback]
         private void OnCollisionEnter(Collision collision)
         {
+            if (DeathLock)
+            {
+                return;
+            }
+
             if (collision.collider.CompareTag("Death Zone"))
             {
                 CmdKilled();
@@ -122,6 +149,11 @@ namespace SpiderShooter.Spider
         [ServerCallback]
         private void OnTriggerEnter(Collider other)
         {
+            if (DeathLock)
+            {
+                return;
+            }
+
             if (other.TryGetComponent(out Bullet bullet))
             {
                 if (bullet.FriendlyTeam != TeamColor)
@@ -129,15 +161,15 @@ namespace SpiderShooter.Spider
                     health -= bullet.Damage;
                     if (health == 0)
                     {
+                        List<GameObject> playersObjects = GameObject
+                            .FindGameObjectsWithTag("Player")
+                            .ToList();
+                        SpiderImpl player = playersObjects
+                            .Select(x => x.GetComponent<SpiderImpl>())
+                            .First(x => x.Uid == bullet.OwnerNetId);
+                        player.killCount++;
+
                         CmdKilled();
-                        //RoomManager.Singleton.AddKillToPlayer(bullet.OwnerNetId);
-                        //health = 100;
-                        //Transform transform = RoomManager.Singleton
-                        //    .GetRandomStartPosition(TeamColor)
-                        //    .transform;
-                        //TeleportToPosition(transform.position, transform.rotation);
-                        //RoomPlayer.Singleton.AddTeamKill(TeamColor);
-                        //CmdCheckForWin();
                     }
                 }
             }
@@ -146,12 +178,37 @@ namespace SpiderShooter.Spider
         [Command(requiresAuthority = false)]
         public void CmdKilled()
         {
-            health = 100;
             deathCount++;
-            Transform transform = RoomManager.Singleton.GetRandomStartPosition(TeamColor).transform;
-            TeleportToPosition(transform.position, transform.rotation);
             RoomPlayer.Singleton.AddTeamKill(TeamColor);
             CmdCheckForWin();
+
+            RpcPlayDeath();
+            _ = StartCoroutine(WaitEndDeath(2));
+        }
+
+        private IEnumerator WaitEndDeath(float time)
+        {
+            yield return new WaitForSecondsRealtime(time);
+            health = 100;
+            Transform transform = RoomManager.Singleton.GetRandomStartPosition(TeamColor).transform;
+            TeleportToPosition(transform.position, transform.rotation);
+            RpcContinueRegular();
+        }
+
+        public bool DeathLock = false;
+
+        [ClientRpc]
+        public void RpcPlayDeath()
+        {
+            DeathLock = true;
+            spiderAnimator.PlayDeath();
+        }
+
+        [ClientRpc]
+        public void RpcContinueRegular()
+        {
+            DeathLock = false;
+            spiderAnimator.ContinueRegular();
         }
 
         [Command(requiresAuthority = false)]

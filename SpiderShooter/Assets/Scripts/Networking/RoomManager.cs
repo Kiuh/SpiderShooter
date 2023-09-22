@@ -73,22 +73,22 @@ namespace SpiderShooter.Networking
                 return new FailResult("Not all players Ready.");
             }
             IEnumerable<RoomPlayer> extRoomsSlots = roomSlots.Cast<RoomPlayer>();
-            if (!extRoomsSlots.Any(x => x.TeamColor == TeamColor.Blue))
-            {
-                return new FailResult("At Lest 1 must be in blue team.");
-            }
-            if (!extRoomsSlots.Any(x => x.TeamColor == TeamColor.Red))
-            {
-                return new FailResult("At Lest 1 must be in red team.");
-            }
-            if (extRoomsSlots.Count(x => x.TeamColor == TeamColor.Red) > maxRedTeamCount)
-            {
-                return new FailResult($"Max players in red team - {maxRedTeamCount}.");
-            }
-            if (extRoomsSlots.Count(x => x.TeamColor == TeamColor.Blue) > maxBlueTeamCount)
-            {
-                return new FailResult($"Max players in blue team - {maxBlueTeamCount}.");
-            }
+            //if (!extRoomsSlots.Any(x => x.TeamColor == TeamColor.Blue))
+            //{
+            //    return new FailResult("At Lest 1 must be in blue team.");
+            //}
+            //if (!extRoomsSlots.Any(x => x.TeamColor == TeamColor.Red))
+            //{
+            //    return new FailResult("At Lest 1 must be in red team.");
+            //}
+            //if (extRoomsSlots.Count(x => x.TeamColor == TeamColor.Red) > maxRedTeamCount)
+            //{
+            //    return new FailResult($"Max players in red team - {maxRedTeamCount}.");
+            //}
+            //if (extRoomsSlots.Count(x => x.TeamColor == TeamColor.Blue) > maxBlueTeamCount)
+            //{
+            //    return new FailResult($"Max players in blue team - {maxBlueTeamCount}.");
+            //}
             ServerChangeScene(GameplayScene);
             return new SuccessResult();
         }

@@ -28,24 +28,24 @@ namespace SpiderShooter.Spider
                 return;
             }
 
-            if (isLocalPlayer)
+            if (isLocalPlayer && !spider.DeathLock)
             {
                 Vector2 inputValue = Vector2.zero;
 
-                if (Input.GetKey(KeyCode.A))
+                if (Input.GetKey(KeyCode.A) || Input.GetKeyDown(KeyCode.A))
                 {
                     inputValue.x = -1;
                 }
-                else if (Input.GetKey(KeyCode.D))
+                else if (Input.GetKey(KeyCode.D) || Input.GetKeyDown(KeyCode.D))
                 {
                     inputValue.x = 1;
                 }
 
-                if (Input.GetKey(KeyCode.W))
+                if (Input.GetKey(KeyCode.W) || Input.GetKeyDown(KeyCode.W))
                 {
                     inputValue.y = 1;
                 }
-                else if (Input.GetKey(KeyCode.S))
+                else if (Input.GetKey(KeyCode.S) || Input.GetKeyDown(KeyCode.S))
                 {
                     inputValue.y = -1;
                 }
